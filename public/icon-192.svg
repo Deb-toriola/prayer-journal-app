@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1E1B4B"/>
+      <stop offset="100%" style="stop-color:#4C1D95"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FBBF24"/>
+      <stop offset="100%" style="stop-color:#F59E0B"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="42%" r="25%">
+      <stop offset="0%" style="stop-color:rgba(251,191,36,0.3)"/>
+      <stop offset="100%" style="stop-color:rgba(251,191,36,0)"/>
+    </radialGradient>
+  </defs>
+  <rect width="192" height="192" rx="29" fill="url(#bg)"/>
+  <circle cx="96" cy="81" r="48" fill="url(#glow)"/>
+  <rect x="90" y="47" width="12" height="67" rx="4" fill="url(#gold)"/>
+  <rect x="69" y="71" width="54" height="12" rx="4" fill="url(#gold)"/>
+  <text x="96" y="162" text-anchor="middle" font-family="Georgia,serif" font-size="23" font-weight="bold" fill="#FBBF24">PJ</text>
+</svg>
