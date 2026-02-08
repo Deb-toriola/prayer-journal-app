@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { BookOpen, ChevronDown } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 import { getTodayString } from '../utils/constants';
 
 const VERSES = [
@@ -37,6 +36,7 @@ const VERSES = [
 ];
 
 function getDailyVerse() {
+  // Pick verse based on day of year so it changes daily but is consistent all day
   const today = getTodayString();
   const dayOfYear = Math.floor(
     (new Date(today) - new Date(today.split('-')[0], 0, 0)) / 86400000
@@ -46,24 +46,15 @@ function getDailyVerse() {
 
 export default function DailyVerse() {
   const verse = getDailyVerse();
-  const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className={`daily-verse ${expanded ? 'daily-verse-expanded' : ''}`}>
-      <button
-        className="daily-verse-header"
-        onClick={() => setExpanded(!expanded)}
-        aria-expanded={expanded}
-        aria-controls="daily-verse-body"
-      >
+    <div className="daily-verse">
+      <div className="daily-verse-icon">
         <BookOpen size={14} />
-        <span className="daily-verse-ref">{verse.ref}</span>
-        <ChevronDown size={14} className={`daily-verse-chevron ${expanded ? 'daily-verse-chevron-open' : ''}`} />
-      </button>
-      <div className="daily-verse-body" id="daily-verse-body">
-        <div className="daily-verse-body-inner">
-          <p className="daily-verse-text">&ldquo;{verse.text}&rdquo;</p>
-        </div>
+      </div>
+      <div className="daily-verse-content">
+        <p className="daily-verse-text">&ldquo;{verse.text}&rdquo;</p>
+        <span className="daily-verse-ref">&mdash; {verse.ref}</span>
       </div>
     </div>
   );

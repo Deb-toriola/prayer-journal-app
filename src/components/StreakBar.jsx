@@ -1,47 +1,34 @@
-import { Flame, Trophy, Heart, AlertCircle, Calendar } from 'lucide-react';
+import { Flame, Trophy, Heart, AlertCircle } from 'lucide-react';
 
-export default function StreakBar({ stats, expanded }) {
-  const {
-    currentStreak, longestStreak, totalPrayers, totalDaysPrayed,
-    hasPrayedToday, neglectedPrayers,
-  } = stats;
-
-  if (!expanded) return null;
+export default function StreakBar({ stats }) {
+  const { currentStreak, longestStreak, totalPrayers, hasPrayedToday, neglectedPrayers } = stats;
 
   return (
-    <div className="streak-drawer" role="region" aria-label="Prayer streak statistics">
-      <div className="streak-drawer-stats">
-        <div className="streak-drawer-stat">
-          <div className="streak-drawer-stat-icon">
-            <Flame size={16} className={currentStreak > 0 ? 'streak-flame-active' : ''} />
+    <div className="streak-bar">
+      <div className="streak-stats">
+        <div className="streak-stat streak-stat-main">
+          <Flame size={20} className={`streak-flame ${currentStreak > 0 ? 'streak-flame-active' : ''}`} />
+          <div>
+            <span className="streak-number">{currentStreak}</span>
+            <span className="streak-label">day streak</span>
           </div>
-          <span className="streak-drawer-stat-number" aria-live="polite">{currentStreak}</span>
-          <span className="streak-drawer-stat-label">Current Streak</span>
         </div>
-        <div className="streak-drawer-stat">
-          <div className="streak-drawer-stat-icon">
-            <Trophy size={16} />
+        <div className="streak-stat">
+          <Trophy size={14} />
+          <div>
+            <span className="streak-number">{longestStreak}</span>
+            <span className="streak-label">best</span>
           </div>
-          <span className="streak-drawer-stat-number">{longestStreak}</span>
-          <span className="streak-drawer-stat-label">Best Streak</span>
         </div>
-        <div className="streak-drawer-stat">
-          <div className="streak-drawer-stat-icon">
-            <Heart size={16} />
+        <div className="streak-stat">
+          <Heart size={14} />
+          <div>
+            <span className="streak-number">{totalPrayers}</span>
+            <span className="streak-label">prayers</span>
           </div>
-          <span className="streak-drawer-stat-number">{totalPrayers}</span>
-          <span className="streak-drawer-stat-label">Total Prayers</span>
-        </div>
-        <div className="streak-drawer-stat">
-          <div className="streak-drawer-stat-icon">
-            <Calendar size={16} />
-          </div>
-          <span className="streak-drawer-stat-number">{totalDaysPrayed}</span>
-          <span className="streak-drawer-stat-label">Days Prayed</span>
         </div>
       </div>
-
-      <div className="streak-drawer-badges">
+      <div className="streak-status">
         {hasPrayedToday ? (
           <span className="streak-done-badge">Prayed today</span>
         ) : (
