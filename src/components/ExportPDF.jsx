@@ -56,7 +56,8 @@ export default function ExportPDF({ prayers, allCategories, onClose }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="export-title">
+        <div className="modal-drag-handle" />
         <div className="modal-header">
           <h2 className="modal-title">Export Prayer Journey</h2>
           <button className="btn-icon prayer-card-btn-icon" onClick={onClose} aria-label="Close">

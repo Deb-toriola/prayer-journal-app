@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { Plus, FileDown } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { Plus, FileDown, X, Bell, BellOff, Settings as SettingsIcon } from 'lucide-react';
 import Header from './components/Header';
 import DailyVerse from './components/DailyVerse';
 import TabBar from './components/TabBar';
@@ -17,6 +17,14 @@ import { useWeeklyProject } from './hooks/useWeeklyProject';
 import { useCategories } from './hooks/useCategories';
 import { useStreakStats } from './hooks/useStreak';
 import { useNotifications } from './hooks/useNotifications';
+
+function getTimeOfDay() {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 8) return 'dawn';
+  if (hour >= 8 && hour < 17) return 'day';
+  if (hour >= 17 && hour < 20) return 'dusk';
+  return 'night';
+}
 
 export default function App() {
   const {
@@ -63,6 +71,17 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showExport, setShowExport] = useState(false);
+  const [streakExpanded, setStreakExpanded] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [timeOfDay, setTimeOfDay] = useState(getTimeOfDay);
+
+  // Update time-of-day theme every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeOfDay(getTimeOfDay());
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const currentList = activeTab === 'active' ? activePrayers : testimonies;
 
@@ -84,6 +103,11 @@ export default function App() {
   }, [currentList, searchQuery, selectedCategory]);
 
   const hasFilters = searchQuery.trim() !== '' || selectedCategory !== '';
+
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory('');
+  };
 
   const handleSave = (prayerData) => {
     if (editingPrayer) {
@@ -108,14 +132,12 @@ export default function App() {
   const saveSession = (session) => {
     if (!session || session.duration < 2) return;
     if (session.partnerId) {
-      // Partner timer session
       addPartnerSession(session.prayerId, session.partnerId, {
         startedAt: session.startedAt,
         duration: session.duration,
       });
       logPartnerPrayed(session.prayerId, session.partnerId);
     } else {
-      // Personal timer session
       addPrayerSession(session.prayerId, {
         startedAt: session.startedAt,
         duration: session.duration,
@@ -124,7 +146,6 @@ export default function App() {
     }
   };
 
-  // Personal timer: start
   const handleStartTimer = (prayerId) => {
     if (isTimerRunning) {
       const session = stopTimer();
@@ -133,13 +154,11 @@ export default function App() {
     startTimer(prayerId, null);
   };
 
-  // Personal timer: stop
   const handleStopTimer = () => {
     const session = stopTimer();
     saveSession(session);
   };
 
-  // Partner timer: start
   const handleStartPartnerTimer = (prayerId, partnerId) => {
     if (isTimerRunning) {
       const session = stopTimer();
@@ -148,29 +167,24 @@ export default function App() {
     startTimer(prayerId, partnerId);
   };
 
-  // Partner timer: stop
   const handleStopPartnerTimer = (prayerId, partnerId) => {
     const session = stopTimer();
     saveSession(session);
   };
 
   return (
-    <div className="app">
-      <Header />
+    <div className={`app app-${timeOfDay}`}>
+      <Header
+        streakCount={streakStats.currentStreak}
+        hasPrayedToday={streakStats.hasPrayedToday}
+        onToggleStreak={() => setStreakExpanded(!streakExpanded)}
+        onOpenSettings={() => setShowSettings(true)}
+      />
+
+      <StreakBar stats={streakStats} expanded={streakExpanded} />
 
       <main className="main">
         <DailyVerse />
-
-        <StreakBar stats={streakStats} />
-
-        <NotificationSettings
-          settings={notifSettings}
-          onToggle={toggleEnabled}
-          onAddTime={addTime}
-          onRemoveTime={removeTime}
-          onUpdateTime={updateTime}
-          notificationSupported={notificationSupported}
-        />
 
         <WeeklyProject project={project} onUpdate={updateProject} />
 
@@ -193,15 +207,7 @@ export default function App() {
           allCategories={allCategories}
         />
 
-        {/* Export button */}
-        {prayers.length > 0 && (
-          <button className="btn-export" onClick={() => setShowExport(true)}>
-            <FileDown size={14} />
-            <span>Export Prayer Journey</span>
-          </button>
-        )}
-
-        <div className="prayer-list">
+        <div className="prayer-list" id="prayer-list" role="tabpanel">
           {filteredPrayers.length > 0 ? (
             filteredPrayers.map((prayer) => (
               <PrayerCard
@@ -232,7 +238,11 @@ export default function App() {
               />
             ))
           ) : (
-            <EmptyState type={activeTab} hasFilters={hasFilters} />
+            <EmptyState
+              type={activeTab}
+              hasFilters={hasFilters}
+              onClearFilters={hasFilters ? handleClearFilters : undefined}
+            />
           )}
         </div>
       </main>
@@ -260,6 +270,38 @@ export default function App() {
           allCategories={allCategories}
           onClose={() => setShowExport(false)}
         />
+      )}
+
+      {/* Settings Bottom Sheet */}
+      {showSettings && (
+        <div className="modal-overlay" onClick={() => setShowSettings(false)}>
+          <div className="modal settings-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="settings-title">
+            <div className="modal-drag-handle" />
+            <div className="modal-header">
+              <h2 className="modal-title" id="settings-title">Settings</h2>
+              <button className="btn-icon" onClick={() => setShowSettings(false)} aria-label="Close settings">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="settings-body">
+              <NotificationSettings
+                settings={notifSettings}
+                onToggle={toggleEnabled}
+                onAddTime={addTime}
+                onRemoveTime={removeTime}
+                onUpdateTime={updateTime}
+                notificationSupported={notificationSupported}
+              />
+
+              {prayers.length > 0 && (
+                <button className="btn-export settings-export-btn" onClick={() => { setShowSettings(false); setShowExport(true); }}>
+                  <FileDown size={14} />
+                  <span>Export Prayer Journey</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

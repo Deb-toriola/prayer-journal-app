@@ -56,9 +56,10 @@ export default function PrayerForm({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="prayer-form-title">
+        <div className="modal-drag-handle" />
         <div className="modal-header">
-          <h2 className="modal-title">
+          <h2 className="modal-title" id="prayer-form-title">
             {isEditing ? 'Edit Prayer' : 'New Prayer'}
           </h2>
           <button className="btn-icon" onClick={onClose} aria-label="Close">
