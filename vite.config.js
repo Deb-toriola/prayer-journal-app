@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  base: './',
   plugins: [
     react(),
     VitePWA({
@@ -12,8 +13,8 @@ export default defineConfig({
         name: 'Prayer Journal',
         short_name: 'Prayers',
         description: 'A personal prayer journal to track prayers and testimonies',
-        theme_color: '#1E1B4B',
-        background_color: '#1E1B4B',
+        theme_color: '#0A1628',
+        background_color: '#0A1628',
         display: 'standalone',
         orientation: 'portrait',
         scope: '/',
