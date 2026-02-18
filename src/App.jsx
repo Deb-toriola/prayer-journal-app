@@ -6,6 +6,7 @@ import DailyVerse from './components/DailyVerse';
 import DailyCheckin from './components/DailyCheckin';
 import PrayerPlan from './components/PrayerPlan';
 import CommunityPrayer from './components/CommunityPrayer';
+import WeeklyProject from './components/WeeklyProject';
 import MoreTab from './components/MoreTab';
 import SearchAndFilter from './components/SearchAndFilter';
 import PrayerCard from './components/PrayerCard';
@@ -20,6 +21,7 @@ import { useNotifications } from './hooks/useNotifications';
 import { usePrayerPlan } from './hooks/usePrayerPlan';
 import { useDailyCheckin } from './hooks/useDailyCheckin';
 import { useCommunity } from './hooks/useCommunity';
+import { useIntercede } from './hooks/useIntercede';
 import { useStreakStats } from './hooks/useStreak';
 import { useSettings } from './hooks/useSettings';
 
@@ -74,6 +76,7 @@ export default function App() {
   } = usePrayerPlan();
 
   const { memberStats, totalGroupMinutes, todayGroupMinutes, addMember, removeMember, logSession } = useCommunity();
+  const { requests: intercedeRequests, addRequest: addIntercede, prayForRequest: prayIntercede, deleteRequest: deleteIntercede } = useIntercede();
   const { settings: appSettings, update: updateAppSettings } = useSettings();
 
   // ── Prayer list filtering ──────────────────────────────
@@ -197,6 +200,10 @@ export default function App() {
                 ⚠️ {neglectedCount} prayer{neglectedCount > 1 ? 's' : ''} haven't been covered in 3+ days — tap to pray
               </button>
             )}
+
+            {appSettings.showWeeklyFocusOnHome === true && (
+              <WeeklyProject project={project} onUpdate={updateProject} />
+            )}
           </div>
         );
       }
@@ -274,6 +281,7 @@ export default function App() {
       case 'plan':
         return (
           <div className="tab-content">
+            <WeeklyProject project={project} onUpdate={updateProject} />
             <PrayerPlan
               plan={plan}
               onStart={startPlan}
@@ -297,6 +305,10 @@ export default function App() {
               onAddMember={addMember}
               onRemoveMember={removeMember}
               onLogSession={logSession}
+              intercedeRequests={intercedeRequests}
+              onAddIntercede={addIntercede}
+              onPrayIntercede={prayIntercede}
+              onDeleteIntercede={deleteIntercede}
             />
           </div>
         );

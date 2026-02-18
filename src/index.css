@@ -3801,3 +3801,701 @@ html.light-mode .app-header-title {
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
+
+/* ===== More Menu Rows ===== */
+.more-menu-group {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.more-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.more-menu-row:last-child {
+  border-bottom: none;
+}
+
+.more-menu-row:active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.more-menu-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.more-menu-icon-settings {
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--gold);
+}
+
+.more-menu-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.more-menu-label {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.more-menu-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.more-menu-chevron {
+  color: rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+
+.more-app-flame {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.more-app-version {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.15);
+  margin-top: 4px;
+}
+
+html.light-mode .more-menu-group {
+  background: #fff;
+  border-color: rgba(10, 22, 40, 0.08);
+}
+
+html.light-mode .more-menu-row {
+  border-bottom-color: rgba(10, 22, 40, 0.06);
+}
+
+html.light-mode .more-menu-icon {
+  background: rgba(10, 22, 40, 0.06);
+  color: rgba(10, 22, 40, 0.6);
+}
+
+html.light-mode .more-menu-chevron {
+  color: rgba(10, 22, 40, 0.2);
+}
+
+html.light-mode .more-app-name,
+html.light-mode .more-app-sub {
+  color: rgba(10, 22, 40, 0.3);
+}
+
+/* ===== Settings Full Page ===== */
+.settings-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.settings-page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0 20px;
+  border-bottom: 1px solid var(--surface-border);
+  margin-bottom: 20px;
+}
+
+.settings-back-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--gold);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.settings-back-btn:active {
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.settings-page-title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.settings-page-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Settings group (new page style) */
+.settings-group {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.settings-group-title {
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 12px 16px 6px;
+  margin: 0;
+}
+
+/* Setting row */
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--surface-border);
+  width: 100%;
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  text-align: left;
+}
+
+.setting-row-tappable {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.setting-row-tappable:active {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.setting-row-icon {
+  color: var(--gold);
+  opacity: 0.8;
+  flex-shrink: 0;
+  width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.setting-row-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.setting-row-label {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.setting-row-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.setting-row-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.setting-row-chevron {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* Toggle */
+.settings-toggle {
+  width: 44px;
+  height: 26px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.settings-toggle-on {
+  background: var(--gold);
+}
+
+.settings-toggle-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.settings-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.settings-toggle-on .settings-toggle-knob {
+  transform: translateX(18px);
+}
+
+/* Segmented control */
+.settings-segmented {
+  display: flex;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.settings-segment {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.settings-segment-active {
+  background: rgba(251, 191, 36, 0.2);
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* Settings about block */
+.settings-about {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.settings-about-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.settings-about-name {
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.settings-about-version {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.settings-coming-soon {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--gold);
+  background: rgba(251, 191, 36, 0.12);
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+
+/* Light mode for settings */
+html.light-mode .settings-group {
+  background: #fff;
+  border-color: rgba(10, 22, 40, 0.08);
+}
+
+html.light-mode .settings-group-title {
+  color: rgba(10, 22, 40, 0.35);
+}
+
+html.light-mode .setting-row {
+  border-top-color: rgba(10, 22, 40, 0.06);
+}
+
+html.light-mode .settings-toggle {
+  background: rgba(10, 22, 40, 0.12);
+}
+
+html.light-mode .settings-segmented {
+  background: rgba(10, 22, 40, 0.06);
+}
+
+html.light-mode .settings-segment {
+  color: rgba(10, 22, 40, 0.4);
+}
+
+html.light-mode .settings-page-header {
+  border-bottom-color: rgba(10, 22, 40, 0.08);
+}
+
+html.light-mode .settings-about {
+  border-top-color: rgba(10, 22, 40, 0.06);
+}
+
+html.light-mode .setting-row-chevron {
+  color: rgba(10, 22, 40, 0.2);
+}
+
+/* ===== Community Tab — sub-tabs ===== */
+.community-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.community-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.community-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  border: 1px solid var(--surface-border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--font-sans);
+}
+
+.community-tab-btn:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-secondary);
+}
+
+.community-tab-active {
+  background: rgba(251, 191, 36, 0.12);
+  border-color: var(--gold);
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.community-tab-badge {
+  background: var(--gold);
+  color: #0A1628;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* Community section wrapper (used inside both Group + Intercede) */
+.community-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.community-section-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 12px;
+}
+
+html.light-mode .community-tab-btn {
+  border-color: rgba(10, 22, 40, 0.1);
+  color: rgba(10, 22, 40, 0.45);
+}
+
+html.light-mode .community-tab-active {
+  background: rgba(251, 191, 36, 0.12);
+  border-color: #D97706;
+  color: #92400E;
+}
+
+html.light-mode .community-section-title {
+  color: rgba(10, 22, 40, 0.35);
+}
+
+/* ===== Intercede With Me ===== */
+.intercede-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.intercede-intro {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.intercede-post-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px dashed rgba(251, 191, 36, 0.35);
+  background: rgba(251, 191, 36, 0.05);
+  color: var(--gold);
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: all 0.15s;
+}
+
+.intercede-post-btn:hover {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: var(--gold);
+}
+
+.intercede-form {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.intercede-textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-family: var(--font-sans);
+  resize: none;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+.intercede-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.intercede-textarea:focus {
+  outline: none;
+  border-color: rgba(251, 191, 36, 0.4);
+}
+
+.intercede-form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.intercede-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.intercede-card {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.intercede-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.intercede-anon-avatar {
+  font-size: 1.2rem;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.intercede-timestamp {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  flex: 1;
+}
+
+.intercede-delete-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.2);
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background 0.15s;
+}
+
+.intercede-delete-btn:hover {
+  color: rgba(239, 68, 68, 0.7);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.intercede-burden {
+  font-size: 0.87rem;
+  color: var(--text-primary);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.intercede-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.intercede-pray-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.07);
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.intercede-pray-btn:hover:not(:disabled) {
+  background: rgba(251, 191, 36, 0.14);
+  border-color: var(--gold);
+}
+
+.intercede-pray-btn-done {
+  border-color: rgba(251, 191, 36, 0.15);
+  background: rgba(251, 191, 36, 0.05);
+  color: rgba(251, 191, 36, 0.6);
+  cursor: default;
+}
+
+.intercede-count {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.intercede-empty {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 20px 0;
+  font-style: italic;
+}
+
+/* Light mode intercede */
+html.light-mode .intercede-textarea {
+  background: rgba(10, 22, 40, 0.04);
+  border-color: rgba(10, 22, 40, 0.1);
+  color: #0A1628;
+}
+
+html.light-mode .intercede-textarea::placeholder {
+  color: rgba(10, 22, 40, 0.3);
+}
+
+html.light-mode .intercede-card {
+  background: #fff;
+  border-color: rgba(10, 22, 40, 0.08);
+}
+
+html.light-mode .intercede-anon-avatar {
+  background: rgba(10, 22, 40, 0.04);
+}
+
+html.light-mode .intercede-delete-btn {
+  color: rgba(10, 22, 40, 0.2);
+}
+
+html.light-mode .intercede-form {
+  background: #fff;
+  border-color: rgba(10, 22, 40, 0.08);
+}
+
+html.light-mode .intercede-pray-btn {
+  border-color: rgba(217, 119, 6, 0.3);
+  background: rgba(251, 191, 36, 0.07);
+  color: #92400E;
+}
+
+html.light-mode .intercede-pray-btn-done {
+  color: rgba(146, 64, 14, 0.45);
+}
