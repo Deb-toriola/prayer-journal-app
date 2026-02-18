@@ -1,7 +1,6 @@
-// App icon — flame representing the fire of prayer
-// Named DoveIcon for backwards compatibility (used in header + daily verse)
-import { Flame } from 'lucide-react';
+// Backwards-compatible wrapper — now renders the gradient flame AppIcon
+import AppIcon from './AppIcon';
 
-export default function DoveIcon({ size = 24, color = 'currentColor' }) {
-  return <Flame size={size} color={color} strokeWidth={size >= 24 ? 1.75 : 2} />;
+export default function DoveIcon({ size = 24 }) {
+  return <AppIcon size={size} />;
 }

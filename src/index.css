@@ -182,14 +182,14 @@ body::after {
 .app-header-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(251, 191, 36, 0.25);
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--purple-darkest);
   flex-shrink: 0;
-  box-shadow: 0 0 12px var(--gold-glow);
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.2), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
 .app-header-title {
@@ -2630,12 +2630,12 @@ body::after {
   flex-shrink: 0;
   width: 28px;
   height: 28px;
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(251, 191, 36, 0.2);
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--purple-darkest);
   margin-top: 1px;
 }
 
