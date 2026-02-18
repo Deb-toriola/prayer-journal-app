@@ -1,4 +1,5 @@
-import { Flame, Trophy, CalendarDays, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Flame, Trophy, CalendarDays, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function DailyCheckin({
   hasPrayedToday,
@@ -9,6 +10,14 @@ export default function DailyCheckin({
   totalPrayers,
   neglectedPrayers,
 }) {
+  const [justCheckedIn, setJustCheckedIn] = useState(false);
+
+  const handleCheckIn = () => {
+    onCheckIn();
+    setJustCheckedIn(true);
+    setTimeout(() => setJustCheckedIn(false), 2000);
+  };
+
   return (
     <div className="daily-checkin-card">
       <div className="daily-checkin-top">
@@ -41,7 +50,10 @@ export default function DailyCheckin({
 
         <div className="streak-status">
           {hasPrayedToday ? (
-            <span className="streak-done-badge">✓ Prayed today</span>
+            <span className="streak-done-badge">
+              <CheckCircle2 size={11} />
+              Prayed today
+            </span>
           ) : (
             <span className="streak-pending-badge">Keep streak!</span>
           )}
@@ -54,9 +66,17 @@ export default function DailyCheckin({
         </div>
       </div>
 
-      {!hasPrayedToday && (
-        <button className="daily-checkin-btn" onClick={onCheckIn}>
-          <Flame size={15} />
+      {hasPrayedToday ? (
+        <div className="daily-checkin-done">
+          ✨ You prayed today — your streak is safe!
+        </div>
+      ) : (
+        <button
+          className={`daily-checkin-btn ${justCheckedIn ? 'daily-checkin-btn-success' : ''}`}
+          onClick={handleCheckIn}
+          aria-label="Mark today as prayed"
+        >
+          <Flame size={16} />
           I prayed today
         </button>
       )}

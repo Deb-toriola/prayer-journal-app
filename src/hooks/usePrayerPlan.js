@@ -9,8 +9,24 @@ export const PLAN_TEMPLATES = [
   { id: '40day', name: '40-Day Prayer & Fasting Journey', days: 40, icon: '🔥', desc: 'A transformative journey of prayer and fasting.' },
 ];
 
+// Separate storage key just for completed plan count
+const COMPLETED_KEY = 'prayer-journal-completed-plans';
+
+function loadCompletedCount() {
+  try { return parseInt(localStorage.getItem(COMPLETED_KEY) || '0'); } catch { return 0; }
+}
+function saveCompletedCount(n) {
+  try { localStorage.setItem(COMPLETED_KEY, String(n)); } catch {}
+}
+
 export function usePrayerPlan() {
-  const [plan, setPlan] = useState(() => loadPrayerPlan());
+  const [plan, setPlan] = useState(() => {
+    const stored = loadPrayerPlan();
+    // Guard against sentinel objects from old buggy deletePlan
+    if (stored && !stored.name) return null;
+    return stored;
+  });
+  const [completedCount, setCompletedCount] = useState(() => loadCompletedCount());
 
   const startPlan = useCallback((templateId, customName, customDays) => {
     const template = PLAN_TEMPLATES.find((t) => t.id === templateId);
@@ -23,11 +39,10 @@ export function usePrayerPlan() {
       totalDays: days,
       startDate: getTodayString(),
       checkedDays: [],
-      completedCount: plan ? (plan.completedCount || 0) : 0,
     };
     setPlan(newPlan);
     savePrayerPlan(newPlan);
-  }, [plan]);
+  }, []);
 
   const checkInToday = useCallback(() => {
     if (!plan) return;
@@ -39,28 +54,21 @@ export function usePrayerPlan() {
   }, [plan]);
 
   const deletePlan = useCallback(() => {
-    // Preserve completed count across plans
-    const completedCount = plan ? (plan.completedCount || 0) : 0;
-    const isComplete = plan && plan.checkedDays.length >= plan.totalDays;
-    // Save completed count to a temp placeholder so next plan can inherit it
-    savePrayerPlan(null);
-    setPlan(null);
-    // Store completed count separately so startPlan can use it
-    if (isComplete) {
-      const stored = loadPrayerPlan();
-      if (!stored) {
-        // Store just the count as a side-effect via a sentinel
-        savePrayerPlan({ _completedCount: completedCount + 1 });
-        setTimeout(() => savePrayerPlan(null), 0);
-      }
+    if (!plan) return;
+    const wasComplete = plan.checkedDays.length >= plan.totalDays;
+    if (wasComplete) {
+      const newCount = completedCount + 1;
+      setCompletedCount(newCount);
+      saveCompletedCount(newCount);
     }
-  }, [plan]);
+    setPlan(null);
+    savePrayerPlan(null);
+  }, [plan, completedCount]);
 
   // Derived state
   const today = getTodayString();
   const hasPrayedToday = plan ? plan.checkedDays.includes(today) : false;
 
-  // Current day number (1-based, how many days since start)
   let currentDayNumber = 1;
   if (plan) {
     const start = new Date(plan.startDate);
@@ -71,8 +79,7 @@ export function usePrayerPlan() {
     );
   }
 
-  const isComplete = plan && plan.checkedDays.length >= plan.totalDays;
-  const completedPlansCount = plan ? (plan.completedCount || 0) + (isComplete ? 1 : 0) : 0;
+  const isComplete = plan ? plan.checkedDays.length >= plan.totalDays : false;
 
   return {
     plan,
@@ -82,6 +89,6 @@ export function usePrayerPlan() {
     hasPrayedToday,
     currentDayNumber,
     isComplete,
-    completedPlansCount,
+    completedPlansCount: completedCount,
   };
 }

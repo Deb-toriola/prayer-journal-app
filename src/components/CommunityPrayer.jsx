@@ -28,7 +28,7 @@ export default function CommunityPrayer({
   onRemoveMember,
   onLogSession,
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const [newName, setNewName] = useState('');
   const [logMinutes, setLogMinutes] = useState({});
   const [showAddMember, setShowAddMember] = useState(false);
