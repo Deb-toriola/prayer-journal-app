@@ -1,6 +1,7 @@
-import { FileDown, Target, Bell } from 'lucide-react';
+import { FileDown, Target, Bell, Settings } from 'lucide-react';
 import WeeklyProject from './WeeklyProject';
 import NotificationSettings from './NotificationSettings';
+import SettingsPanel from './SettingsPanel';
 
 export default function MoreTab({
   project,
@@ -12,11 +13,21 @@ export default function MoreTab({
   onUpdateTime,
   notificationSupported,
   prayers,
-  allCategories,
   onShowExport,
+  appSettings,
+  onUpdateSettings,
 }) {
   return (
     <div className="more-tab">
+
+      <div className="more-section">
+        <div className="more-section-label">
+          <Settings size={14} />
+          Settings
+        </div>
+        <SettingsPanel settings={appSettings} onUpdate={onUpdateSettings} />
+      </div>
+
       <div className="more-section">
         <div className="more-section-label">
           <Target size={14} />

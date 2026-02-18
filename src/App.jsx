@@ -21,6 +21,7 @@ import { usePrayerPlan } from './hooks/usePrayerPlan';
 import { useDailyCheckin } from './hooks/useDailyCheckin';
 import { useCommunity } from './hooks/useCommunity';
 import { useStreakStats } from './hooks/useStreak';
+import { useSettings } from './hooks/useSettings';
 
 const TAB_TITLES = {
   home:      'Prayer Journal',
@@ -73,6 +74,7 @@ export default function App() {
   } = usePrayerPlan();
 
   const { memberStats, totalGroupMinutes, todayGroupMinutes, addMember, removeMember, logSession } = useCommunity();
+  const { settings: appSettings, update: updateAppSettings } = useSettings();
 
   // ── Prayer list filtering ──────────────────────────────
   const currentList = prayerSubTab === 'active' ? activePrayers : testimonies;
@@ -178,17 +180,19 @@ export default function App() {
               )}
             </div>
 
-            <DailyCheckin
-              hasPrayedToday={hasPrayedToday}
-              onCheckIn={checkInToday}
-              currentStreak={currentStreak}
-              longestStreak={longestStreak}
-              totalDaysPrayed={totalDaysPrayed}
-              totalPrayers={streakStats.totalPrayers}
-              neglectedPrayers={neglectedCount}
-            />
+            {appSettings.showStreak !== false && (
+              <DailyCheckin
+                hasPrayedToday={hasPrayedToday}
+                onCheckIn={checkInToday}
+                currentStreak={currentStreak}
+                longestStreak={longestStreak}
+                totalDaysPrayed={totalDaysPrayed}
+                totalPrayers={streakStats.totalPrayers}
+                neglectedPrayers={neglectedCount}
+              />
+            )}
 
-            {neglectedCount > 0 && (
+            {appSettings.showNeglected !== false && neglectedCount > 0 && (
               <button className="home-neglected-prompt" onClick={() => handleTabChange('prayers')}>
                 ⚠️ {neglectedCount} prayer{neglectedCount > 1 ? 's' : ''} haven't been covered in 3+ days — tap to pray
               </button>
@@ -310,8 +314,9 @@ export default function App() {
               onUpdateTime={updateTime}
               notificationSupported={notificationSupported}
               prayers={prayers}
-              allCategories={allCategories}
               onShowExport={() => setShowExport(true)}
+              appSettings={appSettings}
+              onUpdateSettings={updateAppSettings}
             />
           </div>
         );

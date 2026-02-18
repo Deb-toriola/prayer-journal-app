@@ -13,6 +13,18 @@
   --font-serif: 'Crimson Pro', 'Georgia', serif;
   --font-body: 'Lora', 'Georgia', serif;
 
+  /* === Semantic surface tokens (dark mode defaults) === */
+  --bg-primary: #0A1628;
+  --bg-secondary: #0F2044;
+  --bg-tertiary: #162D5C;
+  --surface: rgba(255, 255, 255, 0.07);
+  --surface-hover: rgba(255, 255, 255, 0.11);
+  --surface-border: rgba(255, 255, 255, 0.1);
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-muted: rgba(255, 255, 255, 0.38);
+  --nav-bg: rgba(8, 18, 38, 0.97);
+
   --text-xs: 0.6875rem;
   --text-sm: 0.75rem;
   --text-base: 0.875rem;
@@ -82,6 +94,39 @@
   --transition: 200ms ease;
   --transition-slow: 300ms ease;
 }
+
+/* ===== Light Mode ===== */
+html.light-mode {
+  --bg-primary: #F0F4FF;
+  --bg-secondary: #E2E9FF;
+  --bg-tertiary: #CBD5F5;
+  --surface: rgba(255, 255, 255, 0.85);
+  --surface-hover: rgba(255, 255, 255, 0.95);
+  --surface-border: rgba(37, 99, 235, 0.15);
+  --text-primary: #0A1628;
+  --text-secondary: rgba(10, 22, 40, 0.7);
+  --text-muted: rgba(10, 22, 40, 0.42);
+  --nav-bg: rgba(240, 244, 255, 0.97);
+  --purple-darkest: #E8EEFF;
+  --purple-dark: #D4DCFF;
+  --purple-deep: #C4CFFF;
+  --white: #0A1628;
+  --gold-glow: rgba(251, 191, 36, 0.2);
+}
+
+html.light-mode body {
+  background: linear-gradient(160deg, #F0F4FF 0%, #E2E9FF 40%, #D4DCFF 100%);
+  color: #0A1628;
+}
+
+html.light-mode body::after {
+  background-image: radial-gradient(ellipse at 20% 50%, rgba(37,99,235,0.04) 0%, transparent 50%),
+                    radial-gradient(ellipse at 80% 20%, rgba(251,191,36,0.04) 0%, transparent 40%);
+}
+
+/* Font size overrides */
+html.font-small { font-size: 14px; }
+html.font-large { font-size: 18px; }
 
 html {
   font-size: 16px;
@@ -3447,6 +3492,279 @@ body::after {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ===== Settings Panel ===== */
+.settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-group {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.settings-group-title {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+  padding: 12px 14px 6px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border-top: 1px solid var(--surface-border);
+  transition: background var(--transition);
+}
+
+.setting-row:first-of-type {
+  border-top: none;
+}
+
+.setting-row-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.setting-row-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.setting-row-label {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.setting-row-sub {
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.setting-row-control {
+  flex-shrink: 0;
+}
+
+/* Toggle switch */
+.settings-toggle {
+  width: 44px;
+  height: 26px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.25s ease;
+  padding: 0;
+}
+
+.settings-toggle-on {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+}
+
+.settings-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  transition: transform 0.25s var(--ease-spring);
+  display: block;
+}
+
+.settings-toggle-on .settings-toggle-knob {
+  transform: translateX(18px);
+}
+
+/* Segmented control */
+.settings-segmented {
+  display: flex;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  gap: 2px;
+}
+
+.settings-segment {
+  padding: 5px 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.settings-segment-active {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* About block */
+.settings-about {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+}
+
+.settings-about-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(249,115,22,0.1));
+  border: 1px solid rgba(251,191,36,0.25);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.settings-about-name {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.settings-about-version {
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ===== Design Polish — use semantic tokens on key components ===== */
+
+/* Cards use surface tokens so they adapt to light/dark */
+.prayer-plan-card,
+.daily-checkin-card,
+.community-card,
+.weekly-project,
+.notification-section,
+.streak-bar {
+  background: var(--surface);
+  border-color: var(--surface-border);
+}
+
+/* Home glance items */
+.home-glance-item {
+  background: var(--surface);
+  border-color: var(--surface-border);
+}
+
+.home-glance-label {
+  color: var(--text-muted);
+}
+
+/* Prayer cards */
+.prayer-card {
+  background: var(--surface);
+  border-color: var(--surface-border);
+}
+
+/* Bottom nav adapts */
+.bottom-nav {
+  background: var(--nav-bg);
+}
+
+/* App header adapts */
+.app-header {
+  background: linear-gradient(160deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+}
+
+/* Text tokens */
+.prayer-card-title,
+.prayer-plan-name,
+.community-member-name,
+.weekly-project-title,
+.home-greeting-text {
+  color: var(--text-primary);
+}
+
+.prayer-card-content,
+.prayer-plan-progress-text,
+.community-member-stats,
+.home-greeting-sub {
+  color: var(--text-secondary);
+}
+
+/* Input fields adapt */
+.prayer-plan-input,
+.community-minutes-input,
+.community-name-input {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--surface-border);
+  color: var(--text-primary);
+}
+
+html.light-mode .prayer-plan-input,
+html.light-mode .community-minutes-input,
+html.light-mode .community-name-input {
+  background: rgba(0, 0, 0, 0.05);
+  color: #0A1628;
+}
+
+/* Daily verse adapts */
+.daily-verse {
+  background: var(--surface);
+  border-color: var(--surface-border);
+}
+
+html.light-mode .daily-verse-text {
+  color: #0F2044;
+}
+
+html.light-mode .daily-verse-ref {
+  color: rgba(10, 22, 40, 0.6);
+}
+
+/* Bottom nav light mode */
+html.light-mode .bottom-nav-item {
+  color: rgba(10, 22, 40, 0.4);
+}
+
+html.light-mode .bottom-nav-item-active {
+  color: #1E3A6E;
+}
+
+html.light-mode .app-header-title {
+  color: #0A1628;
 }
 
 /* ===== Scrollbar ===== */
