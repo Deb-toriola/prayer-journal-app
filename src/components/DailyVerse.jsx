@@ -7,7 +7,7 @@ export default function DailyVerse() {
   return (
     <div className="daily-verse">
       <div className="daily-verse-icon">
-        <DoveIcon size={14} color="currentColor" />
+        <DoveIcon size={18} color="currentColor" />
       </div>
       <div className="daily-verse-content">
         <p className="daily-verse-text">&ldquo;{verse.text}&rdquo;</p>

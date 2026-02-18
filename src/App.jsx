@@ -327,7 +327,7 @@ export default function App() {
       <header className="app-header">
         <div className="app-header-inner">
           <div className="app-header-icon">
-            <DoveIcon size={20} color="currentColor" />
+            <DoveIcon size={28} color="currentColor" />
           </div>
           <h1 className="app-header-title">{TAB_TITLES[activeTab]}</h1>
         </div>
