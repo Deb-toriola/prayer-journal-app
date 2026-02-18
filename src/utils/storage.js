@@ -94,6 +94,70 @@ export function saveStreakData(streakData) {
   }
 }
 
+// --- Prayer Plan ---
+const PRAYER_PLAN_KEY = 'prayer-journal-prayer-plan';
+
+export function loadPrayerPlan() {
+  try {
+    const data = localStorage.getItem(PRAYER_PLAN_KEY);
+    return data ? JSON.parse(data) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function savePrayerPlan(plan) {
+  try {
+    if (plan === null) {
+      localStorage.removeItem(PRAYER_PLAN_KEY);
+    } else {
+      localStorage.setItem(PRAYER_PLAN_KEY, JSON.stringify(plan));
+    }
+  } catch (e) {
+    console.error('Failed to save prayer plan:', e);
+  }
+}
+
+// --- Daily Check-in ---
+const DAILY_CHECKIN_KEY = 'prayer-journal-daily-checkins';
+
+export function loadDailyCheckins() {
+  try {
+    const data = localStorage.getItem(DAILY_CHECKIN_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveDailyCheckins(dates) {
+  try {
+    localStorage.setItem(DAILY_CHECKIN_KEY, JSON.stringify(dates));
+  } catch (e) {
+    console.error('Failed to save daily checkins:', e);
+  }
+}
+
+// --- Community Prayer ---
+const COMMUNITY_KEY = 'prayer-journal-community';
+
+export function loadCommunityData() {
+  try {
+    const data = localStorage.getItem(COMMUNITY_KEY);
+    return data ? JSON.parse(data) : { members: [], sessions: [] };
+  } catch {
+    return { members: [], sessions: [] };
+  }
+}
+
+export function saveCommunityData(data) {
+  try {
+    localStorage.setItem(COMMUNITY_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.error('Failed to save community data:', e);
+  }
+}
+
 // --- Notification Settings ---
 export function loadNotificationSettings() {
   try {

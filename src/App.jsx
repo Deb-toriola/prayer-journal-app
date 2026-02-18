@@ -4,7 +4,9 @@ import Header from './components/Header';
 import DailyVerse from './components/DailyVerse';
 import TabBar from './components/TabBar';
 import WeeklyProject from './components/WeeklyProject';
-import StreakBar from './components/StreakBar';
+import DailyCheckin from './components/DailyCheckin';
+import PrayerPlan from './components/PrayerPlan';
+import CommunityPrayer from './components/CommunityPrayer';
 import NotificationSettings from './components/NotificationSettings';
 import SearchAndFilter from './components/SearchAndFilter';
 import PrayerCard from './components/PrayerCard';
@@ -15,8 +17,11 @@ import { usePrayers } from './hooks/usePrayers';
 import { usePrayerTimer } from './hooks/usePrayerTimer';
 import { useWeeklyProject } from './hooks/useWeeklyProject';
 import { useCategories } from './hooks/useCategories';
-import { useStreakStats } from './hooks/useStreak';
 import { useNotifications } from './hooks/useNotifications';
+import { usePrayerPlan } from './hooks/usePrayerPlan';
+import { useDailyCheckin } from './hooks/useDailyCheckin';
+import { useCommunity } from './hooks/useCommunity';
+import { useStreakStats } from './hooks/useStreak';
 
 export default function App() {
   const {
@@ -54,8 +59,42 @@ export default function App() {
 
   const { project, updateProject } = useWeeklyProject();
   const { allCategories, addCategory, deleteCategory } = useCategories();
-  const streakStats = useStreakStats(prayers);
   const { settings: notifSettings, toggleEnabled, addTime, removeTime, updateTime, notificationSupported } = useNotifications();
+
+  // Derive prayer-log dates for daily check-in
+  const prayerLogDates = useMemo(() => {
+    return new Set(prayers.flatMap((p) => (p.prayerLog || []).map((ts) => ts.split('T')[0])));
+  }, [prayers]);
+
+  const streakStats = useStreakStats(prayers);
+
+  const {
+    hasPrayedToday,
+    checkInToday,
+    currentStreak,
+    longestStreak,
+    totalDaysPrayed,
+  } = useDailyCheckin(prayerLogDates);
+
+  const {
+    plan,
+    startPlan,
+    checkInToday: checkInPlan,
+    deletePlan,
+    hasPrayedToday: planPrayedToday,
+    currentDayNumber,
+    isComplete,
+    completedPlansCount,
+  } = usePrayerPlan();
+
+  const {
+    memberStats,
+    totalGroupMinutes,
+    todayGroupMinutes,
+    addMember,
+    removeMember,
+    logSession,
+  } = useCommunity();
 
   const [activeTab, setActiveTab] = useState('active');
   const [showForm, setShowForm] = useState(false);
@@ -104,18 +143,15 @@ export default function App() {
     setEditingPrayer(null);
   };
 
-  // Save a completed timer session (personal or partner)
   const saveSession = (session) => {
     if (!session || session.duration < 2) return;
     if (session.partnerId) {
-      // Partner timer session
       addPartnerSession(session.prayerId, session.partnerId, {
         startedAt: session.startedAt,
         duration: session.duration,
       });
       logPartnerPrayed(session.prayerId, session.partnerId);
     } else {
-      // Personal timer session
       addPrayerSession(session.prayerId, {
         startedAt: session.startedAt,
         duration: session.duration,
@@ -124,7 +160,6 @@ export default function App() {
     }
   };
 
-  // Personal timer: start
   const handleStartTimer = (prayerId) => {
     if (isTimerRunning) {
       const session = stopTimer();
@@ -133,13 +168,11 @@ export default function App() {
     startTimer(prayerId, null);
   };
 
-  // Personal timer: stop
   const handleStopTimer = () => {
     const session = stopTimer();
     saveSession(session);
   };
 
-  // Partner timer: start
   const handleStartPartnerTimer = (prayerId, partnerId) => {
     if (isTimerRunning) {
       const session = stopTimer();
@@ -148,10 +181,15 @@ export default function App() {
     startTimer(prayerId, partnerId);
   };
 
-  // Partner timer: stop
   const handleStopPartnerTimer = (prayerId, partnerId) => {
     const session = stopTimer();
     saveSession(session);
+  };
+
+  // When user logs a prayer on a card, also count as daily check-in
+  const handleLogPrayed = (prayerId) => {
+    logPrayed(prayerId);
+    // prayerLogDates will update automatically from prayers state
   };
 
   return (
@@ -161,7 +199,37 @@ export default function App() {
       <main className="main">
         <DailyVerse />
 
-        <StreakBar stats={streakStats} />
+        <DailyCheckin
+          hasPrayedToday={hasPrayedToday}
+          onCheckIn={checkInToday}
+          currentStreak={currentStreak}
+          longestStreak={longestStreak}
+          totalDaysPrayed={totalDaysPrayed}
+          totalPrayers={streakStats.totalPrayers}
+          neglectedPrayers={streakStats.neglectedPrayers.length}
+        />
+
+        <PrayerPlan
+          plan={plan}
+          onStart={startPlan}
+          onCheckIn={checkInPlan}
+          onDelete={deletePlan}
+          hasPrayedToday={planPrayedToday}
+          currentDayNumber={currentDayNumber}
+          isComplete={isComplete}
+          completedPlansCount={completedPlansCount}
+        />
+
+        <CommunityPrayer
+          memberStats={memberStats}
+          totalGroupMinutes={totalGroupMinutes}
+          todayGroupMinutes={todayGroupMinutes}
+          onAddMember={addMember}
+          onRemoveMember={removeMember}
+          onLogSession={logSession}
+        />
+
+        <WeeklyProject project={project} onUpdate={updateProject} />
 
         <NotificationSettings
           settings={notifSettings}
@@ -171,8 +239,6 @@ export default function App() {
           onUpdateTime={updateTime}
           notificationSupported={notificationSupported}
         />
-
-        <WeeklyProject project={project} onUpdate={updateProject} />
 
         <TabBar
           activeTab={activeTab}
@@ -193,7 +259,6 @@ export default function App() {
           allCategories={allCategories}
         />
 
-        {/* Export button */}
         {prayers.length > 0 && (
           <button className="btn-export" onClick={() => setShowExport(true)}>
             <FileDown size={14} />
@@ -211,7 +276,7 @@ export default function App() {
                 onDelete={() => deletePrayer(prayer.id)}
                 onMarkAnswered={(note) => markAnswered(prayer.id, note)}
                 onRestore={() => restorePrayer(prayer.id)}
-                onLogPrayed={() => logPrayed(prayer.id)}
+                onLogPrayed={() => handleLogPrayed(prayer.id)}
                 onUndoLog={() => undoLogPrayed(prayer.id)}
                 onToggleUrgent={() => toggleUrgent(prayer.id)}
                 onAddNote={(text, type) => addNote(prayer.id, text, type)}
