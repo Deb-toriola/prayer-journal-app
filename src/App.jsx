@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Plus, BookOpen } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import DoveIcon from './components/DoveIcon';
 import BottomNav from './components/BottomNav';
 import DailyVerse from './components/DailyVerse';
 import DailyCheckin from './components/DailyCheckin';
@@ -136,10 +137,47 @@ export default function App() {
   const renderContent = () => {
     switch (activeTab) {
 
-      case 'home':
+      case 'home': {
+        const hour = new Date().getHours();
+        const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+        const urgentCount = activePrayers.filter(p => p.urgent).length;
+        const neglectedCount = streakStats.neglectedPrayers.length;
         return (
           <div className="tab-content">
+            {/* Greeting */}
+            <div className="home-greeting">
+              <p className="home-greeting-text">{greeting} 🙏</p>
+              <p className="home-greeting-sub">
+                {hasPrayedToday
+                  ? 'You\'ve prayed today — well done.'
+                  : 'Your prayers are waiting for you.'}
+              </p>
+            </div>
+
             <DailyVerse />
+
+            {/* At-a-glance summary */}
+            <div className="home-glance">
+              <button className="home-glance-item" onClick={() => handleTabChange('prayers')}>
+                <span className="home-glance-number">{activePrayers.length}</span>
+                <span className="home-glance-label">Active prayers</span>
+              </button>
+              <button className="home-glance-item" onClick={() => handleTabChange('prayers')}>
+                <span className="home-glance-number">{testimonies.length}</span>
+                <span className="home-glance-label">Testimonies</span>
+              </button>
+              <button className="home-glance-item" onClick={() => handleTabChange('plan')}>
+                <span className="home-glance-number">{plan ? `Day ${currentDayNumber}` : '—'}</span>
+                <span className="home-glance-label">{plan ? plan.name.split(' ').slice(0,2).join(' ') : 'No plan'}</span>
+              </button>
+              {urgentCount > 0 && (
+                <button className="home-glance-item home-glance-urgent" onClick={() => handleTabChange('prayers')}>
+                  <span className="home-glance-number">{urgentCount}</span>
+                  <span className="home-glance-label">Urgent</span>
+                </button>
+              )}
+            </div>
+
             <DailyCheckin
               hasPrayedToday={hasPrayedToday}
               onCheckIn={checkInToday}
@@ -147,10 +185,17 @@ export default function App() {
               longestStreak={longestStreak}
               totalDaysPrayed={totalDaysPrayed}
               totalPrayers={streakStats.totalPrayers}
-              neglectedPrayers={streakStats.neglectedPrayers.length}
+              neglectedPrayers={neglectedCount}
             />
+
+            {neglectedCount > 0 && (
+              <button className="home-neglected-prompt" onClick={() => handleTabChange('prayers')}>
+                ⚠️ {neglectedCount} prayer{neglectedCount > 1 ? 's' : ''} haven't been covered in 3+ days — tap to pray
+              </button>
+            )}
           </div>
         );
+      }
 
       case 'prayers':
         return (
@@ -282,7 +327,7 @@ export default function App() {
       <header className="app-header">
         <div className="app-header-inner">
           <div className="app-header-icon">
-            <BookOpen size={20} strokeWidth={1.5} />
+            <DoveIcon size={20} color="currentColor" />
           </div>
           <h1 className="app-header-title">{TAB_TITLES[activeTab]}</h1>
         </div>
