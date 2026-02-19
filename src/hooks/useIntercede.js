@@ -6,34 +6,30 @@ export function useIntercede(userId) {
   const [myPrayers, setMyPrayers] = useState(new Set()); // request IDs the user has prayed for
 
   useEffect(() => {
-    if (!userId) return;
+    const fetchRequests = () => {
+      supabase.from('intercede_requests').select('*').order('created_at', { ascending: false })
+        .then(({ data }) => {
+          if (data) setRequests(data.map(r => ({
+            id: r.id, burden: r.burden, createdAt: r.created_at,
+            prayerCount: r.prayer_count || 0, userId: r.user_id,
+          })));
+        });
+    };
 
-    // Load all intercede requests
-    supabase.from('intercede_requests').select('*').order('created_at', { ascending: false })
-      .then(({ data }) => {
-        if (data) setRequests(data.map(r => ({
-          id: r.id, burden: r.burden, createdAt: r.created_at,
-          prayerCount: r.prayer_count || 0, userId: r.user_id,
-        })));
-      });
+    // Load public feed for everyone (guests and signed-in)
+    fetchRequests();
 
-    // Load which ones this user has prayed for
-    supabase.from('intercede_prayers').select('request_id').eq('user_id', userId)
-      .then(({ data }) => {
-        if (data) setMyPrayers(new Set(data.map(r => r.request_id)));
-      });
+    // Load which requests this signed-in user has prayed for
+    if (userId) {
+      supabase.from('intercede_prayers').select('request_id').eq('user_id', userId)
+        .then(({ data }) => {
+          if (data) setMyPrayers(new Set(data.map(r => r.request_id)));
+        });
+    }
 
     // Real-time subscription for live updates
     const channel = supabase.channel('intercede-feed')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'intercede_requests' }, () => {
-        supabase.from('intercede_requests').select('*').order('created_at', { ascending: false })
-          .then(({ data }) => {
-            if (data) setRequests(data.map(r => ({
-              id: r.id, burden: r.burden, createdAt: r.created_at,
-              prayerCount: r.prayer_count || 0, userId: r.user_id,
-            })));
-          });
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'intercede_requests' }, fetchRequests)
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };

@@ -96,15 +96,15 @@ function AppInner({ user, signOut, onOpenAuth }) {
     toggleUrgent, addNote, deleteNote,
     addPrayerSession, addPartner, removePartner,
     logPartnerPrayed, addPartnerSession, undoPartnerPrayed,
-  } = usePrayers(user.id);
+  } = usePrayers(user?.id);
 
   const {
     elapsed, startTimer, stopTimer,
     isTimerRunning, timerPrayerId, timerPartnerId,
   } = usePrayerTimer();
 
-  const { project, updateProject } = useWeeklyProject(user.id);
-  const { allCategories, addCategory, deleteCategory } = useCategories(user.id);
+  const { project, updateProject } = useWeeklyProject(user?.id);
+  const { allCategories, addCategory, deleteCategory } = useCategories(user?.id);
   const { settings: notifSettings, toggleEnabled, addTime, removeTime, updateTime, notificationSupported } = useNotifications();
   const streakStats = useStreakStats(prayers);
 
@@ -112,17 +112,17 @@ function AppInner({ user, signOut, onOpenAuth }) {
     new Set(prayers.flatMap((p) => (p.prayerLog || []).map((ts) => ts.split('T')[0])))
   , [prayers]);
 
-  const { hasPrayedToday, checkInToday, currentStreak, longestStreak, totalDaysPrayed } = useDailyCheckin(user.id, prayerLogDates);
+  const { hasPrayedToday, checkInToday, currentStreak, longestStreak, totalDaysPrayed } = useDailyCheckin(user?.id, prayerLogDates);
 
   const {
     plan, startPlan, checkInToday: checkInPlan,
     deletePlan, hasPrayedToday: planPrayedToday,
     currentDayNumber, isComplete, completedPlansCount,
-  } = usePrayerPlan(user.id);
+  } = usePrayerPlan(user?.id);
 
-  const { memberStats, totalGroupMinutes, todayGroupMinutes, addMember, removeMember, logSession } = useCommunity(user.id);
-  const { requests: intercedeRequests, addRequest: addIntercede, prayForRequest: prayIntercede, deleteRequest: deleteIntercede } = useIntercede(user.id);
-  const { settings: appSettings, update: updateAppSettings } = useSettings(user.id);
+  const { memberStats, totalGroupMinutes, todayGroupMinutes, addMember, removeMember, logSession } = useCommunity(user?.id);
+  const { requests: intercedeRequests, addRequest: addIntercede, prayForRequest: prayIntercede, deleteRequest: deleteIntercede } = useIntercede(user?.id);
+  const { settings: appSettings, update: updateAppSettings } = useSettings(user?.id);
 
   // ── Prayer list filtering ──────────────────────────────
   const currentList = prayerSubTab === 'active' ? activePrayers : testimonies;
