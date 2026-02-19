@@ -37,8 +37,20 @@ const TAB_TITLES = {
 
 export default function App() {
   const { user, loading: authLoading, error: authError, signIn, signUp, signOut, resetPassword, clearError } = useAuth();
+  const [authModal, setAuthModal] = useState(null); // null | 'login' | 'signup'
 
-  // Show loading spinner while checking auth session
+  const openAuthModal = (view = 'login') => { clearError(); setAuthModal(view); };
+  const closeAuthModal = () => { clearError(); setAuthModal(null); };
+
+  const handleSignIn = async (email, pw) => {
+    const ok = await signIn(email, pw);
+    if (ok) closeAuthModal();
+    return ok;
+  };
+  const handleSignUp = async (email, pw) => {
+    return await signUp(email, pw); // stays open to show confirmation
+  };
+
   if (authLoading) {
     return (
       <div className="auth-loading">
@@ -47,23 +59,26 @@ export default function App() {
     );
   }
 
-  // Show auth screen when not logged in
-  if (!user) {
-    return (
-      <AuthScreen
-        onSignIn={signIn}
-        onSignUp={signUp}
-        onResetPassword={resetPassword}
-        error={authError}
-        clearError={clearError}
-      />
-    );
-  }
-
-  return <AppInner user={user} signOut={signOut} />;
+  return (
+    <>
+      <AppInner user={user} signOut={signOut} onOpenAuth={openAuthModal} />
+      {authModal && (
+        <AuthScreen
+          isModal
+          initialView={authModal}
+          onClose={closeAuthModal}
+          onSignIn={handleSignIn}
+          onSignUp={handleSignUp}
+          onResetPassword={resetPassword}
+          error={authError}
+          clearError={clearError}
+        />
+      )}
+    </>
+  );
 }
 
-function AppInner({ user, signOut }) {
+function AppInner({ user, signOut, onOpenAuth }) {
   const [activeTab, setActiveTab] = useState('home');
   const [prayerSubTab, setPrayerSubTab] = useState('active'); // 'active' | 'testimonies'
   const [showForm, setShowForm] = useState(false);
@@ -339,6 +354,8 @@ function AppInner({ user, signOut }) {
               onAddIntercede={addIntercede}
               onPrayIntercede={prayIntercede}
               onDeleteIntercede={deleteIntercede}
+              user={user}
+              onRequireAuth={() => onOpenAuth('login')}
             />
           </div>
         );
@@ -361,6 +378,8 @@ function AppInner({ user, signOut }) {
               onUpdateSettings={updateAppSettings}
               user={user}
               onSignOut={signOut}
+              onSignIn={() => onOpenAuth('login')}
+              onSignUp={() => onOpenAuth('signup')}
             />
           </div>
         );

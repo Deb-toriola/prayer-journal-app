@@ -4813,3 +4813,102 @@ html.light-mode .auth-card {
   background: #fff;
   border-color: rgba(10, 22, 40, 0.08);
 }
+
+/* ===== Auth Modal (overlay on top of app) ===== */
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: auth-modal-in 0.25s ease;
+}
+
+@keyframes auth-modal-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.auth-modal-container {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  background: var(--bg-primary);
+  border-radius: 20px 20px 0 0;
+  padding: 24px 20px 40px;
+  animation: auth-sheet-in 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+  max-height: 92vh;
+  overflow-y: auto;
+}
+
+@keyframes auth-sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.auth-modal-container .auth-brand {
+  padding-top: 0;
+  margin-bottom: 16px;
+  gap: 6px;
+}
+
+.auth-modal-container .auth-brand-name {
+  font-size: 1.1rem;
+}
+
+.auth-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  color: var(--text-secondary);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.auth-modal-close:hover {
+  background: rgba(255,255,255,0.15);
+  color: var(--text-primary);
+}
+
+/* ===== Intercede guest banner ===== */
+.intercede-guest-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.intercede-guest-signin {
+  background: var(--gold);
+  color: #0A1628;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.intercede-guest-signin:hover {
+  background: #f8d44a;
+}

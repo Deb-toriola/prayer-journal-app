@@ -123,7 +123,7 @@ function PrayerGroup({ memberStats, totalGroupMinutes, todayGroupMinutes, onAddM
 }
 
 /* ─── Intercede With Me Section ─── */
-function IntercedeWithMe({ requests, onAdd, onPray, onDelete }) {
+function IntercedeWithMe({ requests, onAdd, onPray, onDelete, isGuest, onRequireAuth }) {
   const [showForm, setShowForm] = useState(false);
   const [burden, setBurden] = useState('');
 
@@ -132,6 +132,16 @@ function IntercedeWithMe({ requests, onAdd, onPray, onDelete }) {
     onAdd(burden);
     setBurden('');
     setShowForm(false);
+  };
+
+  const handlePostClick = () => {
+    if (isGuest) { onRequireAuth(); return; }
+    setShowForm(true);
+  };
+
+  const handlePray = (id) => {
+    if (isGuest) { onRequireAuth(); return; }
+    onPray(id);
   };
 
   return (
@@ -145,7 +155,14 @@ function IntercedeWithMe({ requests, onAdd, onPray, onDelete }) {
         Share an anonymous prayer burden. Others can stand with you in prayer.
       </p>
 
-      {showForm ? (
+      {isGuest && (
+        <div className="intercede-guest-banner">
+          <span>Sign in to post requests and pray for others</span>
+          <button className="intercede-guest-signin" onClick={onRequireAuth}>Sign in</button>
+        </div>
+      )}
+
+      {!isGuest && showForm ? (
         <div className="intercede-form">
           <textarea
             className="intercede-textarea"
@@ -165,7 +182,7 @@ function IntercedeWithMe({ requests, onAdd, onPray, onDelete }) {
           </div>
         </div>
       ) : (
-        <button className="intercede-post-btn" onClick={() => setShowForm(true)}>
+        <button className="intercede-post-btn" onClick={handlePostClick}>
           <HandHeart size={14} />
           Post a prayer request
         </button>
@@ -178,15 +195,17 @@ function IntercedeWithMe({ requests, onAdd, onPray, onDelete }) {
               <div className="intercede-card-top">
                 <div className="intercede-anon-avatar">🙏</div>
                 <span className="intercede-timestamp">{formatRelative(req.createdAt)}</span>
-                <button className="intercede-delete-btn" onClick={() => onDelete(req.id)}>
-                  <X size={12} />
-                </button>
+                {!isGuest && (
+                  <button className="intercede-delete-btn" onClick={() => onDelete(req.id)}>
+                    <X size={12} />
+                  </button>
+                )}
               </div>
               <p className="intercede-burden">{req.burden}</p>
               <div className="intercede-card-bottom">
                 <button
                   className={`intercede-pray-btn ${req.hasPrayed ? 'intercede-pray-btn-done' : ''}`}
-                  onClick={() => onPray(req.id)}
+                  onClick={() => handlePray(req.id)}
                   disabled={req.hasPrayed}
                 >
                   <Heart size={13} strokeWidth={req.hasPrayed ? 0 : 2} fill={req.hasPrayed ? '#FBBF24' : 'none'} />
@@ -215,8 +234,10 @@ export default function CommunityPrayer({
   memberStats, totalGroupMinutes, todayGroupMinutes,
   onAddMember, onRemoveMember, onLogSession,
   intercedeRequests, onAddIntercede, onPrayIntercede, onDeleteIntercede,
+  user, onRequireAuth,
 }) {
   const [activeSection, setActiveSection] = useState('group'); // 'group' | 'intercede'
+  const isGuest = !user;
 
   return (
     <div className="community-tab">
@@ -256,6 +277,8 @@ export default function CommunityPrayer({
           onAdd={onAddIntercede}
           onPray={onPrayIntercede}
           onDelete={onDeleteIntercede}
+          isGuest={isGuest}
+          onRequireAuth={onRequireAuth}
         />
       )}
     </div>

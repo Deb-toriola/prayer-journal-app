@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import AppIcon from './AppIcon';
 
-export default function AuthScreen({ onSignIn, onSignUp, onResetPassword, error, clearError }) {
-  const [view, setView] = useState('login'); // 'login' | 'signup' | 'reset'
+export default function AuthScreen({ onSignIn, onSignUp, onResetPassword, error, clearError, isModal, onClose, initialView }) {
+  const [view, setView] = useState(initialView || 'login'); // 'login' | 'signup' | 'reset'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -37,16 +37,21 @@ export default function AuthScreen({ onSignIn, onSignUp, onResetPassword, error,
   };
 
   return (
-    <div className="auth-screen">
-      <div className="auth-container">
+    <div className={isModal ? 'auth-modal-overlay' : 'auth-screen'}>
+      <div className={isModal ? 'auth-modal-container' : 'auth-container'}>
+
+        {/* Modal close button */}
+        {isModal && onClose && (
+          <button className="auth-modal-close" onClick={onClose} aria-label="Close">✕</button>
+        )}
 
         {/* App branding */}
         <div className="auth-brand">
           <div className="auth-brand-icon">
-            <AppIcon size={48} />
+            <AppIcon size={isModal ? 36 : 48} />
           </div>
           <h1 className="auth-brand-name">My Prayer App</h1>
-          <p className="auth-brand-tagline">A sacred space for your conversations with God</p>
+          {!isModal && <p className="auth-brand-tagline">A sacred space for your conversations with God</p>}
         </div>
 
         {/* Card */}

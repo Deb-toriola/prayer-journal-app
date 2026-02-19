@@ -1,4 +1,4 @@
-import { Sun, Moon, Type, Eye, EyeOff, Flame, Bell, BellOff, User, Target, ArrowLeft, ChevronRight, Lock, LogOut } from 'lucide-react';
+import { Sun, Moon, Type, Eye, EyeOff, Flame, Bell, BellOff, User, Target, ArrowLeft, ChevronRight, Lock, LogOut, LogIn, UserPlus } from 'lucide-react';
 
 function Toggle({ on, onToggle, disabled }) {
   return (
@@ -54,7 +54,7 @@ function Group({ title, children }) {
   );
 }
 
-export default function SettingsPanel({ settings, onUpdate, onClose, notifSettings, onToggleNotif, user, onSignOut }) {
+export default function SettingsPanel({ settings, onUpdate, onClose, notifSettings, onToggleNotif, user, onSignOut, onSignIn, onSignUp }) {
   return (
     <div className="settings-page">
       {/* Header */}
@@ -149,23 +149,49 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
 
         {/* Account */}
         <Group title="Account">
-          <SettingRow
-            icon={<User size={16} />}
-            label="Signed in"
-            sub={user?.email || 'your account'}
-          />
-          <SettingRow
-            icon={<Lock size={16} />}
-            label="Privacy"
-            sub="Your prayers are private and encrypted"
-          />
-          <SettingRow
-            icon={<LogOut size={16} />}
-            label="Sign out"
-            sub="You can sign back in anytime"
-            onClick={onSignOut}
-            chevron
-          />
+          {user ? (
+            <>
+              <SettingRow
+                icon={<User size={16} />}
+                label="Signed in"
+                sub={user.email}
+              />
+              <SettingRow
+                icon={<Lock size={16} />}
+                label="Privacy"
+                sub="Your prayers are private and encrypted"
+              />
+              <SettingRow
+                icon={<LogOut size={16} />}
+                label="Sign out"
+                sub="Your data stays on this device"
+                onClick={onSignOut}
+                chevron
+              />
+            </>
+          ) : (
+            <>
+              <SettingRow
+                icon={<User size={16} />}
+                label="Guest mode"
+                sub="Your data is saved on this device only"
+              />
+              <SettingRow
+                icon={<LogIn size={16} />}
+                label="Sign in"
+                sub="Access your prayers on any device"
+                onClick={onSignIn}
+                chevron
+              />
+              <SettingRow
+                icon={<UserPlus size={16} />}
+                label="Create account"
+                sub="Free — sync & backup your prayers"
+                onClick={onSignUp}
+                chevron
+              />
+            </>
+          )}
         </Group>
 
         {/* About */}

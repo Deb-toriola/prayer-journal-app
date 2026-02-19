@@ -16,6 +16,8 @@ export default function MoreTab({
   onUpdateSettings,
   user,
   onSignOut,
+  onSignIn,
+  onSignUp,
 }) {
   const [showSettings, setShowSettings] = useState(false);
 
@@ -29,6 +31,8 @@ export default function MoreTab({
         onToggleNotif={onToggleNotif}
         user={user}
         onSignOut={onSignOut}
+        onSignIn={onSignIn}
+        onSignUp={onSignUp}
       />
     );
   }
