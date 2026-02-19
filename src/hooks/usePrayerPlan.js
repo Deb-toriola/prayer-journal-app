@@ -38,11 +38,18 @@ export function usePrayerPlan(userId) {
     const template = PLAN_TEMPLATES.find((t) => t.id === templateId);
     const days = template ? template.days : Math.max(1, parseInt(customDays) || 7);
     const name = (customName || '').trim() || (template ? template.name : `${days}-Day Prayer Plan`);
-    const newPlan = { name, totalDays: days, startDate: getTodayString(), checkedDays: [] };
-    // Delete old plan first
+    const startDate = getTodayString();
+
+    // Guest mode — local state only, no Supabase
+    if (!userId) {
+      setPlan({ id: crypto.randomUUID(), name, totalDays: days, startDate, checkedDays: [] });
+      return;
+    }
+
+    // Signed-in — persist to Supabase
     if (plan) await supabase.from('prayer_plans').delete().eq('id', plan.id);
     const { data } = await supabase.from('prayer_plans').insert({
-      user_id: userId, name, total_days: days, start_date: newPlan.startDate, checked_days: [],
+      user_id: userId, name, total_days: days, start_date: startDate, checked_days: [],
     }).select().single();
     if (data) setPlan({ id: data.id, name: data.name, totalDays: data.total_days, startDate: data.start_date, checkedDays: [] });
   }, [userId, plan]);
@@ -53,8 +60,10 @@ export function usePrayerPlan(userId) {
     if (plan.checkedDays.includes(today)) return;
     const updated = [...plan.checkedDays, today];
     setPlan((p) => ({ ...p, checkedDays: updated }));
-    await supabase.from('prayer_plans').update({ checked_days: updated }).eq('id', plan.id);
-  }, [plan]);
+    if (userId) {
+      await supabase.from('prayer_plans').update({ checked_days: updated }).eq('id', plan.id);
+    }
+  }, [plan, userId]);
 
   const deletePlan = useCallback(async () => {
     if (!plan) return;

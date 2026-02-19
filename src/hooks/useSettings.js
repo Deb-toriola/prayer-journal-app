@@ -6,7 +6,7 @@ const DEFAULTS = {
   fontSize: 'medium',
   showStreak: true,
   showNeglected: true,
-  showWeeklyFocusOnHome: false,
+  showWeeklyFocusOnHome: true,
   notificationsEnabled: false,
   communityAlerts: false,
 };
