@@ -197,7 +197,7 @@ body::after {
 }
 
 .main {
-  padding: 0 16px 16px;
+  padding: 0 16px calc(84px + env(safe-area-inset-bottom, 0px));
   flex: 1;
 }
 
@@ -1194,7 +1194,7 @@ body::after {
 /* ===== FAB (Floating Action Button) ===== */
 .fab {
   position: fixed;
-  bottom: 24px;
+  bottom: calc(68px + 16px + env(safe-area-inset-bottom, 0px));
   right: 24px;
   width: 56px;
   height: 56px;
@@ -3794,7 +3794,7 @@ html.light-mode .app-header-title {
   }
 
   .fab {
-    bottom: calc(24px + env(safe-area-inset-bottom));
+    bottom: calc(68px + 16px + env(safe-area-inset-bottom));
   }
 
   .modal {
