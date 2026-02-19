@@ -14,6 +14,8 @@ export default function MoreTab({
   onShowExport,
   appSettings,
   onUpdateSettings,
+  user,
+  onSignOut,
 }) {
   const [showSettings, setShowSettings] = useState(false);
 
@@ -25,6 +27,8 @@ export default function MoreTab({
         onClose={() => setShowSettings(false)}
         notifSettings={notifSettings}
         onToggleNotif={onToggleNotif}
+        user={user}
+        onSignOut={onSignOut}
       />
     );
   }

@@ -1,95 +1,72 @@
-import { useState, useCallback } from 'react';
-import { loadCommunityData, saveCommunityData } from '../utils/storage';
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '../lib/supabase';
 import { getTodayString as getToday } from '../utils/constants';
 
 function genId() {
-  try { return crypto.randomUUID(); } catch {
-    return Math.random().toString(36).slice(2);
-  }
+  try { return crypto.randomUUID(); } catch { return Math.random().toString(36).slice(2); }
 }
 
-export function useCommunity() {
-  const [data, setData] = useState(() => loadCommunityData());
+export function useCommunity(userId) {
+  const [members, setMembers] = useState([]);
+  const [sessions, setSessions] = useState([]);
 
-  const save = (updated) => {
-    setData(updated);
-    saveCommunityData(updated);
-  };
+  useEffect(() => {
+    if (!userId) return;
+    supabase.from('community_members').select('*').eq('user_id', userId)
+      .then(({ data }) => {
+        if (data) setMembers(data.map(r => ({ id: r.id, name: r.name, joinedAt: r.joined_at })));
+      });
+    supabase.from('community_sessions').select('*').eq('user_id', userId)
+      .then(({ data }) => {
+        if (data) setSessions(data.map(r => ({ id: r.id, memberId: r.member_id, minutes: r.minutes, date: r.session_date, loggedAt: r.logged_at })));
+      });
+  }, [userId]);
 
-  const addMember = useCallback((name) => {
+  const addMember = useCallback(async (name) => {
     if (!name.trim()) return;
-    const updated = {
-      ...data,
-      members: [
-        ...data.members,
-        { id: genId(), name: name.trim(), joinedAt: new Date().toISOString() },
-      ],
-    };
-    save(updated);
-  }, [data]);
+    const optimistic = { id: genId(), name: name.trim(), joinedAt: new Date().toISOString() };
+    setMembers((prev) => [...prev, optimistic]);
+    if (userId) {
+      const { data } = await supabase.from('community_members').insert({ user_id: userId, name: name.trim() }).select().single();
+      if (data) setMembers((prev) => prev.map(m => m.id === optimistic.id ? { id: data.id, name: data.name, joinedAt: data.joined_at } : m));
+    }
+  }, [userId]);
 
-  const removeMember = useCallback((memberId) => {
-    const updated = {
-      ...data,
-      members: data.members.filter((m) => m.id !== memberId),
-      sessions: data.sessions.filter((s) => s.memberId !== memberId),
-    };
-    save(updated);
-  }, [data]);
+  const removeMember = useCallback(async (memberId) => {
+    setMembers((prev) => prev.filter((m) => m.id !== memberId));
+    setSessions((prev) => prev.filter((s) => s.memberId !== memberId));
+    if (userId) await supabase.from('community_members').delete().eq('id', memberId).eq('user_id', userId);
+  }, [userId]);
 
-  const logSession = useCallback((memberId, minutes) => {
+  const logSession = useCallback(async (memberId, minutes) => {
     const mins = Math.max(1, parseInt(minutes) || 0);
     if (!mins) return;
-    const updated = {
-      ...data,
-      sessions: [
-        ...data.sessions,
-        {
-          id: genId(),
-          memberId,
-          minutes: mins,
-          date: getToday(),
-          loggedAt: new Date().toISOString(),
-        },
-      ],
-    };
-    save(updated);
-  }, [data]);
+    const optimistic = { id: genId(), memberId, minutes: mins, date: getToday(), loggedAt: new Date().toISOString() };
+    setSessions((prev) => [...prev, optimistic]);
+    if (userId) {
+      const { data } = await supabase.from('community_sessions').insert({
+        user_id: userId, member_id: memberId, minutes: mins, session_date: getToday(),
+      }).select().single();
+      if (data) setSessions((prev) => prev.map(s => s.id === optimistic.id ? { id: data.id, memberId: data.member_id, minutes: data.minutes, date: data.session_date, loggedAt: data.logged_at } : s));
+    }
+  }, [userId]);
 
-  const deleteSession = useCallback((sessionId) => {
-    const updated = {
-      ...data,
-      sessions: data.sessions.filter((s) => s.id !== sessionId),
-    };
-    save(updated);
-  }, [data]);
+  const deleteSession = useCallback(async (sessionId) => {
+    setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+    if (userId) await supabase.from('community_sessions').delete().eq('id', sessionId).eq('user_id', userId);
+  }, [userId]);
 
-  // Stats per member
-  const memberStats = data.members.map((m) => {
-    const sessions = data.sessions.filter((s) => s.memberId === m.id);
-    const totalMinutes = sessions.reduce((sum, s) => sum + s.minutes, 0);
+  const memberStats = members.map((m) => {
+    const mSessions = sessions.filter((s) => s.memberId === m.id);
+    const totalMinutes = mSessions.reduce((sum, s) => sum + s.minutes, 0);
     const today = getToday();
-    const todaySessions = sessions.filter((s) => s.date === today);
-    const todayMinutes = todaySessions.reduce((sum, s) => sum + s.minutes, 0);
-    const lastSession = sessions.sort((a, b) => b.loggedAt.localeCompare(a.loggedAt))[0];
-    return { ...m, totalMinutes, todayMinutes, sessionCount: sessions.length, lastSession };
+    const todayMinutes = mSessions.filter((s) => s.date === today).reduce((sum, s) => sum + s.minutes, 0);
+    const lastSession = [...mSessions].sort((a, b) => b.loggedAt.localeCompare(a.loggedAt))[0];
+    return { ...m, totalMinutes, todayMinutes, sessionCount: mSessions.length, lastSession };
   }).sort((a, b) => b.totalMinutes - a.totalMinutes);
 
-  const totalGroupMinutes = data.sessions.reduce((sum, s) => sum + s.minutes, 0);
-  const today = getToday();
-  const todayGroupMinutes = data.sessions
-    .filter((s) => s.date === today)
-    .reduce((sum, s) => sum + s.minutes, 0);
+  const totalGroupMinutes = sessions.reduce((sum, s) => sum + s.minutes, 0);
+  const todayGroupMinutes = sessions.filter((s) => s.date === getToday()).reduce((sum, s) => sum + s.minutes, 0);
 
-  return {
-    members: data.members,
-    sessions: data.sessions,
-    memberStats,
-    totalGroupMinutes,
-    todayGroupMinutes,
-    addMember,
-    removeMember,
-    logSession,
-    deleteSession,
-  };
+  return { members, sessions, memberStats, totalGroupMinutes, todayGroupMinutes, addMember, removeMember, logSession, deleteSession };
 }

@@ -1,4 +1,4 @@
-import { Sun, Moon, Type, Eye, EyeOff, Flame, Bell, BellOff, User, Target, ArrowLeft, ChevronRight, Lock } from 'lucide-react';
+import { Sun, Moon, Type, Eye, EyeOff, Flame, Bell, BellOff, User, Target, ArrowLeft, ChevronRight, Lock, LogOut } from 'lucide-react';
 
 function Toggle({ on, onToggle, disabled }) {
   return (
@@ -54,7 +54,7 @@ function Group({ title, children }) {
   );
 }
 
-export default function SettingsPanel({ settings, onUpdate, onClose, notifSettings, onToggleNotif }) {
+export default function SettingsPanel({ settings, onUpdate, onClose, notifSettings, onToggleNotif, user, onSignOut }) {
   return (
     <div className="settings-page">
       {/* Header */}
@@ -151,16 +151,20 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
         <Group title="Account">
           <SettingRow
             icon={<User size={16} />}
-            label="Sign in with email"
-            sub="Coming soon — sync your prayers across devices"
-            chevron
-          >
-            <span className="settings-coming-soon">Soon</span>
-          </SettingRow>
+            label="Signed in"
+            sub={user?.email || 'your account'}
+          />
           <SettingRow
             icon={<Lock size={16} />}
             label="Privacy"
-            sub="Your data stays on your device for now"
+            sub="Your prayers are private and encrypted"
+          />
+          <SettingRow
+            icon={<LogOut size={16} />}
+            label="Sign out"
+            sub="You can sign back in anytime"
+            onClick={onSignOut}
+            chevron
           />
         </Group>
 

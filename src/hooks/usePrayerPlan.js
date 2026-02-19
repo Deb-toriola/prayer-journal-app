@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { loadPrayerPlan, savePrayerPlan } from '../utils/storage';
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '../lib/supabase';
 import { getTodayString } from '../utils/constants';
 
 export const PLAN_TEMPLATES = [
@@ -9,86 +9,74 @@ export const PLAN_TEMPLATES = [
   { id: '40day', name: '40-Day Prayer & Fasting Journey', days: 40, icon: '🔥', desc: 'A transformative journey of prayer and fasting.' },
 ];
 
-// Separate storage key just for completed plan count
-const COMPLETED_KEY = 'prayer-journal-completed-plans';
+export function usePrayerPlan(userId) {
+  const [plan, setPlan] = useState(null);
+  const [completedCount, setCompletedCount] = useState(0);
 
-function loadCompletedCount() {
-  try { return parseInt(localStorage.getItem(COMPLETED_KEY) || '0'); } catch { return 0; }
-}
-function saveCompletedCount(n) {
-  try { localStorage.setItem(COMPLETED_KEY, String(n)); } catch {}
-}
+  useEffect(() => {
+    if (!userId) return;
+    // Load active plan
+    supabase.from('prayer_plans').select('*').eq('user_id', userId)
+      .order('created_at', { ascending: false }).limit(1).maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          setPlan({
+            id: data.id,
+            name: data.name,
+            totalDays: data.total_days,
+            startDate: data.start_date,
+            checkedDays: data.checked_days || [],
+          });
+        }
+      });
+    // Load completed count
+    supabase.from('user_stats').select('completed_plans_count').eq('user_id', userId).maybeSingle()
+      .then(({ data }) => { if (data) setCompletedCount(data.completed_plans_count || 0); });
+  }, [userId]);
 
-export function usePrayerPlan() {
-  const [plan, setPlan] = useState(() => {
-    const stored = loadPrayerPlan();
-    // Guard against sentinel objects from old buggy deletePlan
-    if (stored && !stored.name) return null;
-    return stored;
-  });
-  const [completedCount, setCompletedCount] = useState(() => loadCompletedCount());
-
-  const startPlan = useCallback((templateId, customName, customDays) => {
+  const startPlan = useCallback(async (templateId, customName, customDays) => {
     const template = PLAN_TEMPLATES.find((t) => t.id === templateId);
     const days = template ? template.days : Math.max(1, parseInt(customDays) || 7);
-    const name = customName.trim() || (template ? template.name : `${days}-Day Prayer Plan`);
+    const name = (customName || '').trim() || (template ? template.name : `${days}-Day Prayer Plan`);
+    const newPlan = { name, totalDays: days, startDate: getTodayString(), checkedDays: [] };
+    // Delete old plan first
+    if (plan) await supabase.from('prayer_plans').delete().eq('id', plan.id);
+    const { data } = await supabase.from('prayer_plans').insert({
+      user_id: userId, name, total_days: days, start_date: newPlan.startDate, checked_days: [],
+    }).select().single();
+    if (data) setPlan({ id: data.id, name: data.name, totalDays: data.total_days, startDate: data.start_date, checkedDays: [] });
+  }, [userId, plan]);
 
-    const newPlan = {
-      id: Date.now().toString(),
-      name,
-      totalDays: days,
-      startDate: getTodayString(),
-      checkedDays: [],
-    };
-    setPlan(newPlan);
-    savePrayerPlan(newPlan);
-  }, []);
-
-  const checkInToday = useCallback(() => {
+  const checkInToday = useCallback(async () => {
     if (!plan) return;
     const today = getTodayString();
     if (plan.checkedDays.includes(today)) return;
-    const updated = { ...plan, checkedDays: [...plan.checkedDays, today] };
-    setPlan(updated);
-    savePrayerPlan(updated);
+    const updated = [...plan.checkedDays, today];
+    setPlan((p) => ({ ...p, checkedDays: updated }));
+    await supabase.from('prayer_plans').update({ checked_days: updated }).eq('id', plan.id);
   }, [plan]);
 
-  const deletePlan = useCallback(() => {
+  const deletePlan = useCallback(async () => {
     if (!plan) return;
     const wasComplete = plan.checkedDays.length >= plan.totalDays;
-    if (wasComplete) {
+    await supabase.from('prayer_plans').delete().eq('id', plan.id);
+    setPlan(null);
+    if (wasComplete && userId) {
       const newCount = completedCount + 1;
       setCompletedCount(newCount);
-      saveCompletedCount(newCount);
+      await supabase.from('user_stats').upsert({ user_id: userId, completed_plans_count: newCount, updated_at: new Date().toISOString() });
     }
-    setPlan(null);
-    savePrayerPlan(null);
-  }, [plan, completedCount]);
+  }, [plan, completedCount, userId]);
 
-  // Derived state
   const today = getTodayString();
   const hasPrayedToday = plan ? plan.checkedDays.includes(today) : false;
-
   let currentDayNumber = 1;
   if (plan) {
     const start = new Date(plan.startDate);
     const now = new Date(today);
-    currentDayNumber = Math.min(
-      Math.floor((now - start) / 86400000) + 1,
-      plan.totalDays
-    );
+    currentDayNumber = Math.min(Math.floor((now - start) / 86400000) + 1, plan.totalDays);
   }
-
   const isComplete = plan ? plan.checkedDays.length >= plan.totalDays : false;
 
-  return {
-    plan,
-    startPlan,
-    checkInToday,
-    deletePlan,
-    hasPrayedToday,
-    currentDayNumber,
-    isComplete,
-    completedPlansCount: completedCount,
-  };
+  return { plan, startPlan, checkInToday, deletePlan, hasPrayedToday, currentDayNumber, isComplete, completedPlansCount: completedCount };
 }

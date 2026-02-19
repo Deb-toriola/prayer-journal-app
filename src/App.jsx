@@ -13,6 +13,7 @@ import PrayerCard from './components/PrayerCard';
 import PrayerForm from './components/PrayerForm';
 import EmptyState from './components/EmptyState';
 import ExportPDF from './components/ExportPDF';
+import AuthScreen from './components/AuthScreen';
 import { usePrayers } from './hooks/usePrayers';
 import { usePrayerTimer } from './hooks/usePrayerTimer';
 import { useWeeklyProject } from './hooks/useWeeklyProject';
@@ -24,6 +25,7 @@ import { useCommunity } from './hooks/useCommunity';
 import { useIntercede } from './hooks/useIntercede';
 import { useStreakStats } from './hooks/useStreak';
 import { useSettings } from './hooks/useSettings';
+import { useAuth } from './hooks/useAuth';
 
 const TAB_TITLES = {
   home:      'Prayer Journal',
@@ -34,6 +36,34 @@ const TAB_TITLES = {
 };
 
 export default function App() {
+  const { user, loading: authLoading, error: authError, signIn, signUp, signOut, resetPassword, clearError } = useAuth();
+
+  // Show loading spinner while checking auth session
+  if (authLoading) {
+    return (
+      <div className="auth-loading">
+        <div className="auth-loading-spinner" />
+      </div>
+    );
+  }
+
+  // Show auth screen when not logged in
+  if (!user) {
+    return (
+      <AuthScreen
+        onSignIn={signIn}
+        onSignUp={signUp}
+        onResetPassword={resetPassword}
+        error={authError}
+        clearError={clearError}
+      />
+    );
+  }
+
+  return <AppInner user={user} signOut={signOut} />;
+}
+
+function AppInner({ user, signOut }) {
   const [activeTab, setActiveTab] = useState('home');
   const [prayerSubTab, setPrayerSubTab] = useState('active'); // 'active' | 'testimonies'
   const [showForm, setShowForm] = useState(false);
@@ -51,15 +81,15 @@ export default function App() {
     toggleUrgent, addNote, deleteNote,
     addPrayerSession, addPartner, removePartner,
     logPartnerPrayed, addPartnerSession, undoPartnerPrayed,
-  } = usePrayers();
+  } = usePrayers(user.id);
 
   const {
     elapsed, startTimer, stopTimer,
     isTimerRunning, timerPrayerId, timerPartnerId,
   } = usePrayerTimer();
 
-  const { project, updateProject } = useWeeklyProject();
-  const { allCategories, addCategory, deleteCategory } = useCategories();
+  const { project, updateProject } = useWeeklyProject(user.id);
+  const { allCategories, addCategory, deleteCategory } = useCategories(user.id);
   const { settings: notifSettings, toggleEnabled, addTime, removeTime, updateTime, notificationSupported } = useNotifications();
   const streakStats = useStreakStats(prayers);
 
@@ -67,17 +97,17 @@ export default function App() {
     new Set(prayers.flatMap((p) => (p.prayerLog || []).map((ts) => ts.split('T')[0])))
   , [prayers]);
 
-  const { hasPrayedToday, checkInToday, currentStreak, longestStreak, totalDaysPrayed } = useDailyCheckin(prayerLogDates);
+  const { hasPrayedToday, checkInToday, currentStreak, longestStreak, totalDaysPrayed } = useDailyCheckin(user.id, prayerLogDates);
 
   const {
     plan, startPlan, checkInToday: checkInPlan,
     deletePlan, hasPrayedToday: planPrayedToday,
     currentDayNumber, isComplete, completedPlansCount,
-  } = usePrayerPlan();
+  } = usePrayerPlan(user.id);
 
-  const { memberStats, totalGroupMinutes, todayGroupMinutes, addMember, removeMember, logSession } = useCommunity();
-  const { requests: intercedeRequests, addRequest: addIntercede, prayForRequest: prayIntercede, deleteRequest: deleteIntercede } = useIntercede();
-  const { settings: appSettings, update: updateAppSettings } = useSettings();
+  const { memberStats, totalGroupMinutes, todayGroupMinutes, addMember, removeMember, logSession } = useCommunity(user.id);
+  const { requests: intercedeRequests, addRequest: addIntercede, prayForRequest: prayIntercede, deleteRequest: deleteIntercede } = useIntercede(user.id);
+  const { settings: appSettings, update: updateAppSettings } = useSettings(user.id);
 
   // ── Prayer list filtering ──────────────────────────────
   const currentList = prayerSubTab === 'active' ? activePrayers : testimonies;
@@ -329,6 +359,8 @@ export default function App() {
               onShowExport={() => setShowExport(true)}
               appSettings={appSettings}
               onUpdateSettings={updateAppSettings}
+              user={user}
+              onSignOut={signOut}
             />
           </div>
         );
