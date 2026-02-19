@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'icon-192.svg'],
+      includeAssets: ['favicon.svg', 'icon-192.svg', 'icon-512.svg'],
       manifest: {
         name: 'My Prayer App',
         short_name: 'My Prayer',
@@ -26,12 +26,12 @@ export default defineConfig({
             type: 'image/svg+xml',
           },
           {
-            src: 'icon-192.svg',
+            src: 'icon-512.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
           },
           {
-            src: 'icon-192.svg',
+            src: 'icon-512.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
             purpose: 'any maskable',
