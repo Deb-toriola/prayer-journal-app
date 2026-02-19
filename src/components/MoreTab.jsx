@@ -78,7 +78,7 @@ export default function MoreTab({
 
       <div className="more-app-info">
         <div className="more-app-flame">🔥</div>
-        <p className="more-app-name">Prayer Journal</p>
+        <p className="more-app-name">My Prayer App</p>
         <p className="more-app-sub">A sacred space for your conversations with God</p>
         <p className="more-app-version">v1.0.0</p>
       </div>

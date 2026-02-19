@@ -45,7 +45,7 @@ export default function AuthScreen({ onSignIn, onSignUp, onResetPassword, error,
           <div className="auth-brand-icon">
             <AppIcon size={48} />
           </div>
-          <h1 className="auth-brand-name">Prayer Journal</h1>
+          <h1 className="auth-brand-name">My Prayer App</h1>
           <p className="auth-brand-tagline">A sacred space for your conversations with God</p>
         </div>
 

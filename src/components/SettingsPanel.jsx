@@ -174,7 +174,7 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
           <div className="settings-about">
             <div className="settings-about-icon">🔥</div>
             <div>
-              <p className="settings-about-name">Prayer Journal</p>
+              <p className="settings-about-name">My Prayer App</p>
               <p className="settings-about-version">Version 1.0.0 · Built with faith</p>
             </div>
           </div>

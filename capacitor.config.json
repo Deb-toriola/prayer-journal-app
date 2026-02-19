@@ -1,6 +1,6 @@
 {
-  "appId": "com.deborahtoriola.prayerjournal",
-  "appName": "Prayer Journal",
+  "appId": "com.myprayerapp.app",
+  "appName": "My Prayer App",
   "webDir": "dist",
   "plugins": {
     "SplashScreen": {

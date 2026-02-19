@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icon-192.svg'],
       manifest: {
-        name: 'Prayer Journal',
-        short_name: 'Prayers',
-        description: 'A personal prayer journal to track prayers and testimonies',
+        name: 'My Prayer App',
+        short_name: 'My Prayer',
+        description: 'Your personal prayer journal — pray, track, grow in faith',
         theme_color: '#0A1628',
         background_color: '#0A1628',
         display: 'standalone',
