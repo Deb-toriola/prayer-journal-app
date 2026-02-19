@@ -1208,7 +1208,7 @@ body::after {
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(251, 191, 36, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: all var(--transition);
-  z-index: 5;
+  z-index: 110;
 }
 
 .fab:hover {
@@ -3794,6 +3794,7 @@ html.light-mode .app-header-title {
   }
 
   .fab {
+    z-index: 110;
     bottom: calc(68px + 16px + env(safe-area-inset-bottom));
   }
 
