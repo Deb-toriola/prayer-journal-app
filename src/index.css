@@ -1052,8 +1052,8 @@ body::after {
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
   font-size: 0.8rem;
@@ -1073,8 +1073,8 @@ body::after {
   flex: 1;
   min-width: 0;
   padding: 8px 10px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-size: 0.85rem;
@@ -1085,7 +1085,7 @@ body::after {
   border-color: var(--gold);
 }
 .scripture-verse-input::placeholder {
-  color: rgba(255, 255, 255, 0.25);
+  color: var(--text-muted);
 }
 .scripture-verse-input:disabled {
   opacity: 0.4;
@@ -1107,24 +1107,21 @@ body::after {
   margin-top: 4px;
   font-style: italic;
 }
-.scripture-picker-dropdown {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  z-index: 60;
+/* fixed-position dropdown — escapes modal overflow:auto clipping */
+.scripture-picker-dropdown-fixed {
   background: var(--bg-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--surface-border);
   border-radius: var(--radius-md);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
   overflow: hidden;
+  /* position/top/left/width set via inline style from getBoundingClientRect() */
 }
 .scripture-search-wrap {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--surface-border);
   color: var(--text-muted);
 }
 .scripture-search-input {
@@ -1136,7 +1133,7 @@ body::after {
   font-family: var(--font-sans);
 }
 .scripture-search-input:focus { outline: none; }
-.scripture-search-input::placeholder { color: rgba(255, 255, 255, 0.25); }
+.scripture-search-input::placeholder { color: var(--text-muted); }
 .scripture-search-clear {
   background: none;
   border: none;
@@ -1163,7 +1160,7 @@ body::after {
   transition: background var(--transition);
 }
 .scripture-book-option:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--surface-hover);
 }
 .scripture-book-option-active {
   color: var(--gold);
@@ -1181,7 +1178,7 @@ body::after {
   padding: 10px;
   background: none;
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--surface-border);
   color: var(--text-muted);
   font-size: 0.8rem;
   cursor: pointer;
@@ -1427,8 +1424,9 @@ body::after {
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   width: 100%;
   max-width: 600px;
-  max-height: 90vh;
-  max-height: 90dvh;
+  /* Reserve space for bottom nav (68px) + safe area so content is always reachable */
+  max-height: calc(90dvh - 68px - env(safe-area-inset-bottom, 0px));
+  max-height: calc(90vh - 68px);
   overflow-y: auto;
   animation: slideUp 0.3s ease;
   padding: 0;
@@ -1464,6 +1462,8 @@ body::after {
 /* ===== Prayer Form ===== */
 .prayer-form {
   padding: 16px 20px 20px;
+  /* Extra bottom padding so Save button clears the bottom nav bar on mobile */
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: 16px;

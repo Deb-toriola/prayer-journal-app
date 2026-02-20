@@ -7,27 +7,29 @@ import { BIBLE_BOOKS } from '../utils/bibleBooks';
  *  1. Search and select a Bible book (like a country picker)
  *  2. Type chapter:verse (e.g. "4:6")
  *
- * Props:
- *   value      — current scripture string e.g. "Philippians 4:6"
- *   onChange   — called with the new string
- *   placeholder — optional placeholder text
+ * The book dropdown renders as a position:fixed overlay so it is
+ * never clipped by the scrollable modal container.
  */
-export default function ScripturePicker({ value, onChange, placeholder = 'e.g. Philippians 4:6' }) {
+export default function ScripturePicker({ value, onChange }) {
   const [showPicker, setShowPicker] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedBook, setSelectedBook] = useState(null);
   const [verseRef, setVerseRef] = useState('');
   const searchRef = useRef(null);
-  const verseRef2 = useRef(null);
+  const verseInputRef = useRef(null);
+  const btnRef = useRef(null);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 300 });
 
-  // Parse existing value into book + verse on mount / value change
+  // Parse existing value into book + verse when value changes from outside
   useEffect(() => {
     if (!value) {
       setSelectedBook(null);
       setVerseRef('');
       return;
     }
-    const book = BIBLE_BOOKS.find(b => value.toLowerCase().startsWith(b.name.toLowerCase()));
+    const book = BIBLE_BOOKS.find(b =>
+      value.toLowerCase().startsWith(b.name.toLowerCase())
+    );
     if (book) {
       setSelectedBook(book);
       setVerseRef(value.slice(book.name.length).trim());
@@ -38,24 +40,35 @@ export default function ScripturePicker({ value, onChange, placeholder = 'e.g. P
     b.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const openPicker = () => {
+    if (btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setDropdownPos({
+        top: rect.bottom + 6,
+        left: Math.max(8, rect.left),
+        width: Math.max(280, rect.width + 80),
+      });
+    }
+    setShowPicker(true);
+    setSearch('');
+    setTimeout(() => searchRef.current?.focus(), 50);
+  };
+
   const handleBookSelect = (book) => {
     setSelectedBook(book);
     setSearch('');
     setShowPicker(false);
-    // Compose full reference if we already have a verse
-    const newRef = verseRef ? `${book.name} ${verseRef}` : '';
-    onChange(newRef);
-    // Focus verse field
-    setTimeout(() => verseRef2.current?.focus(), 50);
+    // Show book name immediately; verse appended once typed
+    const currentVerse = verseRef.trim();
+    onChange(currentVerse ? `${book.name} ${currentVerse}` : book.name);
+    setTimeout(() => verseInputRef.current?.focus(), 50);
   };
 
   const handleVerseChange = (e) => {
     const v = e.target.value;
     setVerseRef(v);
-    if (selectedBook && v) {
-      onChange(`${selectedBook.name} ${v}`);
-    } else {
-      onChange('');
+    if (selectedBook) {
+      onChange(v.trim() ? `${selectedBook.name} ${v.trim()}` : selectedBook.name);
     }
   };
 
@@ -66,18 +79,31 @@ export default function ScripturePicker({ value, onChange, placeholder = 'e.g. P
     onChange('');
   };
 
-  const openPicker = () => {
-    setShowPicker(true);
-    setSearch('');
-    setTimeout(() => searchRef.current?.focus(), 50);
-  };
+  // Close when clicking outside the dropdown
+  useEffect(() => {
+    if (!showPicker) return;
+    const handleOutside = (e) => {
+      if (
+        !e.target.closest('.scripture-picker-dropdown-fixed') &&
+        !e.target.closest('.scripture-book-btn')
+      ) {
+        setShowPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('touchstart', handleOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('touchstart', handleOutside);
+    };
+  }, [showPicker]);
 
   return (
     <div className="scripture-picker">
-      {/* Display row */}
       <div className="scripture-picker-row">
-        {/* Book selector button */}
+        {/* Book selector */}
         <button
+          ref={btnRef}
           type="button"
           className={`scripture-book-btn ${selectedBook ? 'scripture-book-selected' : ''}`}
           onClick={openPicker}
@@ -86,9 +112,9 @@ export default function ScripturePicker({ value, onChange, placeholder = 'e.g. P
           <span>{selectedBook ? selectedBook.name : 'Select book'}</span>
         </button>
 
-        {/* Chapter:verse input */}
+        {/* Chapter:verse */}
         <input
-          ref={verseRef2}
+          ref={verseInputRef}
           type="text"
           className="scripture-verse-input"
           placeholder="1:1"
@@ -106,14 +132,21 @@ export default function ScripturePicker({ value, onChange, placeholder = 'e.g. P
         )}
       </div>
 
-      {/* Current value preview */}
-      {value && (
-        <p className="scripture-preview">{value}</p>
-      )}
+      {/* Preview */}
+      {value && <p className="scripture-preview">{value}</p>}
 
-      {/* Book picker dropdown */}
+      {/* Fixed-position dropdown — never clipped by modal overflow */}
       {showPicker && (
-        <div className="scripture-picker-dropdown">
+        <div
+          className="scripture-picker-dropdown-fixed"
+          style={{
+            position: 'fixed',
+            top: dropdownPos.top,
+            left: dropdownPos.left,
+            width: dropdownPos.width,
+            zIndex: 9999,
+          }}
+        >
           <div className="scripture-search-wrap">
             <Search size={13} />
             <input
@@ -125,7 +158,7 @@ export default function ScripturePicker({ value, onChange, placeholder = 'e.g. P
               onChange={e => setSearch(e.target.value)}
             />
             {search && (
-              <button type="button" onClick={() => setSearch('')} className="scripture-search-clear">
+              <button type="button" className="scripture-search-clear" onClick={() => setSearch('')}>
                 <X size={12} />
               </button>
             )}
