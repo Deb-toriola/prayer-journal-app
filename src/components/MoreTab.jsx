@@ -72,7 +72,7 @@ export default function MoreTab({
           </div>
         )}
 
-        {prayers.length > 0 && (
+        {(prayers?.length > 0) && (
           <div className="more-section" style={{ marginTop: 12 }}>
             <button className="btn-export" onClick={onShowExport}>
               <FileDown size={14} />
