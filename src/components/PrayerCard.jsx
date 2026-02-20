@@ -123,7 +123,7 @@ export default function PrayerCard({
       <p className="prayer-card-content">{prayer.content}</p>
 
       {prayer.scripture && (() => {
-        const translation = bibleTranslation || 'NIV';
+        const translation = bibleTranslation || 'NKJV';
         const browserUrl = getScriptureUrl(prayer.scripture, translation);
         const deepLink = getScriptureDeepLink(prayer.scripture, translation);
         if (!browserUrl) {
