@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, BookOpen, Plus, Trash2, AlertTriangle } from 'lucide-react';
 import { CATEGORY_COLORS } from '../utils/constants';
+import ScripturePicker from './ScripturePicker';
 
 export default function PrayerForm({
   prayer,
@@ -193,18 +194,11 @@ export default function PrayerForm({
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="prayer-scripture">
+            <label className="form-label">
               <BookOpen size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
               Scripture Reference (optional)
             </label>
-            <input
-              id="prayer-scripture"
-              type="text"
-              className="form-input"
-              placeholder="e.g., Philippians 4:6-7"
-              value={scripture}
-              onChange={(e) => setScripture(e.target.value)}
-            />
+            <ScripturePicker value={scripture} onChange={setScripture} />
           </div>
 
           <div className="form-actions">

@@ -53,5 +53,35 @@ export function useAuth() {
 
   const clearError = () => setError(null);
 
-  return { user, loading, error, signUp, signIn, signOut, resetPassword, clearError };
+  const deleteAccount = async () => {
+    if (!user) return false;
+    setError(null);
+    const uid = user.id;
+    try {
+      // Delete all user data from every table (cascade)
+      await Promise.all([
+        supabase.from('prayers').delete().eq('user_id', uid),
+        supabase.from('settings').delete().eq('user_id', uid),
+        supabase.from('prayer_plans').delete().eq('user_id', uid),
+        supabase.from('weekly_projects').delete().eq('user_id', uid),
+        supabase.from('daily_checkins').delete().eq('user_id', uid),
+        supabase.from('categories').delete().eq('user_id', uid),
+        supabase.from('intercede_requests').delete().eq('user_id', uid),
+        supabase.from('intercede_prayers').delete().eq('user_id', uid),
+        supabase.from('community_members').delete().eq('user_id', uid),
+        supabase.from('community_sessions').delete().eq('user_id', uid),
+        supabase.from('user_stats').delete().eq('user_id', uid),
+      ]);
+      // Clear all local data
+      localStorage.clear();
+      // Sign out (auth record deletion requires server-side admin — handled post-launch)
+      await supabase.auth.signOut();
+      return true;
+    } catch (err) {
+      setError('Failed to delete account. Please try again.');
+      return false;
+    }
+  };
+
+  return { user, loading, error, signUp, signIn, signOut, resetPassword, clearError, deleteAccount };
 }

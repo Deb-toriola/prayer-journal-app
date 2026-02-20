@@ -97,9 +97,9 @@
 
 /* ===== Light Mode ===== */
 html.light-mode {
-  --bg-primary: #F0F4FF;
-  --bg-secondary: #E2E9FF;
-  --bg-tertiary: #CBD5F5;
+  --bg-primary: #FAFAF8;
+  --bg-secondary: #F5F4F0;
+  --bg-tertiary: #ECEAE4;
   --surface: rgba(255, 255, 255, 0.85);
   --surface-hover: rgba(255, 255, 255, 0.95);
   --surface-border: rgba(37, 99, 235, 0.15);
@@ -115,7 +115,7 @@ html.light-mode {
 }
 
 html.light-mode body {
-  background: linear-gradient(160deg, #F0F4FF 0%, #E2E9FF 40%, #D4DCFF 100%);
+  background: linear-gradient(160deg, #FAFAF8 0%, #F5F4F0 60%, #ECEAE4 100%);
   color: #0A1628;
 }
 
@@ -669,6 +669,18 @@ body::after {
   gap: 10px;
 }
 
+.weekly-field-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  margin-bottom: 4px;
+  margin-top: 2px;
+}
+
 .weekly-project-title-input {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -841,9 +853,11 @@ body::after {
   display: flex;
   gap: 6px;
   overflow-x: auto;
+  flex-wrap: nowrap;
   padding-bottom: 4px;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .category-filter::-webkit-scrollbar {
@@ -852,6 +866,7 @@ body::after {
 
 .filter-chip {
   flex-shrink: 0;
+  white-space: nowrap;
   padding: 5px 12px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: transparent;
@@ -998,7 +1013,7 @@ body::after {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: #EFF6FF;
+  background: rgba(59, 130, 246, 0.12);
   color: var(--purple-light);
   padding: 4px 10px;
   border-radius: var(--radius-full);
@@ -1006,7 +1021,173 @@ body::after {
   font-weight: 500;
   font-style: italic;
   margin-bottom: 10px;
+  text-decoration: none;
 }
+.prayer-card-scripture-link {
+  cursor: pointer;
+  transition: background var(--transition);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+.prayer-card-scripture-link:hover {
+  background: rgba(59, 130, 246, 0.22);
+}
+.scripture-open-hint {
+  font-style: normal;
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+
+/* ===== Scripture Picker component ===== */
+.scripture-picker {
+  position: relative;
+  width: 100%;
+}
+.scripture-picker-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.scripture-book-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color var(--transition);
+  flex-shrink: 0;
+}
+.scripture-book-btn:hover {
+  border-color: var(--gold);
+}
+.scripture-book-selected {
+  color: var(--text-primary);
+  border-color: var(--gold);
+}
+.scripture-verse-input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-family: var(--font-sans);
+}
+.scripture-verse-input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.scripture-verse-input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+.scripture-verse-input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.scripture-clear-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.scripture-preview {
+  font-size: 0.72rem;
+  color: var(--gold);
+  margin-top: 4px;
+  font-style: italic;
+}
+.scripture-picker-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+.scripture-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+}
+.scripture-search-input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-family: var(--font-sans);
+}
+.scripture-search-input:focus { outline: none; }
+.scripture-search-input::placeholder { color: rgba(255, 255, 255, 0.25); }
+.scripture-search-clear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+}
+.scripture-book-list {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.scripture-book-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.scripture-book-option:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.scripture-book-option-active {
+  color: var(--gold);
+  font-weight: 600;
+}
+.scripture-no-results {
+  padding: 16px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.scripture-picker-close {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-align: center;
+}
+.scripture-picker-close:hover { color: var(--text-primary); }
 
 .prayer-card-footer {
   display: flex;
@@ -3667,6 +3848,73 @@ body::after {
   font-size: 0.68rem;
   color: var(--text-muted);
   margin-top: 2px;
+}
+
+/* ===== Destructive setting row ===== */
+.setting-row-destructive .setting-row-label {
+  color: #EF4444;
+}
+.setting-row-destructive .setting-row-icon {
+  color: #EF4444;
+}
+
+/* ===== Delete account confirmation modal ===== */
+.delete-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.delete-confirm-modal {
+  background: var(--bg-primary);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 16px;
+  padding: 28px 24px;
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+}
+.delete-confirm-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+.delete-confirm-title {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+.delete-confirm-body {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+.delete-confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+.delete-confirm-actions .btn {
+  flex: 1;
+}
+.btn-destructive {
+  background: #EF4444;
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-destructive:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* ===== Design Polish — use semantic tokens on key components ===== */

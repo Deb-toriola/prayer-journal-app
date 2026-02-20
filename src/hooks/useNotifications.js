@@ -35,8 +35,8 @@ export function useNotifications() {
 
       const delay = target - now;
       const timer = setTimeout(() => {
-        new Notification('Prayer Journal', {
-          body: time.label || 'Time to pray',
+        new Notification('My Prayer App', {
+          body: time.label || 'Time to pray 🙏',
           icon: '/icon-192.svg',
           tag: `prayer-${time.hour}-${time.minute}`,
         });

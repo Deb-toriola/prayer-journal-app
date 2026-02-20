@@ -1,14 +1,14 @@
-import { BookOpen } from 'lucide-react';
+import AppIcon from './AppIcon';
 
 export default function Header() {
   return (
     <header className="header">
       <div className="header-content">
         <div className="header-icon">
-          <BookOpen size={28} strokeWidth={1.5} />
+          <AppIcon size={32} />
         </div>
         <div>
-          <h1 className="header-title">Prayer Journal</h1>
+          <h1 className="header-title">My Prayer App</h1>
           <p className="header-subtitle">A sacred space for your conversations with God</p>
         </div>
       </div>

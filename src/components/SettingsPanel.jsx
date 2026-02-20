@@ -1,4 +1,6 @@
-import { Sun, Moon, Type, Eye, EyeOff, Flame, Bell, BellOff, User, Target, ArrowLeft, ChevronRight, Lock, LogOut, LogIn, UserPlus } from 'lucide-react';
+import { useState } from 'react';
+import { Sun, Moon, Type, Eye, EyeOff, Flame, Bell, BellOff, User, Target, ArrowLeft, ChevronRight, Lock, LogOut, LogIn, UserPlus, Trash2 } from 'lucide-react';
+import AppIcon from './AppIcon';
 
 function Toggle({ on, onToggle, disabled }) {
   return (
@@ -28,10 +30,10 @@ function SegmentedControl({ options, value, onChange }) {
   );
 }
 
-function SettingRow({ icon, label, sub, children, onClick, chevron }) {
+function SettingRow({ icon, label, sub, children, onClick, chevron, destructive }) {
   const Tag = onClick ? 'button' : 'div';
   return (
-    <Tag className={`setting-row ${onClick ? 'setting-row-tappable' : ''}`} onClick={onClick}>
+    <Tag className={`setting-row ${onClick ? 'setting-row-tappable' : ''} ${destructive ? 'setting-row-destructive' : ''}`} onClick={onClick}>
       <div className="setting-row-icon">{icon}</div>
       <div className="setting-row-text">
         <span className="setting-row-label">{label}</span>
@@ -54,7 +56,17 @@ function Group({ title, children }) {
   );
 }
 
-export default function SettingsPanel({ settings, onUpdate, onClose, notifSettings, onToggleNotif, user, onSignOut, onSignIn, onSignUp }) {
+export default function SettingsPanel({ settings, onUpdate, onClose, notifSettings, onToggleNotif, user, onSignOut, onSignIn, onSignUp, onDeleteAccount }) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteConfirm = async () => {
+    setDeleting(true);
+    await onDeleteAccount?.();
+    setDeleting(false);
+    setShowDeleteConfirm(false);
+  };
+
   return (
     <div className="settings-page">
       {/* Header */}
@@ -168,6 +180,14 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
                 onClick={onSignOut}
                 chevron
               />
+              <SettingRow
+                icon={<Trash2 size={16} />}
+                label="Delete account"
+                sub="Permanently delete your account and all data"
+                onClick={() => setShowDeleteConfirm(true)}
+                chevron
+                destructive
+              />
             </>
           ) : (
             <>
@@ -198,7 +218,7 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
         <div className="settings-group">
           <p className="settings-group-title">About</p>
           <div className="settings-about">
-            <div className="settings-about-icon">🔥</div>
+            <div className="settings-about-icon"><AppIcon size={36} /></div>
             <div>
               <p className="settings-about-name">My Prayer App</p>
               <p className="settings-about-version">Version 1.0.0 · Built with faith</p>
@@ -207,6 +227,35 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
         </div>
 
       </div>
+
+      {/* Delete account confirmation modal */}
+      {showDeleteConfirm && (
+        <div className="delete-confirm-overlay" onClick={() => !deleting && setShowDeleteConfirm(false)}>
+          <div className="delete-confirm-modal" onClick={e => e.stopPropagation()}>
+            <div className="delete-confirm-icon">⚠️</div>
+            <h3 className="delete-confirm-title">Delete account?</h3>
+            <p className="delete-confirm-body">
+              This will permanently delete your account and all your prayers, plans, and data. This cannot be undone.
+            </p>
+            <div className="delete-confirm-actions">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-destructive"
+                onClick={handleDeleteConfirm}
+                disabled={deleting}
+              >
+                {deleting ? 'Deleting…' : 'Delete everything'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

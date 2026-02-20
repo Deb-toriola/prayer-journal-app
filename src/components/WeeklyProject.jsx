@@ -40,17 +40,19 @@ export default function WeeklyProject({ project, onUpdate }) {
 
       {editing ? (
         <div className="weekly-project-edit">
+          <label className="weekly-field-label">Focus title</label>
           <input
             type="text"
             className="weekly-project-title-input"
-            placeholder="Focus area title..."
+            placeholder="e.g. Trusting God in uncertainty"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             autoFocus
           />
+          <label className="weekly-field-label">How you will pray for it</label>
           <textarea
             className="weekly-project-content-input"
-            placeholder="Describe your prayer focus for this week..."
+            placeholder="Describe how you'll approach this in prayer this week..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={3}

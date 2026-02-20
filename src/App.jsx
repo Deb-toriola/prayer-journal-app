@@ -28,7 +28,7 @@ import { useSettings } from './hooks/useSettings';
 import { useAuth } from './hooks/useAuth';
 
 const TAB_TITLES = {
-  home:      'Prayer Journal',
+  home:      'My Prayer App',
   prayers:   'My Prayers',
   plan:      'Prayer Plan',
   community: 'Community',
@@ -36,7 +36,7 @@ const TAB_TITLES = {
 };
 
 export default function App() {
-  const { user, loading: authLoading, error: authError, signIn, signUp, signOut, resetPassword, clearError } = useAuth();
+  const { user, loading: authLoading, error: authError, signIn, signUp, signOut, resetPassword, clearError, deleteAccount } = useAuth();
   const [authModal, setAuthModal] = useState(null); // null | 'login' | 'signup'
 
   const openAuthModal = (view = 'login') => { clearError(); setAuthModal(view); };
@@ -380,6 +380,7 @@ function AppInner({ user, signOut, onOpenAuth }) {
               onSignOut={signOut}
               onSignIn={() => onOpenAuth('login')}
               onSignUp={() => onOpenAuth('signup')}
+              onDeleteAccount={deleteAccount}
             />
           </div>
         );

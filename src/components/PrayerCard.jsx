@@ -9,6 +9,7 @@ import CategoryBadge from './CategoryBadge';
 import PrayerPartners from './PrayerPartners';
 import { formatRelativeDate } from '../utils/constants';
 import { formatDuration, formatDurationReadable } from '../hooks/usePrayerTimer';
+import { getScriptureUrl } from '../utils/bibleBooks';
 
 const NOTE_TYPES = [
   { value: 'update', label: 'Update', icon: MessageSquarePlus, color: '#7C3AED', placeholder: 'What\u2019s happening with this prayer...' },
@@ -120,9 +121,24 @@ export default function PrayerCard({
       <h3 className="prayer-card-title">{prayer.title}</h3>
       <p className="prayer-card-content">{prayer.content}</p>
 
-      {prayer.scripture && (
-        <div className="prayer-card-scripture"><BookOpen size={13} /><span>{prayer.scripture}</span></div>
-      )}
+      {prayer.scripture && (() => {
+        const url = getScriptureUrl(prayer.scripture);
+        return url ? (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="prayer-card-scripture prayer-card-scripture-link"
+            onClick={e => e.stopPropagation()}
+          >
+            <BookOpen size={13} />
+            <span>{prayer.scripture}</span>
+            <span className="scripture-open-hint">↗</span>
+          </a>
+        ) : (
+          <div className="prayer-card-scripture"><BookOpen size={13} /><span>{prayer.scripture}</span></div>
+        );
+      })()}
 
       {prayer.answered && prayer.testimonyNote && (
         <div className="testimony-note"><CheckCircle2 size={13} /><p>{prayer.testimonyNote}</p></div>

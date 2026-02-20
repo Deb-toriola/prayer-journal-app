@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prayer Plan — Design Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Lora', Georgia, serif;
+    background: linear-gradient(160deg, #1E1B4B 0%, #312E81 40%, #4C1D95 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+    color: white;
+  }
+
+  h2 {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    margin-top: 32px;
+  }
+
+  h2:first-child { margin-top: 0; }
+
+  .card {
+    width: 100%;
+    max-width: 380px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #FBBF24;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+
+  .label svg { width: 16px; height: 16px; }
+
+  /* ===== STATE 1: No Plan (CTA) ===== */
+  .empty-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: none;
+    border: 1px dashed rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 16px;
+    color: rgba(255,255,255,0.4);
+    font-family: 'Lora', serif;
+    font-size: 14px;
+    font-style: italic;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .empty-btn:hover { border-color: #FBBF24; color: #FBBF24; }
+
+  .completed-count {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ===== STATE 2: Creating ===== */
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .template-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    color: white;
+    margin-bottom: 8px;
+  }
+  .template-card:hover { background: rgba(255,255,255,0.1); border-color: #FBBF24; }
+
+  .template-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(251,191,36,0.15);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FBBF24;
+    flex-shrink: 0;
+    font-size: 18px;
+  }
+
+  .template-info { flex: 1; }
+  .template-name {
+    font-family: 'Crimson Pro', serif;
+    font-size: 14px;
+    font-weight: 600;
+    display: block;
+  }
+  .template-desc {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    display: block;
+    margin-top: 2px;
+  }
+
+  .chevron { color: rgba(255,255,255,0.3); font-size: 18px; }
+
+  .divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    margin: 12px 0;
+  }
+
+  .custom-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 8px;
+  }
+
+  .input-field {
+    width: 100%;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 8px;
+  }
+  .input-field::placeholder { color: rgba(255,255,255,0.35); }
+  .input-field:focus { border-color: #FBBF24; }
+
+  .day-pills {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .day-pill {
+    padding: 5px 12px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+    font-family: 'Crimson Pro', serif;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .day-pill:hover { border-color: rgba(255,255,255,0.4); color: white; }
+  .day-pill.active { background: #FBBF24; border-color: #FBBF24; color: #1E1B4B; }
+
+  .start-btn {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    border: none;
+    border-radius: 10px;
+    color: #1E1B4B;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 4px;
+    box-shadow: 0 2px 8px rgba(251,191,36,0.3);
+  }
+
+  /* ===== STATE 3: Active Plan ===== */
+  .plan-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .plan-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 9999px;
+    white-space: nowrap;
+  }
+
+  .status-success { background: #DCFCE7; color: #15803D; }
+  .status-warning { background: linear-gradient(135deg, #FBBF24, #F59E0B); color: #1E1B4B; }
+
+  .delete-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.3);
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .plan-summary {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .plan-name {
+    font-family: 'Crimson Pro', serif;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .plan-progress-text {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #FBBF24, #F59E0B);
+    border-radius: 2px;
+    transition: width 0.4s;
+  }
+
+  /* Day scroller */
+  .days-scroller {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 4px 0 8px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .days-scroller::-webkit-scrollbar { display: none; }
+
+  .plan-day {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    scroll-snap-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .plan-day-number {
+    font-family: 'Crimson Pro', serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    line-height: 1;
+  }
+
+  .plan-day-date {
+    font-family: 'Inter', sans-serif;
+    font-size: 8px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 1px;
+  }
+
+  .plan-day.checked {
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    border-color: #FBBF24;
+  }
+  .plan-day.checked .plan-day-number { color: #1E1B4B; font-size: 0; }
+  .plan-day.checked .plan-day-date { display: none; }
+  .plan-day.checked::after {
+    content: '✓';
+    color: #1E1B4B;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .plan-day.current:not(.checked) {
+    border-color: #FBBF24;
+    box-shadow: 0 0 0 3px rgba(251,191,36,0.3);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .plan-day.current:not(.checked) .plan-day-number { color: #FBBF24; }
+  .plan-day.current:not(.checked) .plan-day-date { color: #FBBF24; }
+
+  .plan-day.future { opacity: 0.4; }
+  .plan-day.past-unchecked:hover { border-color: rgba(255,255,255,0.4); }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(251,191,36,0.3); }
+    50% { box-shadow: 0 0 0 5px rgba(251,191,36,0.15); }
+  }
+
+  .checkin-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 16px;
+    margin-top: 8px;
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    border: none;
+    border-radius: 10px;
+    color: #1E1B4B;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(251,191,36,0.3);
+    transition: all 0.2s;
+  }
+  .checkin-btn:hover { box-shadow: 0 4px 12px rgba(251,191,36,0.4); transform: translateY(-1px); }
+
+  .checked-today {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    margin-top: 8px;
+    background: rgba(16,185,129,0.15);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 10px;
+    color: #6EE7B7;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* Page description */
+  .page-desc {
+    max-width: 380px;
+    text-align: center;
+    font-size: 13px;
+    color: rgba(255,255,255,0.3);
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<h2>State 1 — No Active Plan</h2>
+<div class="card">
+  <div class="label">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><path d="M9 14l2 2 4-4"/></svg>
+    Prayer Plan
+  </div>
+  <button class="empty-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Start a Prayer Plan
+  </button>
+  <div class="completed-count">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 9 7 12 7s5-3 7.5-3a2.5 2.5 0 0 1 0 5H18"/><path d="M18 15v6"/><path d="M6 15v6"/><path d="M18 9v6"/><path d="M6 9v6"/><rect x="6" y="15" width="12" height="3" rx="1"/></svg>
+    2 plans completed
+  </div>
+</div>
+
+<h2>State 2 — Choosing a Plan</h2>
+<div class="card">
+  <div class="header-row">
+    <div class="label" style="margin-bottom:0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><path d="M9 14l2 2 4-4"/></svg>
+      Start a Prayer Plan
+    </div>
+    <button class="close-btn">✕</button>
+  </div>
+
+  <div class="template-card">
+    <div class="template-icon">🌱</div>
+    <div class="template-info">
+      <span class="template-name">7-Day Prayer Starter</span>
+      <span class="template-desc">Begin your prayer journey with a simple 7-day commitment.</span>
+    </div>
+    <span class="chevron">›</span>
+  </div>
+
+  <div class="template-card">
+    <div class="template-icon">🔁</div>
+    <div class="template-info">
+      <span class="template-name">21-Day Prayer Habit Builder</span>
+      <span class="template-desc">Build a lasting prayer habit over three weeks.</span>
+    </div>
+    <span class="chevron">›</span>
+  </div>
+
+  <div class="template-card">
+    <div class="template-icon">🛡️</div>
+    <div class="template-info">
+      <span class="template-name">30-Day Prayer Warrior Challenge</span>
+      <span class="template-desc">Deepen your prayer life with a month-long challenge.</span>
+    </div>
+    <span class="chevron">›</span>
+  </div>
+
+  <div class="template-card">
+    <div class="template-icon">🔥</div>
+    <div class="template-info">
+      <span class="template-name">40-Day Prayer &amp; Fasting Journey</span>
+      <span class="template-desc">A transformative journey of prayer and fasting.</span>
+    </div>
+    <span class="chevron">›</span>
+  </div>
+
+  <hr class="divider">
+
+  <div class="custom-label">Or create your own:</div>
+  <input class="input-field" type="text" placeholder="Plan name (optional)">
+  <div class="day-pills">
+    <button class="day-pill">7</button>
+    <button class="day-pill active">14</button>
+    <button class="day-pill">21</button>
+    <button class="day-pill">30</button>
+    <button class="day-pill">40</button>
+  </div>
+  <input class="input-field" type="number" placeholder="Or type days...">
+  <button class="start-btn">Start Plan</button>
+</div>
+
+<h2>State 3 — Active Plan (Not Yet Prayed Today)</h2>
+<div class="card">
+  <div class="plan-header">
+    <div class="label" style="margin-bottom:0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><path d="M9 14l2 2 4-4"/></svg>
+      Prayer Plan
+    </div>
+    <div class="plan-header-right">
+      <span class="status-badge status-warning">Pray Today!</span>
+      <button class="delete-btn">🗑</button>
+    </div>
+  </div>
+
+  <div class="plan-summary">
+    <span class="plan-name">21-Day Prayer Habit Builder</span>
+    <span class="plan-progress-text">Day 12 of 21</span>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" style="width: 52%"></div>
+  </div>
+
+  <div class="days-scroller">
+    <div class="plan-day checked"><span class="plan-day-number">1</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">2</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">3</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">4</span></div>
+    <div class="plan-day past-unchecked"><span class="plan-day-number">5</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">6</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">7</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">8</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">9</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">10</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">11</span></div>
+    <div class="plan-day current"><span class="plan-day-number">12</span><span class="plan-day-date">Today</span></div>
+    <div class="plan-day future"><span class="plan-day-number">13</span></div>
+    <div class="plan-day future"><span class="plan-day-number">14</span></div>
+    <div class="plan-day future"><span class="plan-day-number">15</span></div>
+    <div class="plan-day future"><span class="plan-day-number">16</span></div>
+    <div class="plan-day future"><span class="plan-day-number">17</span></div>
+    <div class="plan-day future"><span class="plan-day-number">18</span></div>
+    <div class="plan-day future"><span class="plan-day-number">19</span></div>
+    <div class="plan-day future"><span class="plan-day-number">20</span></div>
+    <div class="plan-day future"><span class="plan-day-number">21</span></div>
+  </div>
+
+  <button class="checkin-btn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><path d="M9 14l2 2 4-4"/></svg>
+    I prayed today
+  </button>
+</div>
+
+<h2>State 3b — Active Plan (Already Prayed Today)</h2>
+<div class="card">
+  <div class="plan-header">
+    <div class="label" style="margin-bottom:0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><path d="M9 14l2 2 4-4"/></svg>
+      Prayer Plan
+    </div>
+    <div class="plan-header-right">
+      <span class="status-badge status-success">On Track!</span>
+      <button class="delete-btn">🗑</button>
+    </div>
+  </div>
+
+  <div class="plan-summary">
+    <span class="plan-name">21-Day Prayer Habit Builder</span>
+    <span class="plan-progress-text">Day 12 of 21</span>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" style="width: 57%"></div>
+  </div>
+
+  <div class="days-scroller">
+    <div class="plan-day checked"><span class="plan-day-number">1</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">2</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">3</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">4</span></div>
+    <div class="plan-day past-unchecked"><span class="plan-day-number">5</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">6</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">7</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">8</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">9</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">10</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">11</span></div>
+    <div class="plan-day checked"><span class="plan-day-number">12</span></div>
+    <div class="plan-day future"><span class="plan-day-number">13</span></div>
+    <div class="plan-day future"><span class="plan-day-number">14</span></div>
+    <div class="plan-day future"><span class="plan-day-number">15</span></div>
+    <div class="plan-day future"><span class="plan-day-number">16</span></div>
+    <div class="plan-day future"><span class="plan-day-number">17</span></div>
+    <div class="plan-day future"><span class="plan-day-number">18</span></div>
+    <div class="plan-day future"><span class="plan-day-number">19</span></div>
+    <div class="plan-day future"><span class="plan-day-number">20</span></div>
+    <div class="plan-day future"><span class="plan-day-number">21</span></div>
+  </div>
+
+  <div class="checked-today">
+    ✨ You prayed today! Keep it up!
+  </div>
+</div>
+
+<p class="page-desc" style="margin-top: 16px;">
+  This is a static HTML mockup showing all 3 states of the Prayer Plan card.<br>
+  Open in Chrome to preview. Scroll the day circles horizontally ←→
+</p>
+
+</body>
+</html>
