@@ -9,6 +9,7 @@ const DEFAULTS = {
   showWeeklyFocusOnHome: true,
   notificationsEnabled: false,
   communityAlerts: false,
+  bibleTranslation: 'NIV',
 };
 
 function applyTheme(settings) {
@@ -42,6 +43,7 @@ export function useSettings(userId) {
             showWeeklyFocusOnHome: data.show_weekly_focus_on_home ?? DEFAULTS.showWeeklyFocusOnHome,
             notificationsEnabled: data.notifications_enabled ?? DEFAULTS.notificationsEnabled,
             communityAlerts: data.community_alerts ?? DEFAULTS.communityAlerts,
+            bibleTranslation: data.bible_translation || DEFAULTS.bibleTranslation,
           };
           setSettings(loaded);
           applyTheme(loaded);
@@ -65,6 +67,7 @@ export function useSettings(userId) {
           show_weekly_focus_on_home: next.showWeeklyFocusOnHome,
           notifications_enabled: next.notificationsEnabled,
           community_alerts: next.communityAlerts,
+          bible_translation: next.bibleTranslation,
           updated_at: new Date().toISOString(),
         });
       }

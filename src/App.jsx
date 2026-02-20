@@ -314,6 +314,7 @@ function AppInner({ user, signOut, onOpenAuth }) {
                     timerPartnerId={timerPartnerId}
                     onStartPartnerTimer={(partnerId) => handleStartPartnerTimer(prayer.id, partnerId)}
                     onStopPartnerTimer={handleStopPartnerTimer}
+                    bibleTranslation={appSettings.bibleTranslation}
                   />
                 ))
               ) : (

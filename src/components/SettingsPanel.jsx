@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Sun, Moon, Type, Eye, EyeOff, Flame, Bell, BellOff, User, Target, ArrowLeft, ChevronRight, Lock, LogOut, LogIn, UserPlus, Trash2 } from 'lucide-react';
+import { Sun, Moon, Type, Eye, EyeOff, Flame, Bell, BellOff, User, Target, ArrowLeft, ChevronRight, Lock, LogOut, LogIn, UserPlus, Trash2, BookOpen } from 'lucide-react';
 import AppIcon from './AppIcon';
+import { BIBLE_TRANSLATIONS } from '../utils/bibleBooks';
 
 function Toggle({ on, onToggle, disabled }) {
   return (
@@ -156,6 +157,25 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
               on={settings.communityAlerts === true}
               onToggle={() => onUpdate({ communityAlerts: !settings.communityAlerts })}
             />
+          </SettingRow>
+        </Group>
+
+        {/* Bible */}
+        <Group title="Bible">
+          <SettingRow
+            icon={<BookOpen size={16} />}
+            label="Bible translation"
+            sub="Used when opening scripture links"
+          >
+            <select
+              className="settings-select"
+              value={settings.bibleTranslation || 'NIV'}
+              onChange={e => onUpdate({ bibleTranslation: e.target.value })}
+            >
+              {BIBLE_TRANSLATIONS.map(t => (
+                <option key={t.code} value={t.code}>{t.label}</option>
+              ))}
+            </select>
           </SettingRow>
         </Group>
 

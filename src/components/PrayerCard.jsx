@@ -9,7 +9,7 @@ import CategoryBadge from './CategoryBadge';
 import PrayerPartners from './PrayerPartners';
 import { formatRelativeDate } from '../utils/constants';
 import { formatDuration, formatDurationReadable } from '../hooks/usePrayerTimer';
-import { getScriptureUrl } from '../utils/bibleBooks';
+import { getScriptureUrl, getScriptureDeepLink } from '../utils/bibleBooks';
 
 const NOTE_TYPES = [
   { value: 'update', label: 'Update', icon: MessageSquarePlus, color: '#7C3AED', placeholder: 'What\u2019s happening with this prayer...' },
@@ -35,6 +35,7 @@ export default function PrayerCard({
   allCategories,
   isTimerRunning, timerElapsed, onStartTimer, onStopTimer,
   timerPrayerId, timerPartnerId, onStartPartnerTimer, onStopPartnerTimer,
+  bibleTranslation,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -122,21 +123,35 @@ export default function PrayerCard({
       <p className="prayer-card-content">{prayer.content}</p>
 
       {prayer.scripture && (() => {
-        const url = getScriptureUrl(prayer.scripture);
-        return url ? (
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
+        const translation = bibleTranslation || 'NIV';
+        const browserUrl = getScriptureUrl(prayer.scripture, translation);
+        const deepLink = getScriptureDeepLink(prayer.scripture, translation);
+        if (!browserUrl) {
+          return <div className="prayer-card-scripture"><BookOpen size={13} /><span>{prayer.scripture}</span></div>;
+        }
+        const handleScriptureTap = (e) => {
+          e.stopPropagation();
+          // Try the YouVersion deep link first (opens the app on mobile).
+          // After 1 s, if the page is still visible (app not installed), open the browser fallback.
+          if (deepLink) {
+            window.location.href = deepLink;
+            setTimeout(() => {
+              window.open(browserUrl, '_blank');
+            }, 1000);
+          } else {
+            window.open(browserUrl, '_blank');
+          }
+        };
+        return (
+          <button
+            type="button"
             className="prayer-card-scripture prayer-card-scripture-link"
-            onClick={e => e.stopPropagation()}
+            onClick={handleScriptureTap}
           >
             <BookOpen size={13} />
             <span>{prayer.scripture}</span>
             <span className="scripture-open-hint">↗</span>
-          </a>
-        ) : (
-          <div className="prayer-card-scripture"><BookOpen size={13} /><span>{prayer.scripture}</span></div>
+          </button>
         );
       })()}
 
