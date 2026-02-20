@@ -5247,3 +5247,626 @@ html.light-mode .auth-card {
 .intercede-guest-signin:hover {
   background: #f8d44a;
 }
+
+/* ════════════════════════════════════════════
+   SHARED PRAYER GROUPS
+   ════════════════════════════════════════════ */
+
+/* Empty state + action buttons */
+.group-action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.group-action-buttons .btn {
+  flex: 1;
+}
+
+/* Selector row */
+.group-selector-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.group-selector {
+  position: relative;
+  flex: 1;
+}
+.group-selector-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 12px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+}
+.group-picker-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  z-index: 100;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+.group-picker-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+.group-picker-item:hover { background: var(--surface-3); }
+.group-picker-item-active { color: var(--gold); font-weight: 600; }
+
+.group-header-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* btn-xs size */
+.btn-xs {
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  border-radius: 6px;
+}
+
+/* Group view container */
+.group-view {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.group-view-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface-3);
+  border-bottom: 1px solid var(--border);
+}
+.group-view-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--gold-dim, rgba(251,191,36,0.15));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+.group-view-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+.group-view-members {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Sub-tabs */
+.group-subtabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.group-subtab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 9px 4px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.group-subtab:hover { color: var(--text-primary); }
+.group-subtab-active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+  font-weight: 600;
+}
+
+.group-tab-content {
+  padding: 14px;
+}
+
+/* Empty state */
+.group-empty {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 24px 16px;
+}
+
+/* ─── Feed Tab ─── */
+.group-feed {}
+
+.group-composer {
+  background: var(--surface-3);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+.group-composer-types {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.group-type-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+.group-type-btn-active {
+  background: var(--gold);
+  color: #000;
+  border-color: var(--gold);
+  font-weight: 600;
+}
+.group-composer-input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  resize: none;
+  font-family: inherit;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+}
+.group-composer-input::placeholder { color: var(--text-muted); }
+.group-post-btn {
+  margin-left: auto;
+  display: flex;
+}
+
+/* Posts */
+.group-posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.group-post {
+  background: var(--surface-3);
+  border-radius: 8px;
+  padding: 12px;
+  border-left: 3px solid var(--border);
+}
+.group-post-note { border-left-color: #60a5fa; }
+.group-post-scripture { border-left-color: var(--gold); }
+.group-post-focus_update { border-left-color: #a78bfa; }
+
+.group-post-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.group-post-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gold-dim, rgba(251,191,36,0.2));
+  color: var(--gold);
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.group-post-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.group-post-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.group-post-time {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.group-post-type-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.group-post-type-note { background: rgba(96,165,250,0.15); color: #60a5fa; }
+.group-post-type-scripture { background: rgba(251,191,36,0.15); color: var(--gold); }
+.group-post-type-focus_update { background: rgba(167,139,250,0.15); color: #a78bfa; }
+
+.group-post-delete {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+.group-post-delete:hover { color: var(--danger, #ef4444); }
+
+.group-post-content {
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* ─── Prayer Time Tab ─── */
+.group-time-tab {}
+
+.group-time-totals {
+  display: flex;
+  gap: 16px;
+  background: var(--surface-3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+}
+.group-time-total-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.group-time-total-num {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+.group-time-total-label {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.group-log-form {
+  margin-bottom: 16px;
+}
+.group-log-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 6px;
+}
+.group-log-row .form-input {
+  flex: 1;
+}
+
+.group-leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.group-member-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface-3);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.group-member-row-me {
+  border-color: var(--gold);
+  background: rgba(251,191,36,0.05);
+}
+.group-member-rank {
+  width: 24px;
+  text-align: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+.group-rank-num {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.group-member-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gold-dim, rgba(251,191,36,0.2));
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.group-member-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.group-member-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.group-member-stats {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+.group-me-badge {
+  font-size: 0.65rem;
+  background: var(--gold-dim, rgba(251,191,36,0.2));
+  color: var(--gold);
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.group-admin-icon {
+  color: var(--gold);
+}
+
+/* ─── Group Settings Tab ─── */
+.group-settings-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.group-settings-section {
+  background: var(--surface-3);
+  border-radius: 8px;
+  padding: 14px;
+}
+.group-settings-heading {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+.group-settings-desc {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.group-settings-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+.group-settings-hint {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 0 0 8px;
+}
+.group-edit-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.group-focus-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.group-focus-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.group-focus-display {}
+.group-focus-text {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin: 0 0 4px;
+}
+.group-focus-scripture {
+  font-size: 0.82rem;
+  color: var(--gold);
+  font-style: italic;
+  margin: 0;
+}
+
+/* Invite code box */
+.invite-code-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+}
+.invite-code-text {
+  flex: 1;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  font-family: monospace;
+}
+.invite-code-copy {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+.invite-code-copy:hover { color: var(--text-primary); }
+.invite-share-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Members list */
+.group-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.group-member-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.group-member-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.group-member-joined {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.group-admin-badge {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  background: rgba(251,191,36,0.15);
+  color: var(--gold);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* Danger zone */
+.group-danger-zone {
+  display: flex;
+  gap: 10px;
+  background: none;
+  padding: 0;
+}
+.btn-danger-outline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--danger, #ef4444);
+  color: var(--danger, #ef4444);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-danger-outline:hover { background: rgba(239,68,68,0.08); }
+.btn-danger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--danger, #ef4444);
+  border: none;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-danger:hover { background: #dc2626; }
+
+/* Create group success screen */
+.create-group-success {
+  text-align: center;
+  padding: 8px 0 16px;
+}
+.create-group-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(251,191,36,0.15);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  margin: 0 auto 12px;
+}
+.create-group-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 6px;
+}
+.create-group-desc {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  margin: 0 0 16px;
+}
+.create-group-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 12px 0 0;
+  line-height: 1.5;
+}
+
+/* form-hint and form-error (shared utility) */
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+}
+.form-error {
+  font-size: 0.82rem;
+  color: var(--danger, #ef4444);
+  margin: 4px 0 0;
+}

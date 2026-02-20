@@ -1,13 +1,8 @@
 import { useState } from 'react';
-import { Users, Plus, Clock, Trash2, Timer, HandHeart, Send, X, Heart } from 'lucide-react';
-
-function formatMinutes(mins) {
-  if (!mins) return '0m';
-  if (mins < 60) return `${mins}m`;
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return m > 0 ? `${h}h ${m}m` : `${h}h`;
-}
+import { Users, Plus, HandHeart, Send, X, Heart, ChevronDown } from 'lucide-react';
+import GroupView from './GroupView';
+import CreateGroupModal from './CreateGroupModal';
+import JoinGroupModal from './JoinGroupModal';
 
 function formatRelative(isoString) {
   if (!isoString) return '';
@@ -20,105 +15,147 @@ function formatRelative(isoString) {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
-/* ─── Prayer Group Section ─── */
-function PrayerGroup({ memberStats, totalGroupMinutes, todayGroupMinutes, onAddMember, onRemoveMember, onLogSession }) {
-  const [newName, setNewName] = useState('');
-  const [logMinutes, setLogMinutes] = useState({});
-  const [showAddMember, setShowAddMember] = useState(false);
+/* ─── Shared Prayer Groups Section ─── */
+function SharedGroups({ groups, activeGroupId, onSetActive, activeGroup, members, posts,
+  totalGroupMinutes, todayGroupMinutes, userId, isAdmin, myMember,
+  onCreateGroup, onJoinGroup, onLogTime, onAddPost, onDeletePost,
+  onUpdateFocus, onLeave, onDelete, isGuest, onRequireAuth,
+}) {
+  const [showCreate, setShowCreate] = useState(false);
+  const [showJoin, setShowJoin] = useState(false);
+  const [showGroupPicker, setShowGroupPicker] = useState(false);
 
-  const handleAddMember = () => {
-    if (!newName.trim()) return;
-    onAddMember(newName.trim());
-    setNewName('');
-    setShowAddMember(false);
-  };
-
-  const handleLog = (memberId) => {
-    const mins = parseInt(logMinutes[memberId]) || 0;
-    if (mins < 1) return;
-    onLogSession(memberId, mins);
-    setLogMinutes(prev => ({ ...prev, [memberId]: '' }));
-  };
-
-  return (
-    <div className="community-section">
-      <div className="community-section-title">
-        <Users size={15} />
-        <span>Prayer Group</span>
-        {memberStats.length > 0 && <span className="community-member-count">{memberStats.length}</span>}
-        {todayGroupMinutes > 0 && <span className="community-today-badge">{formatMinutes(todayGroupMinutes)} today</span>}
+  if (isGuest) {
+    return (
+      <div className="community-section">
+        <div className="community-section-title">
+          <Users size={15} />
+          <span>Prayer Groups</span>
+        </div>
+        <div className="intercede-guest-banner">
+          <span>Sign in to create or join a prayer group</span>
+          <button className="intercede-guest-signin" onClick={onRequireAuth}>Sign in</button>
+        </div>
       </div>
+    );
+  }
 
-      {totalGroupMinutes > 0 && (
-        <div className="community-totals">
-          <Clock size={13} />
-          <span><strong>{formatMinutes(totalGroupMinutes)}</strong> total group prayer</span>
-        </div>
-      )}
-
-      {memberStats.length === 0 ? (
-        <p className="community-empty">Add your prayer group members to track time praying together.</p>
-      ) : (
-        <div className="community-members">
-          {memberStats.map((member, index) => (
-            <div key={member.id} className="community-member-row">
-              <div className="community-member-rank">
-                {index === 0 && member.totalMinutes > 0 ? '🥇'
-                  : index === 1 && member.totalMinutes > 0 ? '🥈'
-                  : index === 2 && member.totalMinutes > 0 ? '🥉'
-                  : <span className="community-rank-num">{index + 1}</span>}
-              </div>
-              <div className="community-member-info">
-                <span className="community-member-name">{member.name}</span>
-                <span className="community-member-stats">
-                  {formatMinutes(member.totalMinutes)} total
-                  {member.todayMinutes > 0 && ` · ${formatMinutes(member.todayMinutes)} today`}
-                  {member.lastSession && ` · ${formatRelative(member.lastSession.loggedAt)}`}
-                </span>
-              </div>
-              <div className="community-log-row">
-                <input
-                  type="number" min="1" max="999"
-                  className="community-minutes-input"
-                  placeholder="min"
-                  value={logMinutes[member.id] || ''}
-                  onChange={(e) => setLogMinutes(prev => ({ ...prev, [member.id]: e.target.value }))}
-                  onKeyDown={(e) => e.key === 'Enter' && handleLog(member.id)}
-                />
-                <button
-                  className="btn-log-community"
-                  onClick={() => handleLog(member.id)}
-                  disabled={!logMinutes[member.id] || parseInt(logMinutes[member.id]) < 1}
-                >
-                  <Timer size={13} />
-                </button>
-              </div>
-              <button className="community-remove-btn" onClick={() => onRemoveMember(member.id)}>
-                <Trash2 size={13} />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {showAddMember ? (
-        <div className="community-add-form">
-          <input
-            type="text" className="community-name-input" placeholder="Member name..."
-            value={newName} onChange={(e) => setNewName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleAddMember()} autoFocus
-          />
-          <div className="community-add-actions">
-            <button className="btn btn-sm btn-secondary" onClick={() => { setShowAddMember(false); setNewName(''); }}>Cancel</button>
-            <button className="btn btn-sm btn-primary" onClick={handleAddMember} disabled={!newName.trim()}>Add</button>
+  if (groups.length === 0) {
+    return (
+      <>
+        <div className="community-section">
+          <div className="community-section-title">
+            <Users size={15} />
+            <span>Prayer Groups</span>
+          </div>
+          <p className="community-empty">
+            Create a group and invite friends to pray together — see each other's prayer time, share what God is saying, and set a shared prayer focus.
+          </p>
+          <div className="group-action-buttons">
+            <button className="btn btn-primary" onClick={() => setShowCreate(true)}>
+              <Plus size={15} />
+              Create Group
+            </button>
+            <button className="btn btn-secondary" onClick={() => setShowJoin(true)}>
+              Join Group
+            </button>
           </div>
         </div>
-      ) : (
-        <button className="community-add-btn" onClick={() => setShowAddMember(true)}>
-          <Plus size={14} /> Add member
-        </button>
+
+        {showCreate && (
+          <CreateGroupModal
+            onClose={() => setShowCreate(false)}
+            onCreate={onCreateGroup}
+          />
+        )}
+        {showJoin && (
+          <JoinGroupModal
+            onClose={() => setShowJoin(false)}
+            onJoin={onJoinGroup}
+          />
+        )}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="community-section">
+        {/* Group selector (if multiple groups) */}
+        <div className="group-selector-row">
+          {groups.length > 1 ? (
+            <div className="group-selector">
+              <button
+                className="group-selector-btn"
+                onClick={() => setShowGroupPicker(!showGroupPicker)}
+              >
+                <Users size={14} />
+                <span>{activeGroup?.name || 'Select group'}</span>
+                <ChevronDown size={14} className={showGroupPicker ? 'icon-rotate' : ''} />
+              </button>
+              {showGroupPicker && (
+                <div className="group-picker-dropdown">
+                  {groups.map(g => (
+                    <button
+                      key={g.id}
+                      className={`group-picker-item ${g.id === activeGroupId ? 'group-picker-item-active' : ''}`}
+                      onClick={() => { onSetActive(g.id); setShowGroupPicker(false); }}
+                    >
+                      {g.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="community-section-title" style={{ marginBottom: 0 }}>
+              <Users size={15} />
+              <span>Prayer Groups</span>
+            </div>
+          )}
+          <div className="group-header-actions">
+            <button className="btn btn-secondary btn-xs" onClick={() => setShowJoin(true)}>
+              Join
+            </button>
+            <button className="btn btn-primary btn-xs" onClick={() => setShowCreate(true)}>
+              <Plus size={13} /> New
+            </button>
+          </div>
+        </div>
+
+        {activeGroup && (
+          <GroupView
+            group={activeGroup}
+            members={members}
+            posts={posts}
+            totalGroupMinutes={totalGroupMinutes}
+            todayGroupMinutes={todayGroupMinutes}
+            userId={userId}
+            isAdmin={isAdmin}
+            myMember={myMember}
+            onLogTime={onLogTime}
+            onAddPost={onAddPost}
+            onDeletePost={onDeletePost}
+            onUpdateFocus={onUpdateFocus}
+            onLeave={onLeave}
+            onDelete={onDelete}
+          />
+        )}
+      </div>
+
+      {showCreate && (
+        <CreateGroupModal
+          onClose={() => setShowCreate(false)}
+          onCreate={onCreateGroup}
+        />
       )}
-    </div>
+      {showJoin && (
+        <JoinGroupModal
+          onClose={() => setShowJoin(false)}
+          onJoin={onJoinGroup}
+        />
+      )}
+    </>
   );
 }
 
@@ -231,12 +268,18 @@ function IntercedeWithMe({ requests, onAdd, onPray, onDelete, isGuest, onRequire
 
 /* ─── Main Export ─── */
 export default function CommunityPrayer({
-  memberStats, totalGroupMinutes, todayGroupMinutes,
-  onAddMember, onRemoveMember, onLogSession,
+  // shared groups props
+  groups, activeGroupId, onSetActiveGroup, activeGroup,
+  groupMembers, groupPosts, totalGroupMinutes, todayGroupMinutes,
+  isAdmin, myMember,
+  onCreateGroup, onJoinGroup, onLogTime, onAddPost, onDeletePost,
+  onUpdateGroupFocus, onLeaveGroup, onDeleteGroup,
+  // intercede props
   intercedeRequests, onAddIntercede, onPrayIntercede, onDeleteIntercede,
+  // auth
   user, onRequireAuth,
 }) {
-  const [activeSection, setActiveSection] = useState('group'); // 'group' | 'intercede'
+  const [activeSection, setActiveSection] = useState('groups');
   const isGuest = !user;
 
   return (
@@ -244,11 +287,12 @@ export default function CommunityPrayer({
       {/* Section toggle */}
       <div className="community-tabs">
         <button
-          className={`community-tab-btn ${activeSection === 'group' ? 'community-tab-active' : ''}`}
-          onClick={() => setActiveSection('group')}
+          className={`community-tab-btn ${activeSection === 'groups' ? 'community-tab-active' : ''}`}
+          onClick={() => setActiveSection('groups')}
         >
           <Users size={14} />
-          Prayer Group
+          Prayer Groups
+          {groups.length > 0 && <span className="community-tab-badge">{groups.length}</span>}
         </button>
         <button
           className={`community-tab-btn ${activeSection === 'intercede' ? 'community-tab-active' : ''}`}
@@ -262,14 +306,29 @@ export default function CommunityPrayer({
         </button>
       </div>
 
-      {activeSection === 'group' ? (
-        <PrayerGroup
-          memberStats={memberStats}
+      {activeSection === 'groups' ? (
+        <SharedGroups
+          groups={groups}
+          activeGroupId={activeGroupId}
+          onSetActive={onSetActiveGroup}
+          activeGroup={activeGroup}
+          members={groupMembers}
+          posts={groupPosts}
           totalGroupMinutes={totalGroupMinutes}
           todayGroupMinutes={todayGroupMinutes}
-          onAddMember={onAddMember}
-          onRemoveMember={onRemoveMember}
-          onLogSession={onLogSession}
+          userId={user?.id}
+          isAdmin={isAdmin}
+          myMember={myMember}
+          onCreateGroup={onCreateGroup}
+          onJoinGroup={onJoinGroup}
+          onLogTime={onLogTime}
+          onAddPost={onAddPost}
+          onDeletePost={onDeletePost}
+          onUpdateFocus={onUpdateGroupFocus}
+          onLeave={onLeaveGroup}
+          onDelete={onDeleteGroup}
+          isGuest={isGuest}
+          onRequireAuth={onRequireAuth}
         />
       ) : (
         <IntercedeWithMe

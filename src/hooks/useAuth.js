@@ -71,6 +71,9 @@ export function useAuth() {
         supabase.from('community_members').delete().eq('user_id', uid),
         supabase.from('community_sessions').delete().eq('user_id', uid),
         supabase.from('user_stats').delete().eq('user_id', uid),
+        supabase.from('group_members').delete().eq('user_id', uid),
+        supabase.from('group_prayer_logs').delete().eq('user_id', uid),
+        supabase.from('group_posts').delete().eq('user_id', uid),
       ]);
       // Clear all local data
       localStorage.clear();

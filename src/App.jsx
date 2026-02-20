@@ -23,6 +23,7 @@ import { useNotifications } from './hooks/useNotifications';
 import { usePrayerPlan } from './hooks/usePrayerPlan';
 import { useDailyCheckin } from './hooks/useDailyCheckin';
 import { useCommunity } from './hooks/useCommunity';
+import { useGroups } from './hooks/useGroups';
 import { useIntercede } from './hooks/useIntercede';
 import { useStreakStats } from './hooks/useStreak';
 import { useSettings } from './hooks/useSettings';
@@ -121,7 +122,15 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
     currentDayNumber, isComplete, completedPlansCount,
   } = usePrayerPlan(user?.id);
 
-  const { memberStats, totalGroupMinutes, todayGroupMinutes, addMember, removeMember, logSession } = useCommunity(user?.id);
+  const { memberStats, totalGroupMinutes: legacyGroupMinutes, todayGroupMinutes: legacyTodayMinutes, addMember, removeMember, logSession } = useCommunity(user?.id);
+  const {
+    groups, activeGroupId, setActiveGroupId, activeGroup,
+    members: groupMembers, posts: groupPosts,
+    totalGroupMinutes, todayGroupMinutes,
+    isAdmin, myMember,
+    createGroup, joinGroup, leaveGroup, deleteGroup,
+    updateGroupFocus, logTime, addPost, deletePost,
+  } = useGroups(user?.id);
   const { requests: intercedeRequests, addRequest: addIntercede, prayForRequest: prayIntercede, deleteRequest: deleteIntercede } = useIntercede(user?.id);
   const { settings: appSettings, update: updateAppSettings } = useSettings(user?.id);
 
@@ -346,12 +355,24 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
         return (
           <div className="tab-content">
             <CommunityPrayer
-              memberStats={memberStats}
+              groups={groups}
+              activeGroupId={activeGroupId}
+              onSetActiveGroup={setActiveGroupId}
+              activeGroup={activeGroup}
+              groupMembers={groupMembers}
+              groupPosts={groupPosts}
               totalGroupMinutes={totalGroupMinutes}
               todayGroupMinutes={todayGroupMinutes}
-              onAddMember={addMember}
-              onRemoveMember={removeMember}
-              onLogSession={logSession}
+              isAdmin={isAdmin}
+              myMember={myMember}
+              onCreateGroup={createGroup}
+              onJoinGroup={joinGroup}
+              onLogTime={logTime}
+              onAddPost={addPost}
+              onDeletePost={deletePost}
+              onUpdateGroupFocus={updateGroupFocus}
+              onLeaveGroup={leaveGroup}
+              onDeleteGroup={deleteGroup}
               intercedeRequests={intercedeRequests}
               onAddIntercede={addIntercede}
               onPrayIntercede={prayIntercede}
@@ -423,7 +444,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
         prayerCount={activePrayers.length}
         testimonyCount={testimonies.length}
         planActive={!!plan}
-        communityCount={memberStats.length}
+        communityCount={groups.length}
       />
 
       {showForm && (
