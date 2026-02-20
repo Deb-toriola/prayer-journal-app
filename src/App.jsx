@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Plus } from 'lucide-react';
 import DoveIcon from './components/DoveIcon';
+import ErrorBoundary from './components/ErrorBoundary';
 import BottomNav from './components/BottomNav';
 import DailyVerse from './components/DailyVerse';
 import DailyCheckin from './components/DailyCheckin';
@@ -404,7 +405,9 @@ function AppInner({ user, signOut, onOpenAuth }) {
       </header>
 
       <main className="main">
-        {renderContent()}
+        <ErrorBoundary key={activeTab}>
+          {renderContent()}
+        </ErrorBoundary>
       </main>
 
       {/* FAB — only on Prayers tab, active sub-tab */}

@@ -25,7 +25,7 @@ export default function NotificationSettings({
     setNewLabel('');
   };
 
-  if (!notificationSupported) return null;
+  if (!notificationSupported || !settings) return null;
 
   return (
     <div className="notification-section">
@@ -59,7 +59,7 @@ export default function NotificationSettings({
           {settings.enabled && (
             <>
               <div className="notification-times">
-                {settings.times.map((time, i) => (
+                {(settings.times || []).map((time, i) => (
                   <div key={i} className="notification-time-row">
                     <Clock size={13} />
                     <span className="notification-time-label">{time.label}</span>

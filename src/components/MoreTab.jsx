@@ -55,7 +55,7 @@ export default function MoreTab({
           <ChevronRight size={16} className="more-menu-chevron" />
         </button>
 
-        {notificationSupported && (
+        {notificationSupported && notifSettings && (
           <div className="more-section" style={{ marginTop: 12 }}>
             <div className="more-section-label">
               <Bell size={14} />
