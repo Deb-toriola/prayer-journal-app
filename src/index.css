@@ -1422,7 +1422,8 @@ body::after {
   animation: fadeIn 0.2s ease;
 }
 
-.modal {
+.modal,
+.modal-sheet {
   background: var(--white);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   width: 100%;
@@ -1442,7 +1443,8 @@ body::after {
     align-items: center;
   }
 
-  .modal {
+  .modal,
+  .modal-sheet {
     border-radius: var(--radius-xl);
     max-height: 85vh;
     margin: 16px;
@@ -1462,6 +1464,35 @@ body::after {
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--gray-800);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+}
+.modal-close:hover { color: var(--text-primary); }
+
+.modal-body {
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+.modal-actions .btn {
+  min-width: 90px;
 }
 
 /* ===== Prayer Form ===== */
