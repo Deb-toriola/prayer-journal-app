@@ -62,7 +62,7 @@ export default function App() {
 
   return (
     <>
-      <AppInner user={user} signOut={signOut} onOpenAuth={openAuthModal} />
+      <AppInner user={user} signOut={signOut} onOpenAuth={openAuthModal} deleteAccount={deleteAccount} />
       {authModal && (
         <AuthScreen
           isModal
@@ -79,7 +79,7 @@ export default function App() {
   );
 }
 
-function AppInner({ user, signOut, onOpenAuth }) {
+function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
   const [activeTab, setActiveTab] = useState('home');
   const [prayerSubTab, setPrayerSubTab] = useState('active'); // 'active' | 'testimonies'
   const [showForm, setShowForm] = useState(false);
