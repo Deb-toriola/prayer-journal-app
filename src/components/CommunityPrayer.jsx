@@ -25,21 +25,6 @@ function SharedGroups({ groups, activeGroupId, onSetActive, activeGroup, members
   const [showJoin, setShowJoin] = useState(false);
   const [showGroupPicker, setShowGroupPicker] = useState(false);
 
-  if (isGuest) {
-    return (
-      <div className="community-section">
-        <div className="community-section-title">
-          <Users size={15} />
-          <span>Prayer Groups</span>
-        </div>
-        <div className="intercede-guest-banner">
-          <span>Sign in to create or join a prayer group</span>
-          <button className="intercede-guest-signin" onClick={onRequireAuth}>Sign in</button>
-        </div>
-      </div>
-    );
-  }
-
   if (groups.length === 0) {
     return (
       <>
