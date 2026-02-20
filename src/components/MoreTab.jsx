@@ -18,6 +18,7 @@ export default function MoreTab({
   onSignOut,
   onSignIn,
   onSignUp,
+  onDeleteAccount,
 }) {
   const [showSettings, setShowSettings] = useState(false);
 
@@ -33,6 +34,7 @@ export default function MoreTab({
         onSignOut={onSignOut}
         onSignIn={onSignIn}
         onSignUp={onSignUp}
+        onDeleteAccount={onDeleteAccount}
       />
     );
   }

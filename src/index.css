@@ -1427,9 +1427,11 @@ body::after {
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   width: 100%;
   max-width: 600px;
-  /* Reserve space for bottom nav (68px) + safe area so content is always reachable */
+  /* Sit above the bottom nav bar (68px) + safe area inset */
   max-height: calc(90dvh - 68px - env(safe-area-inset-bottom, 0px));
   max-height: calc(90vh - 68px);
+  /* Push modal up above the bottom nav so the FAB / nav don't overlap it */
+  margin-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
   animation: slideUp 0.3s ease;
   padding: 0;
@@ -1464,9 +1466,9 @@ body::after {
 
 /* ===== Prayer Form ===== */
 .prayer-form {
-  padding: 16px 20px 20px;
-  /* Extra bottom padding so Save button clears the bottom nav bar on mobile */
-  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  padding: 16px 20px;
+  /* Extra bottom padding so Save/Add Prayer button is never hidden */
+  padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -4158,6 +4160,64 @@ html.light-mode .more-menu-chevron {
 html.light-mode .more-app-name,
 html.light-mode .more-app-sub {
   color: rgba(10, 22, 40, 0.3);
+}
+
+/* ===== Dark mode modal + form inputs ===== */
+/* In dark mode --white is #FFFFFF, so modal/form backgrounds must be overridden */
+:root .modal {
+  background: var(--bg-secondary);
+}
+:root .modal-header {
+  border-bottom-color: var(--surface-border);
+}
+:root .modal-title {
+  color: var(--text-primary);
+}
+:root .form-input,
+:root .form-textarea {
+  background: var(--surface);
+  border-color: var(--surface-border);
+  color: var(--text-primary);
+}
+:root .form-input::placeholder,
+:root .form-textarea::placeholder {
+  color: var(--text-muted);
+}
+:root .form-input:focus,
+:root .form-textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
+}
+:root .form-label {
+  color: var(--text-secondary);
+}
+/* Light mode restores the original white card style */
+html.light-mode .modal {
+  background: #FFFFFF;
+}
+html.light-mode .modal-header {
+  border-bottom-color: var(--gray-100);
+}
+html.light-mode .modal-title {
+  color: var(--gray-800);
+}
+html.light-mode .form-input,
+html.light-mode .form-textarea {
+  background: #FFFFFF;
+  border-color: var(--gray-200);
+  color: var(--gray-800);
+}
+html.light-mode .form-input::placeholder,
+html.light-mode .form-textarea::placeholder {
+  color: var(--gray-400);
+}
+html.light-mode .form-input:focus,
+html.light-mode .form-textarea:focus {
+  border-color: var(--purple-lighter);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+html.light-mode .form-label {
+  color: var(--gray-600);
 }
 
 /* ===== Settings Full Page ===== */
