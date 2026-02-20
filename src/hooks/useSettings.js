@@ -9,7 +9,7 @@ const DEFAULTS = {
   showWeeklyFocusOnHome: true,
   notificationsEnabled: false,
   communityAlerts: false,
-  bibleTranslation: 'NIV',
+  bibleTranslation: 'NKJV',
 };
 
 function applyTheme(settings) {

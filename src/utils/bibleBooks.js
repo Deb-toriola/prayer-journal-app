@@ -84,7 +84,7 @@ export const BIBLE_TRANSLATIONS = [
   { code: 'MSG',  id: 97,   label: 'MSG – The Message' },
 ];
 
-export const DEFAULT_TRANSLATION = 'NIV';
+export const DEFAULT_TRANSLATION = 'NKJV';
 
 /**
  * Returns the Bible.com browser fallback URL for a scripture reference.

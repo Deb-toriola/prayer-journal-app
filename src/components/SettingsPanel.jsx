@@ -169,7 +169,7 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
           >
             <select
               className="settings-select"
-              value={settings.bibleTranslation || 'NIV'}
+              value={settings.bibleTranslation || 'NKJV'}
               onChange={e => onUpdate({ bibleTranslation: e.target.value })}
             >
               {BIBLE_TRANSLATIONS.map(t => (
