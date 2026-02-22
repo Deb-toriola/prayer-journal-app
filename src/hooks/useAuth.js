@@ -24,8 +24,12 @@ export function useAuth() {
 
   const signUp = async (email, password) => {
     setError(null);
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) { setError(error.message); return false; }
+    // If session is returned immediately, user is already signed in (email confirm OFF)
+    if (data?.session) {
+      setUser(data.session.user);
+    }
     return true;
   };
 

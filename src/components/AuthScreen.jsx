@@ -136,11 +136,11 @@ export default function AuthScreen({ onSignIn, onSignUp, onResetPassword, error,
                     <input
                       className="auth-input"
                       type={showPassword ? 'text' : 'password'}
-                      placeholder={view === 'signup' ? 'At least 6 characters' : 'Your password'}
+                      placeholder={view === 'signup' ? 'Create a password' : 'Your password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      minLength={view === 'signup' ? 6 : undefined}
+                      minLength={view === 'signup' ? 8 : undefined}
                       autoComplete={view === 'signup' ? 'new-password' : 'current-password'}
                     />
                     <button
@@ -152,6 +152,11 @@ export default function AuthScreen({ onSignIn, onSignUp, onResetPassword, error,
                       {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                     </button>
                   </div>
+                  {view === 'signup' && (
+                    <p className="auth-password-hint">
+                      Must include uppercase, lowercase and a number — e.g. <strong>Praying2024</strong>
+                    </p>
+                  )}
                 </div>
               )}
 
