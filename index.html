@@ -15,12 +15,17 @@
   <body>
     <div id="root"></div>
     <script>
-      // Force unregister any stale service workers on load
+      // Unregister ALL service workers and clear ALL caches
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
           for (let registration of registrations) {
-            registration.update();
+            registration.unregister();
           }
+        });
+        caches.keys().then(function(cacheNames) {
+          cacheNames.forEach(function(cacheName) {
+            caches.delete(cacheName);
+          });
         });
       }
     </script>

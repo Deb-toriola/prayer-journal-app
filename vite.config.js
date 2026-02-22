@@ -8,6 +8,9 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      devOptions: { enabled: false },
+      injectRegister: null,
+      selfDestroying: true,
       includeAssets: ['favicon.svg', 'icon-192.svg', 'icon-512.svg'],
       manifest: {
         name: 'My Prayer App',
