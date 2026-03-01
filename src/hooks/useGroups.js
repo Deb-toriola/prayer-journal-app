@@ -198,16 +198,19 @@ export function useGroups(userId) {
   };
 
   const approveMember = async (memberId) => {
+    if (!isAdmin) return;
     const { error } = await supabase
       .from('group_members')
       .update({ status: 'approved' })
-      .eq('id', memberId);
+      .eq('id', memberId)
+      .eq('group_id', activeGroupId);
     if (!error) fetchMembers(activeGroupId);
   };
 
   const rejectMember = async (memberId) => {
+    if (!isAdmin) return;
     try {
-      const { error } = await supabase.from('group_members').delete().eq('id', memberId);
+      const { error } = await supabase.from('group_members').delete().eq('id', memberId).eq('group_id', activeGroupId);
       if (error) { console.error('rejectMember failed:', error.message); return; }
       fetchMembers(activeGroupId);
     } catch (err) { console.error('rejectMember error:', err.message); }
@@ -224,8 +227,9 @@ export function useGroups(userId) {
   };
 
   const deleteGroup = async (groupId) => {
+    if (!isAdmin || !userId) return;
     try {
-      const { error } = await supabase.from('prayer_groups').delete().eq('id', groupId);
+      const { error } = await supabase.from('prayer_groups').delete().eq('id', groupId).eq('created_by', userId);
       if (error) { console.error('deleteGroup failed:', error.message); return; }
       setActiveGroupId(null);
       await fetchGroups();
@@ -233,6 +237,7 @@ export function useGroups(userId) {
   };
 
   const updateGroupFocus = async (groupId, focus, scripture) => {
+    if (!isAdmin) return;
     const { error } = await supabase
       .from('prayer_groups')
       .update({ focus, scripture })
@@ -286,9 +291,10 @@ export function useGroups(userId) {
   };
 
   const deletePost = async (postId) => {
+    if (!userId) return;
     setPosts(prev => prev.filter(p => p.id !== postId));
     try {
-      const { error } = await supabase.from('group_posts').delete().eq('id', postId);
+      const { error } = await supabase.from('group_posts').delete().eq('id', postId).eq('user_id', userId);
       if (error) console.error('deletePost failed:', error.message);
     } catch (err) { console.error('deletePost error:', err.message); }
   };
