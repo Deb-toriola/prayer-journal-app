@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Users, Plus, HandHeart, Send, X, ChevronDown } from 'lucide-react';
+import { Users, Plus, HandHeart, Send, X, ChevronDown, Heart, Trash2, Flag } from 'lucide-react';
+import { formatRelativeDate } from '../utils/constants';
 import GroupView from './GroupView';
 import CreateGroupModal from './CreateGroupModal';
 import JoinGroupModal from './JoinGroupModal';
@@ -141,13 +142,15 @@ function SharedGroups({ groups, activeGroupId, onSetActive, activeGroup, members
 }
 
 /* ─── Intercede With Me Section ─── */
-function IntercedeWithMe({ requests, onAdd, onPray, onDelete, isGuest, onRequireAuth }) {
+function IntercedeWithMe({ requests, onAdd, onPray, onDelete, isGuest, onRequireAuth, userId }) {
   const [showForm, setShowForm] = useState(false);
   const [burden, setBurden] = useState('');
+  const [reportedIds, setReportedIds] = useState(new Set());
+  const [reportingId, setReportingId] = useState(null);
 
   const handleSubmit = () => {
     if (!burden.trim()) return;
-    onAdd(burden);
+    onAdd(burden.trim());
     setBurden('');
     setShowForm(false);
   };
@@ -162,21 +165,95 @@ function IntercedeWithMe({ requests, onAdd, onPray, onDelete, isGuest, onRequire
     onPray(id);
   };
 
+  const handleReport = (id) => {
+    setReportedIds(prev => new Set([...prev, id]));
+    setReportingId(null);
+  };
+
   return (
-    <div className="community-section intercede-section intercede-coming-soon">
-      <div className="intercede-coming-soon-badge">Coming Soon</div>
+    <div className="community-section intercede-section">
       <div className="community-section-title">
         <HandHeart size={15} />
         <span>Intercede With Me</span>
       </div>
       <p className="intercede-intro">
-        Community prayer requests — coming soon 🕊️
+        Stand with others in prayer. Requests are anonymous — your name is never shown.
       </p>
 
-      <button className="intercede-post-btn" disabled>
+      <button className="intercede-post-btn" onClick={handlePostClick}>
         <HandHeart size={14} />
         Post a prayer request
       </button>
+
+      {showForm && (
+        <div className="intercede-form">
+          <textarea
+            className="intercede-textarea"
+            placeholder="Share your prayer burden anonymously... (your name will not be shown)"
+            value={burden}
+            onChange={e => setBurden(e.target.value)}
+            rows={3}
+            maxLength={400}
+            autoFocus
+          />
+          <div className="intercede-form-actions">
+            <button className="btn btn-sm btn-secondary" onClick={() => { setShowForm(false); setBurden(''); }}>
+              <X size={13} /> Cancel
+            </button>
+            <button className="btn btn-sm btn-primary" onClick={handleSubmit} disabled={!burden.trim()}>
+              <Send size={13} /> Post
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="intercede-feed">
+        {requests.length === 0 ? (
+          <p className="intercede-empty">No prayer requests yet — be the first to post one 🕊️</p>
+        ) : (
+          requests.map(req => (
+            <div key={req.id} className={`intercede-card ${reportedIds.has(req.id) ? 'intercede-card-reported' : ''}`}>
+              {reportedIds.has(req.id) ? (
+                <p className="intercede-reported-msg">This post has been reported and is under review.</p>
+              ) : (
+                <>
+                  <p className="intercede-burden">{req.burden}</p>
+                  <div className="intercede-card-bottom">
+                    <span className="intercede-timestamp">{formatRelativeDate(req.createdAt)}</span>
+                    <div className="intercede-card-actions">
+                      <button
+                        className={`intercede-pray-btn ${req.hasPrayed ? 'intercede-pray-btn-done' : ''}`}
+                        onClick={() => handlePray(req.id)}
+                        disabled={req.hasPrayed}
+                        title={req.hasPrayed ? 'You prayed for this' : 'I prayed for this'}
+                      >
+                        <Heart size={12} fill={req.hasPrayed ? 'currentColor' : 'none'} />
+                        {req.prayerCount > 0 && <span>{req.prayerCount}</span>}
+                        {req.hasPrayed ? 'Prayed' : 'Pray'}
+                      </button>
+                      {req.userId === userId ? (
+                        <button className="intercede-delete-btn" onClick={() => onDelete(req.id)} title="Delete">
+                          <Trash2 size={12} />
+                        </button>
+                      ) : reportingId === req.id ? (
+                        <div className="intercede-report-confirm">
+                          <span>Report this?</span>
+                          <button className="intercede-report-yes" onClick={() => handleReport(req.id)}>Yes</button>
+                          <button className="intercede-report-no" onClick={() => setReportingId(null)}>No</button>
+                        </div>
+                      ) : (
+                        <button className="intercede-report-btn" onClick={() => setReportingId(req.id)} title="Report post">
+                          <Flag size={12} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
@@ -258,6 +335,7 @@ export default function CommunityPrayer({
           onDelete={onDeleteIntercede}
           isGuest={isGuest}
           onRequireAuth={onRequireAuth}
+          userId={user?.id}
         />
       )}
     </div>

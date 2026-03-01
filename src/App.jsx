@@ -418,7 +418,9 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
       case 'plan':
         return (
           <div className="tab-content">
-            <WeeklyProject project={project} onUpdate={updateProject} />
+            {appSettings.showWeeklyFocusOnHome !== true && (
+              <WeeklyProject project={project} onUpdate={updateProject} />
+            )}
             <PrayerPlan
               plans={plans}
               onStart={startPlan}

@@ -4608,7 +4608,12 @@ html.light-mode .more-menu-chevron {
 
 html.light-mode .more-app-name,
 html.light-mode .more-app-sub {
-  color: rgba(10, 22, 40, 0.3);
+  color: rgba(10, 22, 40, 0.55);
+}
+
+html.minimal-mode .more-app-name,
+html.minimal-mode .more-app-sub {
+  color: rgba(61, 43, 31, 0.55);
 }
 
 /* ===== Dark mode modal + form inputs ===== */
@@ -5260,6 +5265,72 @@ html.light-mode .community-section-title {
   text-align: center;
   padding: 20px 0;
   font-style: italic;
+}
+
+.intercede-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.intercede-report-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 5px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s, background 0.15s;
+}
+
+.intercede-report-btn:hover {
+  color: #EF4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.intercede-report-confirm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.intercede-report-yes,
+.intercede-report-no {
+  background: transparent;
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+
+.intercede-report-yes:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #EF4444;
+}
+
+.intercede-report-no:hover {
+  background: var(--surface-hover);
+}
+
+.intercede-card-reported {
+  opacity: 0.5;
+}
+
+.intercede-reported-msg {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  padding: 4px 0;
 }
 
 /* Light mode intercede */
