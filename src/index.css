@@ -3514,6 +3514,51 @@ html.minimal-mode .home-prayer-brief-urgent-icon { color: #7C4F0B; }
   justify-content: center;
 }
 
+/* Plan created toast */
+.plan-toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-lg);
+  color: #10B981;
+  font-size: 0.82rem;
+  font-weight: 600;
+  animation: toast-in 0.25s ease;
+}
+html.light-mode .plan-toast,
+html.minimal-mode .plan-toast {
+  background: rgba(16, 185, 129, 0.08);
+  color: #065F46;
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Voice note coming soon inline block */
+.note-voice-coming-soon {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  background: rgba(236, 72, 153, 0.08);
+  border: 1px dashed rgba(236, 72, 153, 0.35);
+  border-radius: var(--radius-md);
+  color: #EC4899;
+  font-size: 0.78rem;
+  font-weight: 600;
+  width: 100%;
+}
+html.light-mode .note-voice-coming-soon,
+html.minimal-mode .note-voice-coming-soon {
+  background: rgba(236, 72, 153, 0.05);
+  border-color: rgba(236, 72, 153, 0.25);
+  color: #BE185D;
+}
+
 /* Active plan */
 .prayer-plan-active-header {
   display: flex;

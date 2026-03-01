@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   CalendarCheck, Plus, X, Check, Trash2, ChevronRight, Timer, RotateCcw, Play, Square,
-  MessageSquarePlus, ChevronDown, ChevronUp, BookMarked, Ear, Sparkles, Eye, BookOpen,
+  MessageSquarePlus, ChevronDown, ChevronUp, BookMarked, Ear, Sparkles, Eye, BookOpen, Mic,
 } from 'lucide-react';
 import { PLAN_TEMPLATES, PLAN_CATEGORIES } from '../hooks/usePrayerPlan';
 import { formatRelativeDate } from '../utils/constants';
@@ -15,6 +15,7 @@ const PLAN_NOTE_TYPES = [
   { value: 'scripture',    label: 'Scripture',      icon: BookMarked,        color: '#059669', placeholder: 'A scripture He laid on your heart...' },
   { value: 'confirmation', label: 'Confirmation',   icon: Sparkles,          color: '#2563EB', placeholder: 'A sign, confirmation, or witness...' },
   { value: 'vision',       label: 'Vision / Dream', icon: Eye,               color: '#9333EA', placeholder: 'What did you see...' },
+  { value: 'voice',        label: 'Voice Note',     icon: Mic,               color: '#EC4899', placeholder: '' },
 ];
 
 function getPlanNoteType(type) {
@@ -341,20 +342,27 @@ function PlanCard({ plan, onCheckIn, onDelete, today, onAddNote, onDeleteNote, b
                   );
                 })}
               </div>
-              <div className={`prayer-note-add${noteType === 'scripture' ? ' prayer-note-add-scripture' : ''}`}>
-                {noteType === 'scripture' ? (
-                  <ScripturePicker value={newNote} onChange={setNewNote} />
-                ) : (
-                  <input
-                    type="text" className="prayer-note-input"
-                    placeholder={getPlanNoteType(noteType).placeholder}
-                    value={newNote} onChange={(e) => setNewNote(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleAddNote()}
-                    maxLength={500}
-                  />
-                )}
-                <button className="btn-note-add" onClick={handleAddNote} disabled={!newNote.trim()}>Add</button>
-              </div>
+              {noteType === 'voice' ? (
+                <div className="note-voice-coming-soon">
+                  <Mic size={15} />
+                  <span>Voice notes — coming soon</span>
+                </div>
+              ) : (
+                <div className={`prayer-note-add${noteType === 'scripture' ? ' prayer-note-add-scripture' : ''}`}>
+                  {noteType === 'scripture' ? (
+                    <ScripturePicker value={newNote} onChange={setNewNote} />
+                  ) : (
+                    <input
+                      type="text" className="prayer-note-input"
+                      placeholder={getPlanNoteType(noteType).placeholder}
+                      value={newNote} onChange={(e) => setNewNote(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleAddNote()}
+                      maxLength={500}
+                    />
+                  )}
+                  <button className="btn-note-add" onClick={handleAddNote} disabled={!newNote.trim()}>Add</button>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -425,54 +433,35 @@ export default function PrayerPlan({
   const [customName, setCustomName] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [customDays, setCustomDays] = useState('');
+  const [toast, setToast] = useState('');
   const QUICK_DAYS = [7, 14, 21, 30, 40];
   const habitsTemplates = PLAN_TEMPLATES.filter(t => t.category === 'habits');
 
   const handleStart = () => {
+    const tpl = PLAN_TEMPLATES.find(t => t.id === selectedTemplate);
+    const planName = (customName || '').trim() || (tpl ? tpl.name : `${customDays || 7}-Day Prayer Plan`);
     onStart(selectedTemplate, customName, customDays || (selectedTemplate ? null : '7'));
     setShowCreator(false);
     setCustomName('');
     setSelectedTemplate(null);
     setCustomDays('');
+    setToast(`"${planName}" created!`);
+    setTimeout(() => setToast(''), 3500);
   };
 
   const canStart = selectedTemplate || (customDays && parseInt(customDays) > 0);
 
   return (
     <>
-      {/* Active plan cards */}
-      {plans.map(plan => (
-        <PlanCard
-          key={plan.id}
-          plan={plan}
-          onCheckIn={onCheckIn}
-          onDelete={onDelete}
-          today={today}
-          onAddNote={onAddNote}
-          onDeleteNote={onDeleteNote}
-          bibleTranslation={bibleTranslation}
-          onAddPartner={onAddPartner}
-          onRemovePartner={onRemovePartner}
-          onLogPartnerPrayed={onLogPartnerPrayed}
-          onUndoPartnerPrayed={onUndoPartnerPrayed}
-        />
-      ))}
+      {/* Toast notification */}
+      {toast && (
+        <div className="plan-toast">
+          <CalendarCheck size={14} />
+          {toast}
+        </div>
+      )}
 
-      {/* Thanksgiving & Praise — always visible top-level section */}
-      <FeaturedPlanSection
-        categoryId="thanksgiving"
-        label="🙌 Thanksgiving & Praise"
-        onStart={onStart}
-      />
-
-      {/* Personal Intercession — always visible top-level section */}
-      <FeaturedPlanSection
-        categoryId="intercession"
-        label="🛡️ Personal Intercession"
-        onStart={onStart}
-      />
-
-      {/* Prayer Habits — collapsible picker, habits templates only */}
+      {/* Prayer Habits — at the top so adding new plans is always accessible */}
       <div className="prayer-plan-card">
         <div className="prayer-plan-label">
           <CalendarCheck size={15} />
@@ -551,6 +540,38 @@ export default function PrayerPlan({
           </div>
         )}
       </div>
+
+      {/* Active plan cards */}
+      {plans.map(plan => (
+        <PlanCard
+          key={plan.id}
+          plan={plan}
+          onCheckIn={onCheckIn}
+          onDelete={onDelete}
+          today={today}
+          onAddNote={onAddNote}
+          onDeleteNote={onDeleteNote}
+          bibleTranslation={bibleTranslation}
+          onAddPartner={onAddPartner}
+          onRemovePartner={onRemovePartner}
+          onLogPartnerPrayed={onLogPartnerPrayed}
+          onUndoPartnerPrayed={onUndoPartnerPrayed}
+        />
+      ))}
+
+      {/* Thanksgiving & Praise */}
+      <FeaturedPlanSection
+        categoryId="thanksgiving"
+        label="🙌 Thanksgiving & Praise"
+        onStart={onStart}
+      />
+
+      {/* Personal Intercession */}
+      <FeaturedPlanSection
+        categoryId="intercession"
+        label="🛡️ Personal Intercession"
+        onStart={onStart}
+      />
     </>
   );
 }

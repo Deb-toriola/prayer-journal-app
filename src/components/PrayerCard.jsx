@@ -3,7 +3,7 @@ import {
   MoreVertical, Pencil, Trash2, CheckCircle2, RotateCcw, BookOpen,
   Calendar, Heart, Undo2, AlertTriangle, MessageSquarePlus,
   ChevronDown, ChevronUp, X, Ear, Sparkles, Users2, BookMarked, Eye,
-  Timer, Square, Clock,
+  Timer, Square, Clock, Mic,
 } from 'lucide-react';
 import CategoryBadge from './CategoryBadge';
 import PrayerPartners from './PrayerPartners';
@@ -18,6 +18,7 @@ const NOTE_TYPES = [
   { value: 'scripture', label: 'Scripture', icon: BookMarked, color: '#059669', placeholder: 'A scripture He laid on your heart...' },
   { value: 'confirmation', label: 'Confirmation', icon: Sparkles, color: '#2563EB', placeholder: 'A sign, confirmation, or witness...' },
   { value: 'vision', label: 'Vision / Dream', icon: Eye, color: '#9333EA', placeholder: 'What did you see...' },
+  { value: 'voice', label: 'Voice Note', icon: Mic, color: '#EC4899', placeholder: '' },
 ];
 
 function getNoteType(type) {
@@ -311,20 +312,27 @@ export default function PrayerCard({
                     );
                   })}
                 </div>
-                <div className={`prayer-note-add${noteType === 'scripture' ? ' prayer-note-add-scripture' : ''}`}>
-                  {noteType === 'scripture' ? (
-                    <ScripturePicker value={newNote} onChange={setNewNote} />
-                  ) : (
-                    <input
-                      type="text" className="prayer-note-input"
-                      placeholder={getNoteType(noteType).placeholder}
-                      value={newNote} onChange={(e) => setNewNote(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleAddNote()}
-                      maxLength={500}
-                    />
-                  )}
-                  <button className="btn-note-add" onClick={handleAddNote} disabled={!newNote.trim()}>Add</button>
-                </div>
+                {noteType === 'voice' ? (
+                  <div className="note-voice-coming-soon">
+                    <Mic size={15} />
+                    <span>Voice notes — coming soon</span>
+                  </div>
+                ) : (
+                  <div className={`prayer-note-add${noteType === 'scripture' ? ' prayer-note-add-scripture' : ''}`}>
+                    {noteType === 'scripture' ? (
+                      <ScripturePicker value={newNote} onChange={setNewNote} />
+                    ) : (
+                      <input
+                        type="text" className="prayer-note-input"
+                        placeholder={getNoteType(noteType).placeholder}
+                        value={newNote} onChange={(e) => setNewNote(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAddNote()}
+                        maxLength={500}
+                      />
+                    )}
+                    <button className="btn-note-add" onClick={handleAddNote} disabled={!newNote.trim()}>Add</button>
+                  </div>
+                )}
               </div>
             )}
           </div>
