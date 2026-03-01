@@ -238,6 +238,20 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
 
             <DailyVerse />
 
+            {appSettings.showStreak !== false && (
+              <DailyCheckin
+                hasPrayedToday={hasPrayedToday}
+                hasManualCheckinToday={hasManualCheckinToday}
+                onCheckIn={checkInToday}
+                onUncheck={uncheckToday}
+                currentStreak={currentStreak}
+                longestStreak={longestStreak}
+                totalDaysPrayed={totalDaysPrayed}
+                totalPrayers={streakStats.totalPrayers}
+                neglectedPrayers={neglectedCount}
+              />
+            )}
+
             {/* At-a-glance summary */}
             <div className="home-glance">
               <button className="home-glance-item" onClick={() => handleTabChange('prayers')}>
@@ -315,20 +329,6 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
                   <div className="home-community-snapshot-groups">in {snapshotGroupName}</div>
                 )}
               </button>
-            )}
-
-            {appSettings.showStreak !== false && (
-              <DailyCheckin
-                hasPrayedToday={hasPrayedToday}
-                hasManualCheckinToday={hasManualCheckinToday}
-                onCheckIn={checkInToday}
-                onUncheck={uncheckToday}
-                currentStreak={currentStreak}
-                longestStreak={longestStreak}
-                totalDaysPrayed={totalDaysPrayed}
-                totalPrayers={streakStats.totalPrayers}
-                neglectedPrayers={neglectedCount}
-              />
             )}
 
             {appSettings.showNeglected !== false && neglectedCount > 0 && (

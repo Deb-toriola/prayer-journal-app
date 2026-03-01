@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Flame, Trophy, CalendarDays, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Flame, CheckCircle2 } from 'lucide-react';
 
 export default function DailyCheckin({
   hasPrayedToday,
@@ -9,8 +9,6 @@ export default function DailyCheckin({
   currentStreak,
   longestStreak,
   totalDaysPrayed,
-  totalPrayers,
-  neglectedPrayers,
 }) {
   const [justCheckedIn, setJustCheckedIn] = useState(false);
 
@@ -20,54 +18,45 @@ export default function DailyCheckin({
     setTimeout(() => setJustCheckedIn(false), 2000);
   };
 
-  return (
-    <div className="daily-checkin-card">
-      <div className="daily-checkin-top">
-        <div className="streak-stats">
-          <div className="streak-stat streak-stat-main">
-            <Flame
-              size={20}
-              className={`streak-flame ${currentStreak > 0 ? 'streak-flame-active' : ''}`}
-            />
-            <div>
-              <span className="streak-number">{currentStreak}</span>
-              <span className="streak-label">day streak</span>
-            </div>
-          </div>
-          <div className="streak-stat">
-            <Trophy size={14} />
-            <div>
-              <span className="streak-number">{longestStreak}</span>
-              <span className="streak-label">best</span>
-            </div>
-          </div>
-          <div className="streak-stat">
-            <CalendarDays size={14} />
-            <div>
-              <span className="streak-number">{totalDaysPrayed}</span>
-              <span className="streak-label">days prayed</span>
-            </div>
-          </div>
-        </div>
+  const stateClass = hasPrayedToday ? 'daily-checkin-prayed' : 'daily-checkin-not-prayed';
 
-        <div className="streak-status">
-          {hasPrayedToday ? (
-            <span className="streak-done-badge">
-              <CheckCircle2 size={11} />
-              Prayed today
-            </span>
-          ) : (
-            <span className="streak-pending-badge">Keep streak!</span>
-          )}
-          {neglectedPrayers > 0 && (
-            <span className="streak-neglect-badge" title="Prayers not covered in 3+ days">
-              <AlertCircle size={11} />
-              {neglectedPrayers} need attention
-            </span>
-          )}
+  return (
+    <div className={`daily-checkin-card ${stateClass}`}>
+
+      {/* Hero — icon + big number + message */}
+      <div className="streak-hero">
+        <div className="streak-hero-icon-wrap">
+          <Flame
+            size={40}
+            className={`streak-hero-flame ${!hasPrayedToday ? 'streak-hero-flame-pulse' : ''}`}
+          />
+          {hasPrayedToday && <CheckCircle2 size={20} className="streak-hero-check" />}
+        </div>
+        <div className="streak-hero-number">{currentStreak}</div>
+        <div className="streak-hero-msg">
+          {hasPrayedToday ? 'Streak safe — well done.' : 'Keep your streak alive'}
         </div>
       </div>
 
+      {/* Stats row */}
+      <div className="streak-stats-row">
+        <div className="streak-stat-item">
+          <span className="streak-stat-num">{currentStreak}</span>
+          <span className="streak-stat-lbl">Day Streak</span>
+        </div>
+        <div className="streak-stat-sep" />
+        <div className="streak-stat-item">
+          <span className="streak-stat-num">{longestStreak}</span>
+          <span className="streak-stat-lbl">Best</span>
+        </div>
+        <div className="streak-stat-sep" />
+        <div className="streak-stat-item">
+          <span className="streak-stat-num">{totalDaysPrayed}</span>
+          <span className="streak-stat-lbl">Days Prayed</span>
+        </div>
+      </div>
+
+      {/* Action */}
       {hasPrayedToday ? (
         <div className="daily-checkin-done">
           <span>✨ You prayed today — your streak is safe!</span>
