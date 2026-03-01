@@ -60,6 +60,7 @@ export default function CreateGroupModal({ onClose, onCreate }) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoFocus
+                maxLength={50}
               />
             </div>
 
@@ -70,6 +71,7 @@ export default function CreateGroupModal({ onClose, onCreate }) {
                 placeholder="What's this group about?"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                maxLength={200}
               />
             </div>
 
@@ -80,6 +82,7 @@ export default function CreateGroupModal({ onClose, onCreate }) {
                 placeholder="e.g. Deborah"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
+                maxLength={30}
               />
               <p className="form-hint">This is how group members will see you</p>
             </div>

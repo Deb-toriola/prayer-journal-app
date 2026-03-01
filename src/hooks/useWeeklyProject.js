@@ -13,7 +13,8 @@ export function useWeeklyProject(userId) {
       .select('*')
       .eq('user_id', userId)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) { console.error('useWeeklyProject fetch failed:', error.message); return; }
         if (data) {
           setProject({ title: data.title || '', content: data.content || '', lastUpdated: data.updated_at });
         }
@@ -30,6 +31,8 @@ export function useWeeklyProject(userId) {
           title: next.title || '',
           content: next.content || '',
           updated_at: now,
+        }).then(({ error }) => {
+          if (error) console.error('updateProject failed:', error.message);
         });
       }
       return next;

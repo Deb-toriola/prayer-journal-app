@@ -10,6 +10,8 @@ export default function MoreTab({
   onRemoveTime,
   onUpdateTime,
   notificationSupported,
+  notifPermission,
+  notifIsNative,
   prayers,
   onShowExport,
   appSettings,
@@ -68,6 +70,8 @@ export default function MoreTab({
               onRemoveTime={onRemoveTime}
               onUpdateTime={onUpdateTime}
               notificationSupported={notificationSupported}
+              permissionState={notifPermission}
+              isNative={notifIsNative}
             />
           </div>
         )}

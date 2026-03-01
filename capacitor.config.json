@@ -6,7 +6,7 @@
     "SplashScreen": {
       "launchShowDuration": 2000,
       "launchAutoHide": false,
-      "backgroundColor": "#0A1628",
+      "backgroundColor": "#0F172A",
       "androidSplashResourceName": "splash",
       "androidScaleType": "CENTER_CROP",
       "showSpinner": false,
@@ -17,8 +17,13 @@
     },
     "StatusBar": {
       "style": "DARK",
-      "backgroundColor": "#0A1628",
+      "backgroundColor": "#0F172A",
       "overlaysWebView": false
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon_config_sample",
+      "iconColor": "#0F172A",
+      "sound": "beep.wav"
     }
   },
   "ios": {

@@ -8,7 +8,8 @@ export function useIntercede(userId) {
   useEffect(() => {
     const fetchRequests = () => {
       supabase.from('intercede_requests').select('*').order('created_at', { ascending: false })
-        .then(({ data }) => {
+        .then(({ data, error }) => {
+          if (error) { console.error('fetchRequests failed:', error.message); return; }
           if (data) setRequests(data.map(r => ({
             id: r.id, burden: r.burden, createdAt: r.created_at,
             prayerCount: r.prayer_count || 0, userId: r.user_id,
@@ -22,7 +23,8 @@ export function useIntercede(userId) {
     // Load which requests this signed-in user has prayed for
     if (userId) {
       supabase.from('intercede_prayers').select('request_id').eq('user_id', userId)
-        .then(({ data }) => {
+        .then(({ data, error }) => {
+          if (error) { console.error('fetchMyPrayers failed:', error.message); return; }
           if (data) setMyPrayers(new Set(data.map(r => r.request_id)));
         });
     }
@@ -37,10 +39,13 @@ export function useIntercede(userId) {
 
   const addRequest = useCallback(async (burden) => {
     if (!burden.trim() || !userId) return;
-    await supabase.from('intercede_requests').insert({
-      user_id: userId, burden: burden.trim(), prayer_count: 0,
-    });
-    // Real-time will update the list
+    try {
+      const { error } = await supabase.from('intercede_requests').insert({
+        user_id: userId, burden: burden.trim(), prayer_count: 0,
+      });
+      if (error) console.error('addRequest failed:', error.message);
+      // Real-time will update the list
+    } catch (err) { console.error('addRequest error:', err.message); }
   }, [userId]);
 
   const prayForRequest = useCallback(async (id) => {
@@ -60,7 +65,10 @@ export function useIntercede(userId) {
 
   const deleteRequest = useCallback(async (id) => {
     setRequests((prev) => prev.filter(r => r.id !== id));
-    await supabase.from('intercede_requests').delete().eq('id', id).eq('user_id', userId);
+    try {
+      const { error } = await supabase.from('intercede_requests').delete().eq('id', id).eq('user_id', userId);
+      if (error) console.error('deleteRequest failed:', error.message);
+    } catch (err) { console.error('deleteRequest error:', err.message); }
   }, [userId]);
 
   // Merge hasPrayed into requests

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import CategoryBadge from './CategoryBadge';
 import PrayerPartners from './PrayerPartners';
+import ScripturePicker from './ScripturePicker';
 import { formatRelativeDate } from '../utils/constants';
 import { formatDuration, formatDurationReadable } from '../hooks/usePrayerTimer';
 import { getScriptureUrl, getScriptureDeepLink } from '../utils/bibleBooks';
@@ -274,7 +275,13 @@ export default function PrayerCard({
                       </div>
                       <div className="prayer-note-content">
                         <span className="prayer-note-type-label" style={{ color: nt.color }}>{nt.label}</span>
-                        <p>{note.text}</p>
+                        {note.type === 'scripture' ? (() => {
+                          const translation = bibleTranslation || 'NKJV';
+                          const browserUrl = getScriptureUrl(note.text, translation);
+                          return browserUrl
+                            ? <a href={browserUrl} target="_blank" rel="noopener noreferrer" className="prayer-note-scripture-link" onClick={(e) => e.stopPropagation()}><BookOpen size={11} /><span>{note.text}</span><span className="scripture-open-hint">↗</span></a>
+                            : <p>{note.text}</p>;
+                        })() : <p>{note.text}</p>}
                         <span className="prayer-note-date">{formatRelativeDate(note.createdAt)}</span>
                       </div>
                       {!prayer.answered && (
@@ -304,13 +311,18 @@ export default function PrayerCard({
                     );
                   })}
                 </div>
-                <div className="prayer-note-add">
-                  <input
-                    type="text" className="prayer-note-input"
-                    placeholder={getNoteType(noteType).placeholder}
-                    value={newNote} onChange={(e) => setNewNote(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleAddNote()}
-                  />
+                <div className={`prayer-note-add${noteType === 'scripture' ? ' prayer-note-add-scripture' : ''}`}>
+                  {noteType === 'scripture' ? (
+                    <ScripturePicker value={newNote} onChange={setNewNote} />
+                  ) : (
+                    <input
+                      type="text" className="prayer-note-input"
+                      placeholder={getNoteType(noteType).placeholder}
+                      value={newNote} onChange={(e) => setNewNote(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleAddNote()}
+                      maxLength={500}
+                    />
+                  )}
                   <button className="btn-note-add" onClick={handleAddNote} disabled={!newNote.trim()}>Add</button>
                 </div>
               </div>

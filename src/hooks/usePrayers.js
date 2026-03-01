@@ -71,7 +71,12 @@ export function usePrayers(userId) {
   const syncPrayer = useCallback(async (updatedPrayer) => {
     if (!userId) return;
     const row = prayerToRow(updatedPrayer, userId);
-    await supabase.from('prayers').upsert(row);
+    try {
+      const { error } = await supabase.from('prayers').upsert(row);
+      if (error) console.error('syncPrayer failed:', error.message);
+    } catch (err) {
+      console.error('syncPrayer error:', err.message);
+    }
   }, [userId]);
 
   const addPrayer = useCallback(async (prayer) => {
@@ -109,7 +114,14 @@ export function usePrayers(userId) {
 
   const deletePrayer = useCallback(async (id) => {
     setPrayers((prev) => prev.filter((p) => p.id !== id));
-    if (userId) await supabase.from('prayers').delete().eq('id', id).eq('user_id', userId);
+    if (userId) {
+      try {
+        const { error } = await supabase.from('prayers').delete().eq('id', id).eq('user_id', userId);
+        if (error) console.error('deletePrayer failed:', error.message);
+      } catch (err) {
+        console.error('deletePrayer error:', err.message);
+      }
+    }
   }, [userId]);
 
   const markAnswered = useCallback(async (id, testimonyNote = '') => {

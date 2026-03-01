@@ -81,6 +81,7 @@ export default function PrayerForm({
               onChange={(e) => setTitle(e.target.value)}
               required
               autoFocus
+              maxLength={80}
             />
           </div>
 
@@ -96,6 +97,7 @@ export default function PrayerForm({
               onChange={(e) => setContent(e.target.value)}
               required
               rows={4}
+              maxLength={2000}
             />
           </div>
 

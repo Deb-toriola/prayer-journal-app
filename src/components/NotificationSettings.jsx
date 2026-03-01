@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, BellOff, Plus, X, Clock, Settings } from 'lucide-react';
+import { Bell, BellOff, Plus, X, Clock, Settings, AlertCircle } from 'lucide-react';
 
 export default function NotificationSettings({
   settings,
@@ -8,9 +8,11 @@ export default function NotificationSettings({
   onRemoveTime,
   onUpdateTime,
   notificationSupported,
+  permissionState,
+  isNative,
 }) {
   const [showPanel, setShowPanel] = useState(false);
-  const [newHour, setNewHour] = useState(12);
+  const [newHour, setNewHour] = useState(8);
   const [newMinute, setNewMinute] = useState(0);
   const [newLabel, setNewLabel] = useState('');
 
@@ -21,11 +23,17 @@ export default function NotificationSettings({
   };
 
   const handleAdd = () => {
-    onAddTime(newHour, newMinute, newLabel.trim() || `Prayer Time`);
+    onAddTime(newHour, newMinute, newLabel.trim() || 'Prayer Time');
     setNewLabel('');
   };
 
   if (!notificationSupported || !settings) return null;
+
+  const isBlocked = permissionState === 'denied';
+
+  const blockedMessage = isNative
+    ? 'Notifications are blocked. Open iPhone Settings → My Prayer App → Notifications → turn on Allow Notifications, then come back.'
+    : 'Notifications are blocked in your browser. Click the lock icon (🔒) in the address bar, set Notifications to Allow, then refresh.';
 
   return (
     <div className="notification-section">
@@ -36,27 +44,35 @@ export default function NotificationSettings({
         <div className="notification-toggle-left">
           {settings.enabled ? <Bell size={16} /> : <BellOff size={16} />}
           <span>Prayer Reminders</span>
-          {settings.enabled && (
-            <span className="notification-on-badge">ON</span>
-          )}
+          {settings.enabled && <span className="notification-on-badge">ON</span>}
+          {isBlocked && <span className="notification-blocked-badge">Blocked</span>}
         </div>
         <Settings size={14} className={showPanel ? 'icon-rotate' : ''} />
       </button>
 
       {showPanel && (
         <div className="notification-panel">
-          <div className="notification-enable-row">
-            <span>Enable Notifications</span>
-            <button
-              className={`toggle-switch ${settings.enabled ? 'toggle-on' : ''}`}
-              onClick={onToggle}
-              aria-label="Toggle notifications"
-            >
-              <span className="toggle-knob" />
-            </button>
-          </div>
+          {/* Blocked — show clear instructions instead of toggle */}
+          {isBlocked ? (
+            <div className="notification-blocked-msg">
+              <AlertCircle size={15} />
+              <p>{blockedMessage}</p>
+            </div>
+          ) : (
+            <div className="notification-enable-row">
+              <span>Enable Notifications</span>
+              <button
+                className={`toggle-switch ${settings.enabled ? 'toggle-on' : ''}`}
+                onClick={onToggle}
+                aria-label="Toggle notifications"
+              >
+                <span className="toggle-knob" />
+              </button>
+            </div>
+          )}
 
-          {settings.enabled && (
+          {/* Time list + add form — only when enabled and not blocked */}
+          {settings.enabled && !isBlocked && (
             <>
               <div className="notification-times">
                 {(settings.times || []).map((time, i) => (
@@ -84,6 +100,7 @@ export default function NotificationSettings({
                   placeholder="Label (e.g. Evening Prayer)"
                   value={newLabel}
                   onChange={(e) => setNewLabel(e.target.value)}
+                  maxLength={40}
                 />
                 <div className="notification-time-inputs">
                   <select
@@ -103,9 +120,7 @@ export default function NotificationSettings({
                     onChange={(e) => setNewMinute(Number(e.target.value))}
                   >
                     {[0, 15, 30, 45].map((m) => (
-                      <option key={m} value={m}>
-                        :{String(m).padStart(2, '0')}
-                      </option>
+                      <option key={m} value={m}>:{String(m).padStart(2, '0')}</option>
                     ))}
                   </select>
                   <button className="btn btn-sm btn-primary" onClick={handleAdd}>

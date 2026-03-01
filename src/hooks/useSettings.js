@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 
 const DEFAULTS = {
-  theme: 'dark',
+  theme: 'minimal',
   fontSize: 'medium',
   showStreak: true,
   showNeglected: true,
@@ -13,14 +13,20 @@ const DEFAULTS = {
 };
 
 function applyTheme(settings) {
+  // Persist theme so the inline <head> script can apply it on next load (no flash)
+  try { localStorage.setItem('prayer-app-theme', settings.theme); } catch (_) {}
+  const root = document.documentElement;
+  root.classList.remove('light-mode', 'minimal-mode');
   if (settings.theme === 'light') {
-    document.documentElement.classList.add('light-mode');
-  } else {
-    document.documentElement.classList.remove('light-mode');
+    root.classList.add('light-mode');
+  } else if (settings.theme === 'minimal') {
+    root.classList.add('light-mode');   // inherit light-mode base overrides
+    root.classList.add('minimal-mode'); // then apply minimal-specific overrides
   }
-  document.documentElement.classList.remove('font-small', 'font-large');
-  if (settings.fontSize === 'small') document.documentElement.classList.add('font-small');
-  if (settings.fontSize === 'large') document.documentElement.classList.add('font-large');
+  // 'dark' = no class (default :root variables)
+  root.classList.remove('font-small', 'font-large');
+  if (settings.fontSize === 'small') root.classList.add('font-small');
+  if (settings.fontSize === 'large') root.classList.add('font-large');
 }
 
 export function useSettings(userId) {

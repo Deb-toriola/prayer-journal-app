@@ -13,3 +13,4 @@ generate-icons.html
 # Remove these lines if you want to commit native projects to git
 ios/
 android/
+.vercel

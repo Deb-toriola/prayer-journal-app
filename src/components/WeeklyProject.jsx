@@ -48,6 +48,7 @@ export default function WeeklyProject({ project, onUpdate }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             autoFocus
+            maxLength={80}
           />
           <label className="weekly-field-label">How you will pray for it</label>
           <textarea
@@ -56,6 +57,7 @@ export default function WeeklyProject({ project, onUpdate }) {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={3}
+            maxLength={1000}
           />
           <div className="weekly-project-actions">
             <button className="btn btn-sm btn-secondary" onClick={handleCancel}>

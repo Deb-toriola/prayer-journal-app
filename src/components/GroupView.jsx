@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import {
   MessageSquare, Clock, Settings, Timer, Send, X, Copy, Check,
-  BookOpen, Trash2, Crown, LogOut, Users, ChevronDown,
+  BookOpen, Trash2, Crown, LogOut, Users, RefreshCw, CheckCircle2,
 } from 'lucide-react';
+import { formatRelativeDate } from '../utils/constants';
 
 function formatMinutes(mins) {
   if (!mins) return '0m';
@@ -10,17 +11,6 @@ function formatMinutes(mins) {
   const h = Math.floor(mins / 60);
   const m = mins % 60;
   return m > 0 ? `${h}h ${m}m` : `${h}h`;
-}
-
-function formatRelative(isoString) {
-  if (!isoString) return '';
-  const diff = Date.now() - new Date(isoString);
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
 }
 
 function formatDate(isoString) {
@@ -35,10 +25,11 @@ function initials(name) {
 const POST_TYPE_LABELS = { note: 'Note', scripture: 'Scripture', focus_update: 'Focus Update' };
 
 /* ─── Feed Tab ─── */
-function FeedTab({ posts, userId, onAddPost, onDeletePost, groupId }) {
+function FeedTab({ posts, userId, onAddPost, onDeletePost, onRefresh, groupId }) {
   const [content, setContent] = useState('');
   const [postType, setPostType] = useState('note');
   const [submitting, setSubmitting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const handlePost = async () => {
     if (!content.trim()) return;
@@ -48,8 +39,21 @@ function FeedTab({ posts, userId, onAddPost, onDeletePost, groupId }) {
     setSubmitting(false);
   };
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await onRefresh();
+    setTimeout(() => setRefreshing(false), 600);
+  };
+
   return (
     <div className="group-feed">
+      {/* Feed header with refresh */}
+      <div className="group-feed-header">
+        <span className="group-feed-title">Group Feed</span>
+        <button className={`group-refresh-btn ${refreshing ? 'group-refresh-spinning' : ''}`} onClick={handleRefresh} title="Refresh feed">
+          <RefreshCw size={14} />
+        </button>
+      </div>
       {/* Composer */}
       <div className="group-composer">
         <div className="group-composer-types">
@@ -74,6 +78,7 @@ function FeedTab({ posts, userId, onAddPost, onDeletePost, groupId }) {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={3}
+          maxLength={500}
         />
         <button
           className="btn btn-primary btn-sm group-post-btn"
@@ -96,7 +101,7 @@ function FeedTab({ posts, userId, onAddPost, onDeletePost, groupId }) {
                 <div className="group-post-avatar">{initials(post.display_name)}</div>
                 <div className="group-post-meta">
                   <span className="group-post-name">{post.display_name}</span>
-                  <span className="group-post-time">{formatRelative(post.created_at)}</span>
+                  <span className="group-post-time">{formatRelativeDate(post.created_at)}</span>
                 </div>
                 <span className={`group-post-type-badge group-post-type-${post.type}`}>
                   {POST_TYPE_LABELS[post.type] || post.type}
@@ -196,7 +201,7 @@ function PrayerTimeTab({ members, totalGroupMinutes, todayGroupMinutes, userId, 
                 <span className="group-member-stats">
                   {formatMinutes(m.totalMinutes)} total
                   {m.todayMinutes > 0 && ` · ${formatMinutes(m.todayMinutes)} today`}
-                  {m.lastLog && ` · ${formatRelative(m.lastLog.logged_at)}`}
+                  {m.lastLog && ` · ${formatRelativeDate(m.lastLog.logged_at)}`}
                 </span>
               </div>
             </div>
@@ -210,7 +215,7 @@ function PrayerTimeTab({ members, totalGroupMinutes, todayGroupMinutes, userId, 
 /* ─── Group Settings Tab ─── */
 function GroupSettingsTab({
   group, members, userId, isAdmin,
-  onUpdateFocus, onLeave, onDelete, onCopyCode,
+  onUpdateFocus, onLeave, onDelete, onApproveMember, onRejectMember,
 }) {
   const [focus, setFocus] = useState(group.focus || '');
   const [scripture, setScripture] = useState(group.scripture || '');
@@ -266,12 +271,14 @@ function GroupSettingsTab({
               value={focus}
               onChange={(e) => setFocus(e.target.value)}
               rows={3}
+              maxLength={300}
             />
             <input
               className="form-input"
               placeholder="Scripture reference (e.g. Philippians 4:6-7)"
               value={scripture}
               onChange={(e) => setScripture(e.target.value)}
+              maxLength={100}
             />
             <div className="group-focus-actions">
               <button className="btn btn-secondary btn-sm" onClick={() => setEditingFocus(false)}>Cancel</button>
@@ -311,14 +318,43 @@ function GroupSettingsTab({
         </button>
       </div>
 
+      {/* Pending members — admin only */}
+      {isAdmin && members.filter(m => m.status === 'pending').length > 0 && (
+        <div className="group-settings-section">
+          <div className="group-settings-label group-pending-label">
+            <Users size={14} />
+            Pending Approval ({members.filter(m => m.status === 'pending').length})
+          </div>
+          <div className="group-members-list">
+            {members.filter(m => m.status === 'pending').map(m => (
+              <div key={m.id} className="group-member-item group-member-pending">
+                <div className="group-member-avatar">{initials(m.display_name)}</div>
+                <div className="group-member-item-info">
+                  <span className="group-member-name">{m.display_name}</span>
+                  <span className="group-member-joined">Requested {formatDate(m.joined_at)}</span>
+                </div>
+                <div className="group-approval-actions">
+                  <button className="group-approve-btn" onClick={() => onApproveMember(m.id)} title="Approve">
+                    <CheckCircle2 size={16} />
+                  </button>
+                  <button className="group-reject-btn" onClick={() => onRejectMember(m.id)} title="Reject">
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Members list */}
       <div className="group-settings-section">
         <div className="group-settings-label">
           <Users size={14} />
-          Members ({members.length})
+          Members ({members.filter(m => m.status !== 'pending').length})
         </div>
         <div className="group-members-list">
-          {members.map(m => (
+          {members.filter(m => m.status !== 'pending').map(m => (
             <div key={m.id} className="group-member-item">
               <div className="group-member-avatar">{initials(m.display_name)}</div>
               <div className="group-member-item-info">
@@ -358,9 +394,9 @@ function GroupSettingsTab({
 /* ─── Main GroupView ─── */
 export default function GroupView({
   group, members, posts, totalGroupMinutes, todayGroupMinutes,
-  userId, isAdmin, myMember,
-  onLogTime, onAddPost, onDeletePost,
-  onUpdateFocus, onLeave, onDelete,
+  userId, isAdmin, myMember, isPending,
+  onLogTime, onAddPost, onDeletePost, onRefreshFeed,
+  onUpdateFocus, onLeave, onDelete, onApproveMember, onRejectMember,
 }) {
   const [activeTab, setActiveTab] = useState('feed');
 
@@ -370,6 +406,9 @@ export default function GroupView({
     { id: 'group', label: 'Group', icon: <Settings size={14} /> },
   ];
 
+  const approvedMemberCount = members.filter(m => m.status !== 'pending').length;
+  const pendingCount = members.filter(m => m.status === 'pending').length;
+
   return (
     <div className="group-view">
       {/* Group header */}
@@ -377,9 +416,18 @@ export default function GroupView({
         <div className="group-view-icon"><Users size={18} /></div>
         <div>
           <p className="group-view-name">{group.name}</p>
-          <p className="group-view-members">{members.length} member{members.length !== 1 ? 's' : ''}</p>
+          <p className="group-view-members">{approvedMemberCount} member{approvedMemberCount !== 1 ? 's' : ''}
+            {isAdmin && pendingCount > 0 && <span className="group-pending-badge">{pendingCount} pending</span>}
+          </p>
         </div>
       </div>
+
+      {/* Pending approval banner for current user */}
+      {isPending && (
+        <div className="group-pending-banner">
+          ⏳ Your request to join is waiting for admin approval
+        </div>
+      )}
 
       {/* Sub-tabs */}
       <div className="group-subtabs">
@@ -403,12 +451,13 @@ export default function GroupView({
             userId={userId}
             onAddPost={onAddPost}
             onDeletePost={onDeletePost}
+            onRefresh={onRefreshFeed}
             groupId={group.id}
           />
         )}
         {activeTab === 'time' && (
           <PrayerTimeTab
-            members={members}
+            members={members.filter(m => m.status !== 'pending')}
             totalGroupMinutes={totalGroupMinutes}
             todayGroupMinutes={todayGroupMinutes}
             userId={userId}
@@ -425,6 +474,8 @@ export default function GroupView({
             onUpdateFocus={onUpdateFocus}
             onLeave={onLeave}
             onDelete={onDelete}
+            onApproveMember={onApproveMember}
+            onRejectMember={onRejectMember}
           />
         )}
       </div>

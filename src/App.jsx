@@ -8,6 +8,8 @@ import DailyCheckin from './components/DailyCheckin';
 import PrayerPlan from './components/PrayerPlan';
 import CommunityPrayer from './components/CommunityPrayer';
 import WeeklyProject from './components/WeeklyProject';
+import HomePlanCard from './components/HomePlanCard';
+import HomePrayerBrief from './components/HomePrayerBrief';
 import MoreTab from './components/MoreTab';
 import SearchAndFilter from './components/SearchAndFilter';
 import PrayerCard from './components/PrayerCard';
@@ -107,19 +109,20 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
 
   const { project, updateProject } = useWeeklyProject(user?.id);
   const { allCategories, addCategory, deleteCategory } = useCategories(user?.id);
-  const { settings: notifSettings, toggleEnabled, addTime, removeTime, updateTime, notificationSupported } = useNotifications();
+  const { settings: notifSettings, toggleEnabled, addTime, removeTime, updateTime, notificationSupported, permissionState: notifPermission, isNative: notifIsNative } = useNotifications();
   const streakStats = useStreakStats(prayers);
 
   const prayerLogDates = useMemo(() =>
     new Set(prayers.flatMap((p) => (p.prayerLog || []).map((ts) => ts.split('T')[0])))
   , [prayers]);
 
-  const { hasPrayedToday, checkInToday, currentStreak, longestStreak, totalDaysPrayed } = useDailyCheckin(user?.id, prayerLogDates);
+  const { hasPrayedToday, hasManualCheckinToday, checkInToday, uncheckToday, currentStreak, longestStreak, totalDaysPrayed } = useDailyCheckin(user?.id, prayerLogDates);
 
   const {
-    plan, startPlan, checkInToday: checkInPlan,
-    deletePlan, hasPrayedToday: planPrayedToday,
-    currentDayNumber, isComplete, completedPlansCount,
+    plans, startPlan, checkInPlan, deletePlan,
+    addPlanNote, deletePlanNote,
+    addPlanPartner, removePlanPartner, logPlanPartnerPrayed, undoPlanPartnerPrayed,
+    completedPlansCount, today: planToday,
   } = usePrayerPlan(user?.id);
 
   const { memberStats, totalGroupMinutes: legacyGroupMinutes, todayGroupMinutes: legacyTodayMinutes, addMember, removeMember, logSession } = useCommunity(user?.id);
@@ -127,9 +130,10 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
     groups, activeGroupId, setActiveGroupId, activeGroup,
     members: groupMembers, posts: groupPosts,
     totalGroupMinutes, todayGroupMinutes,
-    isAdmin, myMember,
+    isAdmin, isPending, myMember,
     createGroup, joinGroup, leaveGroup, deleteGroup,
     updateGroupFocus, logTime, addPost, deletePost,
+    approveMember, rejectMember, fetchPosts: refreshGroupFeed,
   } = useGroups(user?.id);
   const { requests: intercedeRequests, addRequest: addIntercede, prayForRequest: prayIntercede, deleteRequest: deleteIntercede } = useIntercede(user?.id);
   const { settings: appSettings, update: updateAppSettings } = useSettings(user?.id);
@@ -202,6 +206,24 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
         const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
         const urgentCount = activePrayers.filter(p => p.urgent).length;
         const neglectedCount = streakStats.neglectedPrayers.length;
+
+        // Community snapshot helpers
+        const latestPost = groupPosts && groupPosts.length > 0
+          ? [...groupPosts].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]
+          : null;
+        const snapshotGroupName = latestPost && groups.length > 0
+          ? (groups.find(g => g.id === (activeGroup?.id)) || groups[0])?.name
+          : null;
+        const formatSnapshotTime = (ts) => {
+          if (!ts) return '';
+          const diff = Math.floor((Date.now() - new Date(ts)) / 60000);
+          if (diff < 1) return 'just now';
+          if (diff < 60) return `${diff}m ago`;
+          if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+          return `${Math.floor(diff / 1440)}d ago`;
+        };
+        const initials = (name) => name ? name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?';
+
         return (
           <div className="tab-content">
             {/* Greeting */}
@@ -227,8 +249,8 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
                 <span className="home-glance-label">Testimonies</span>
               </button>
               <button className="home-glance-item" onClick={() => handleTabChange('plan')}>
-                <span className="home-glance-number">{plan ? `Day ${currentDayNumber}` : '—'}</span>
-                <span className="home-glance-label">{plan ? plan.name.split(' ').slice(0,2).join(' ') : 'No plan'}</span>
+                <span className="home-glance-number">{plans.length > 0 ? `${plans.length} active` : '—'}</span>
+                <span className="home-glance-label">{plans.length > 0 ? 'Plans' : 'No plan'}</span>
               </button>
               {urgentCount > 0 && (
                 <button className="home-glance-item home-glance-urgent" onClick={() => handleTabChange('prayers')}>
@@ -238,10 +260,69 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
               )}
             </div>
 
+            {/* Prayer brief — shows active prayers (urgent first) */}
+            {activePrayers.length > 0 && (
+              <HomePrayerBrief
+                prayers={activePrayers}
+                onNavigate={() => handleTabChange('prayers')}
+              />
+            )}
+
+            {/* Plan cards — one compact card per active plan */}
+            {plans.map(plan => (
+              <HomePlanCard
+                key={plan.id}
+                plan={plan}
+                today={planToday}
+                onCheckIn={checkInPlan}
+                onClick={() => handleTabChange('plan')}
+              />
+            ))}
+
+            {/* Community snapshot — only shown when user has groups */}
+            {groups.length > 0 && (
+              <button className="home-community-snapshot" onClick={() => handleTabChange('community')}>
+                <div className="home-community-snapshot-header">
+                  <span className="home-community-snapshot-title">
+                    🤝 {groups.length === 1 ? groups[0].name : `${groups.length} Prayer Groups`}
+                  </span>
+                  {todayGroupMinutes > 0 && (
+                    <span className="home-community-snapshot-mins">
+                      {todayGroupMinutes} min today
+                    </span>
+                  )}
+                </div>
+                {latestPost ? (
+                  <div className="home-community-snapshot-post">
+                    <div className="home-community-snapshot-avatar">
+                      {initials(latestPost.display_name)}
+                    </div>
+                    <div className="home-community-snapshot-text">
+                      <div className="home-community-snapshot-name">{latestPost.display_name}</div>
+                      <div className="home-community-snapshot-content">
+                        {latestPost.type === 'scripture' ? '📖 ' : latestPost.type === 'focus_update' ? '🎯 ' : '💬 '}
+                        {latestPost.content}
+                      </div>
+                      <div className="home-community-snapshot-time">{formatSnapshotTime(latestPost.created_at)}</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="home-community-snapshot-empty">
+                    No posts yet — be the first to share what God is saying 🕊️
+                  </div>
+                )}
+                {groups.length > 1 && snapshotGroupName && (
+                  <div className="home-community-snapshot-groups">in {snapshotGroupName}</div>
+                )}
+              </button>
+            )}
+
             {appSettings.showStreak !== false && (
               <DailyCheckin
                 hasPrayedToday={hasPrayedToday}
+                hasManualCheckinToday={hasManualCheckinToday}
                 onCheckIn={checkInToday}
+                onUncheck={uncheckToday}
                 currentStreak={currentStreak}
                 longestStreak={longestStreak}
                 totalDaysPrayed={totalDaysPrayed}
@@ -339,14 +420,19 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
           <div className="tab-content">
             <WeeklyProject project={project} onUpdate={updateProject} />
             <PrayerPlan
-              plan={plan}
+              plans={plans}
               onStart={startPlan}
               onCheckIn={checkInPlan}
               onDelete={deletePlan}
-              hasPrayedToday={planPrayedToday}
-              currentDayNumber={currentDayNumber}
-              isComplete={isComplete}
+              onAddNote={addPlanNote}
+              onDeleteNote={deletePlanNote}
+              onAddPartner={addPlanPartner}
+              onRemovePartner={removePlanPartner}
+              onLogPartnerPrayed={logPlanPartnerPrayed}
+              onUndoPartnerPrayed={undoPlanPartnerPrayed}
               completedPlansCount={completedPlansCount}
+              today={planToday}
+              bibleTranslation={appSettings.bibleTranslation}
             />
           </div>
         );
@@ -364,6 +450,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
               totalGroupMinutes={totalGroupMinutes}
               todayGroupMinutes={todayGroupMinutes}
               isAdmin={isAdmin}
+              isPending={isPending}
               myMember={myMember}
               onCreateGroup={createGroup}
               onJoinGroup={joinGroup}
@@ -373,6 +460,9 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
               onUpdateGroupFocus={updateGroupFocus}
               onLeaveGroup={leaveGroup}
               onDeleteGroup={deleteGroup}
+              onApproveMember={approveMember}
+              onRejectMember={rejectMember}
+              onRefreshFeed={refreshGroupFeed}
               intercedeRequests={intercedeRequests}
               onAddIntercede={addIntercede}
               onPrayIntercede={prayIntercede}
@@ -395,6 +485,8 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
               onRemoveTime={removeTime}
               onUpdateTime={updateTime}
               notificationSupported={notificationSupported}
+              notifPermission={notifPermission}
+              notifIsNative={notifIsNative}
               prayers={prayers}
               onShowExport={() => setShowExport(true)}
               appSettings={appSettings}
@@ -443,7 +535,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
         onTabChange={handleTabChange}
         prayerCount={activePrayers.length}
         testimonyCount={testimonies.length}
-        planActive={!!plan}
+        planActive={plans.length > 0}
         communityCount={groups.length}
       />
 

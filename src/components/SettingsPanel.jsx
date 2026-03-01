@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Sun, Moon, Type, Eye, EyeOff, Flame, Bell, BellOff, User, Target, ArrowLeft, ChevronRight, Lock, LogOut, LogIn, UserPlus, Trash2, BookOpen } from 'lucide-react';
+import { Sun, Moon, Minimize2, Type, Eye, EyeOff, Flame, Bell, BellOff, User, Target, ArrowLeft, ChevronRight, Lock, LogOut, LogIn, UserPlus, Trash2, BookOpen, Shield, ExternalLink } from 'lucide-react';
 import AppIcon from './AppIcon';
 import { BIBLE_TRANSLATIONS } from '../utils/bibleBooks';
 
@@ -83,12 +83,12 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
         {/* Appearance */}
         <Group title="Appearance">
           <SettingRow
-            icon={settings.theme === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
+            icon={settings.theme === 'dark' ? <Moon size={16} /> : settings.theme === 'minimal' ? <Minimize2 size={16} /> : <Sun size={16} />}
             label="Theme"
-            sub={settings.theme === 'dark' ? 'Dark mode' : 'Light mode'}
+            sub={settings.theme === 'dark' ? 'Dark mode' : settings.theme === 'minimal' ? 'Minimal mode' : 'Light mode'}
           >
             <SegmentedControl
-              options={[{ value: 'dark', label: '🌙 Dark' }, { value: 'light', label: '☀️ Light' }]}
+              options={[{ value: 'dark', label: '🌙 Dark' }, { value: 'light', label: '☀️ Light' }, { value: 'minimal', label: '○ Minimal' }]}
               value={settings.theme}
               onChange={(v) => onUpdate({ theme: v })}
             />
@@ -244,6 +244,20 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
               <p className="settings-about-version">Version 1.0.0 · Built with faith</p>
             </div>
           </div>
+          <SettingRow
+            icon={<Shield size={16} />}
+            label="Privacy Policy"
+            sub="How we handle your data"
+            onClick={() => window.open('https://myprayerapp.uk/privacy', '_blank')}
+            chevron
+          />
+          <SettingRow
+            icon={<ExternalLink size={16} />}
+            label="Terms of Service"
+            sub="Your rights and responsibilities"
+            onClick={() => window.open('https://myprayerapp.uk/terms', '_blank')}
+            chevron
+          />
         </div>
 
       </div>

@@ -3,7 +3,9 @@ import { Flame, Trophy, CalendarDays, AlertCircle, CheckCircle2 } from 'lucide-r
 
 export default function DailyCheckin({
   hasPrayedToday,
+  hasManualCheckinToday,
   onCheckIn,
+  onUncheck,
   currentStreak,
   longestStreak,
   totalDaysPrayed,
@@ -68,7 +70,12 @@ export default function DailyCheckin({
 
       {hasPrayedToday ? (
         <div className="daily-checkin-done">
-          ✨ You prayed today — your streak is safe!
+          <span>✨ You prayed today — your streak is safe!</span>
+          {hasManualCheckinToday && onUncheck && (
+            <button className="daily-checkin-undo" onClick={onUncheck} title="Undo check-in">
+              Undo
+            </button>
+          )}
         </div>
       ) : (
         <button

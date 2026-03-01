@@ -13,11 +13,13 @@ export function useCommunity(userId) {
   useEffect(() => {
     if (!userId) return;
     supabase.from('community_members').select('*').eq('user_id', userId)
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) { console.error('fetchMembers failed:', error.message); return; }
         if (data) setMembers(data.map(r => ({ id: r.id, name: r.name, joinedAt: r.joined_at })));
       });
     supabase.from('community_sessions').select('*').eq('user_id', userId)
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) { console.error('fetchSessions failed:', error.message); return; }
         if (data) setSessions(data.map(r => ({ id: r.id, memberId: r.member_id, minutes: r.minutes, date: r.session_date, loggedAt: r.logged_at })));
       });
   }, [userId]);
@@ -27,15 +29,23 @@ export function useCommunity(userId) {
     const optimistic = { id: genId(), name: name.trim(), joinedAt: new Date().toISOString() };
     setMembers((prev) => [...prev, optimistic]);
     if (userId) {
-      const { data } = await supabase.from('community_members').insert({ user_id: userId, name: name.trim() }).select().single();
-      if (data) setMembers((prev) => prev.map(m => m.id === optimistic.id ? { id: data.id, name: data.name, joinedAt: data.joined_at } : m));
+      try {
+        const { data, error } = await supabase.from('community_members').insert({ user_id: userId, name: name.trim() }).select().single();
+        if (error) { console.error('addMember failed:', error.message); }
+        else if (data) setMembers((prev) => prev.map(m => m.id === optimistic.id ? { id: data.id, name: data.name, joinedAt: data.joined_at } : m));
+      } catch (err) { console.error('addMember error:', err.message); }
     }
   }, [userId]);
 
   const removeMember = useCallback(async (memberId) => {
     setMembers((prev) => prev.filter((m) => m.id !== memberId));
     setSessions((prev) => prev.filter((s) => s.memberId !== memberId));
-    if (userId) await supabase.from('community_members').delete().eq('id', memberId).eq('user_id', userId);
+    if (userId) {
+      try {
+        const { error } = await supabase.from('community_members').delete().eq('id', memberId).eq('user_id', userId);
+        if (error) console.error('removeMember failed:', error.message);
+      } catch (err) { console.error('removeMember error:', err.message); }
+    }
   }, [userId]);
 
   const logSession = useCallback(async (memberId, minutes) => {
@@ -44,16 +54,24 @@ export function useCommunity(userId) {
     const optimistic = { id: genId(), memberId, minutes: mins, date: getToday(), loggedAt: new Date().toISOString() };
     setSessions((prev) => [...prev, optimistic]);
     if (userId) {
-      const { data } = await supabase.from('community_sessions').insert({
-        user_id: userId, member_id: memberId, minutes: mins, session_date: getToday(),
-      }).select().single();
-      if (data) setSessions((prev) => prev.map(s => s.id === optimistic.id ? { id: data.id, memberId: data.member_id, minutes: data.minutes, date: data.session_date, loggedAt: data.logged_at } : s));
+      try {
+        const { data, error } = await supabase.from('community_sessions').insert({
+          user_id: userId, member_id: memberId, minutes: mins, session_date: getToday(),
+        }).select().single();
+        if (error) { console.error('logSession failed:', error.message); }
+        else if (data) setSessions((prev) => prev.map(s => s.id === optimistic.id ? { id: data.id, memberId: data.member_id, minutes: data.minutes, date: data.session_date, loggedAt: data.logged_at } : s));
+      } catch (err) { console.error('logSession error:', err.message); }
     }
   }, [userId]);
 
   const deleteSession = useCallback(async (sessionId) => {
     setSessions((prev) => prev.filter((s) => s.id !== sessionId));
-    if (userId) await supabase.from('community_sessions').delete().eq('id', sessionId).eq('user_id', userId);
+    if (userId) {
+      try {
+        const { error } = await supabase.from('community_sessions').delete().eq('id', sessionId).eq('user_id', userId);
+        if (error) console.error('deleteSession failed:', error.message);
+      } catch (err) { console.error('deleteSession error:', err.message); }
+    }
   }, [userId]);
 
   const memberStats = members.map((m) => {
