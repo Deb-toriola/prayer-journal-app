@@ -78,10 +78,27 @@ export function useAuth() {
         supabase.from('group_members').delete().eq('user_id', uid),
         supabase.from('group_prayer_logs').delete().eq('user_id', uid),
         supabase.from('group_posts').delete().eq('user_id', uid),
+        supabase.from('prayer_groups').delete().eq('created_by', uid), // delete groups this user created
       ]);
-      // Clear all local data
+
+      // Delete the auth record via Edge Function (requires service role — runs server-side)
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-user`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+        }
+      } catch (_e) {
+        // Edge Function unavailable — auth record will remain but all data is deleted
+      }
+
+      // Clear all local data and sign out
       localStorage.clear();
-      // Sign out (auth record deletion requires server-side admin — handled post-launch)
       await supabase.auth.signOut();
       return true;
     } catch (err) {
