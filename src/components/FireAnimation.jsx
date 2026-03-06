@@ -4,13 +4,18 @@
  * Algorithm (from id Software, ~1993):
  *  • 2-D grid of heat values 0–255. Bottom row = constant source (255).
  *  • Each frame, for every cell: read heat from the row below, subtract a
- *    random 0–1 cooling amount, write the cooled value one row above (with
- *    a small random horizontal drift).
+ *    random 0–1 base cooling amount PLUS a height-proportional bonus
+ *    (0 near the source, up to +6 near the tip), write the cooled value
+ *    one row above (with a small random horizontal drift).
  *  • A 256-entry RGBA palette maps heat → colour (black → crimson → orange
- *    → amber → yellow → near-white). Low heat entries are transparent so
- *    the flame fades naturally into the card background.
+ *    → amber → yellow → near-white). Heat values below 80 map to alpha=0
+ *    so the flame tapers naturally into the card background.
  *  • The canvas is rendered at ~½ display size; browser bilinear upscaling
  *    smooths the pixels into a soft, realistic flame.
+ *
+ * Height-proportional cooling is the key addition for icon-sized fire:
+ * the original Doom used ~168 rows of cooling; we only have 36, so we
+ * amplify cooling near the tip to reproduce the same taper effect.
  *
  * The randomness means frames never repeat — it is genuinely organic.
  */
@@ -23,8 +28,9 @@ const W = 22;
 const H = 36;
 
 // ── Colour palette (built once at module load) ────────────────────────────
-// 256 RGBA entries. Alpha is 0 for cold cells so the card shows through.
-// Hues: transparent black → deep crimson → red-orange → amber → yellow-white
+// 256 RGBA entries.
+// Alpha is 0 for heat < 80 so cold cells vanish into the card background.
+// Hues: transparent → deep crimson → red-orange → amber → yellow-white
 const PALETTE = (() => {
   const p = new Uint8ClampedArray(256 * 4);
 
@@ -32,39 +38,40 @@ const PALETTE = (() => {
     let r, g, b, a;
 
     // ── Colour ──
-    if (i < 24) {
+    if (i < 80) {
       r = 0; g = 0; b = 0;
-    } else if (i < 80) {
-      const t = (i - 24) / 55;
-      r = (t * 185)          | 0;   // 0  → 185
+    } else if (i < 130) {
+      const t = (i - 80) / 50;
+      r = (t * 155)          | 0;   // 0   → 155  (dark crimson)
       g = 0;
       b = 0;
-    } else if (i < 148) {
-      const t = (i - 80) / 67;
-      r = (185 + t * 70)     | 0;   // 185 → 255
-      g = (t * 130)          | 0;   // 0   → 130
+    } else if (i < 190) {
+      const t = (i - 130) / 60;
+      r = (155 + t * 100)    | 0;   // 155 → 255  (crimson → orange)
+      g = (t * 110)          | 0;   // 0   → 110
       b = 0;
-    } else if (i < 208) {
-      const t = (i - 148) / 59;
+    } else if (i < 230) {
+      const t = (i - 190) / 40;
       r = 255;
-      g = (130 + t * 110)    | 0;   // 130 → 240
-      b = (t * 18)           | 0;   // 0   → 18
+      g = (110 + t * 125)    | 0;   // 110 → 235  (orange → amber)
+      b = (t * 12)           | 0;   // 0   → 12
     } else {
-      const t = (i - 208) / 47;
+      const t = (i - 230) / 25;
       r = 255;
-      g = (240 + t * 15)     | 0;   // 240 → 255
-      b = (18  + t * 210)    | 0;   // 18  → 228  (white-hot tip)
+      g = (235 + t * 20)     | 0;   // 235 → 255
+      b = (12  + t * 200)    | 0;   // 12  → 212  (white-hot tip)
     }
 
-    // ── Alpha: transparent for cold, opaque for hot ──
-    if (i < 22) {
+    // ── Alpha: transparent for cold cells, opaque for hot ──
+    // Threshold at 80 — below that the cell is invisible so flame tapers.
+    if (i < 80) {
       a = 0;
-    } else if (i < 75) {
-      a = ((i - 22) / 52 * 160) | 0;   // 0   → 160
-    } else if (i < 145) {
-      a = (160 + (i - 75) / 69 * 70)| 0; // 160 → 230
+    } else if (i < 140) {
+      a = ((i - 80) / 60 * 180) | 0;   // 0   → 180
+    } else if (i < 210) {
+      a = (180 + (i - 140) / 70 * 65) | 0; // 180 → 245
     } else {
-      a = Math.min(255, (230 + (i - 145) / 110 * 25) | 0); // 230 → 255
+      a = Math.min(255, (245 + (i - 210) / 45 * 10) | 0); // 245 → 255
     }
 
     p[i * 4]     = r;
@@ -100,13 +107,16 @@ export default function FireAnimation({ size = 48, style }) {
       // Creates natural "holes" at the flame base — dark spots that travel
       // upward and make the flame look genuinely alive.
       for (let x = 0; x < W; x++) {
-        f[(H - 1) * W + x] = Math.random() < 0.06
-          ? ((185 + Math.random() * 70) | 0)   // brief cool spot
+        f[(H - 1) * W + x] = Math.random() < 0.07
+          ? ((160 + Math.random() * 90) | 0)   // brief cool spot
           : 255;
       }
 
       // ── Doom spread: rise + cool + drift ────────────────────────────────
       // y iterates bottom→top so each cell is read BEFORE it is overwritten.
+      // heightFade: 0 near the source row, up to +6 near the tip — this
+      // compensates for having only 36 rows instead of Doom's original ~168,
+      // so the flame tapers to transparent at the top just as the original did.
       for (let y = 1; y < H; y++) {
         for (let x = 0; x < W; x++) {
           const heat = f[y * W + x];
@@ -114,10 +124,13 @@ export default function FireAnimation({ size = 48, style }) {
             f[(y - 1) * W + x] = 0;
             continue;
           }
-          // rand: 0-3 → drift = -rand+1 (-2..+1), cool = rand & 1 (0 or 1)
-          const rand = (Math.random() * 4) | 0;
-          const dstX = Math.max(0, Math.min(W - 1, x - rand + 1));
-          f[(y - 1) * W + dstX] = heat - (rand & 1);
+          // rand: 0-3 → drift = x-rand+1, base cool = rand & 1 (0 or 1)
+          const rand        = (Math.random() * 4) | 0;
+          const dstX        = Math.max(0, Math.min(W - 1, x - rand + 1));
+          // Height-proportional extra cooling: 0 at source, up to 6 at tip
+          const heightFade  = ((H - y + 1) / H * 6) | 0;
+          const cool        = (rand & 1) + heightFade;
+          f[(y - 1) * W + dstX] = heat > cool ? heat - cool : 0;
         }
       }
 
