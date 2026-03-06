@@ -127,8 +127,11 @@ export default function FireAnimation({ size = 48, style }) {
           // rand: 0-3 → drift = x-rand+1, base cool = rand & 1 (0 or 1)
           const rand        = (Math.random() * 4) | 0;
           const dstX        = Math.max(0, Math.min(W - 1, x - rand + 1));
-          // Height-proportional extra cooling: 0 at source, up to 6 at tip
-          const heightFade  = ((H - y + 1) / H * 6) | 0;
+          // Height-proportional extra cooling: 0 at source, up to ~10 at tip.
+          // Multiplier 10 is calibrated so the avg tip heat lands at ~78,
+          // right at the palette transparency threshold — cells there are
+          // a mix of transparent and barely-glowing, giving a natural ragged edge.
+          const heightFade  = ((H - y + 1) / H * 10) | 0;
           const cool        = (rand & 1) + heightFade;
           f[(y - 1) * W + dstX] = heat > cool ? heat - cool : 0;
         }
