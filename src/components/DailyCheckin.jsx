@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Flame, CheckCircle2 } from 'lucide-react';
+import { getStreakTheme } from '../utils/streakTheme';
 
 const PRAYER_TYPES = [
   { id: 'personal', icon: '🙏', label: 'Personal prayer' },
@@ -24,24 +25,34 @@ export default function DailyCheckin({
     onCheckIn();
   };
 
-  const stateClass = hasPrayedToday ? 'daily-checkin-prayed' : 'daily-checkin-not-prayed';
+  const theme = getStreakTheme(currentStreak);
+
+  // Prayed state: slightly dim the card to signal "safe for today"
+  const cardStyle = {
+    background: theme.background,
+    boxShadow: theme.boxShadow,
+    ...(hasPrayedToday ? { filter: 'brightness(0.9)' } : {}),
+  };
+
+  const numberStyle = theme.goldText
+    ? { textShadow: '0 0 16px rgba(255, 200, 0, 0.9), 0 0 32px rgba(255, 140, 0, 0.5), 0 2px 8px rgba(0,0,0,0.3)' }
+    : { textShadow: '0 2px 8px rgba(0, 0, 0, 0.2)' };
 
   return (
-    <div className={`daily-checkin-card ${stateClass}`}>
+    <div className="daily-checkin-card" style={cardStyle}>
 
-      {/* Hero — icon + big number + message */}
+      {/* Hero — icon + big number + theme label */}
       <div className="streak-hero">
         <div className="streak-hero-icon-wrap">
           <Flame
-            size={40}
-            className={`streak-hero-flame ${!hasPrayedToday ? 'streak-hero-flame-pulse' : ''}`}
+            size={theme.flameSize}
+            className={!hasPrayedToday ? 'streak-hero-flame-pulse' : ''}
+            style={{ color: 'rgba(255,255,255,0.95)', filter: theme.flameFilter }}
           />
           {hasPrayedToday && <CheckCircle2 size={20} className="streak-hero-check" />}
         </div>
-        <div className="streak-hero-number">{currentStreak}</div>
-        <div className="streak-hero-msg">
-          {hasPrayedToday ? 'Streak safe — well done.' : 'Keep your streak alive'}
-        </div>
+        <div className="streak-hero-number" style={numberStyle}>{currentStreak}</div>
+        <div className="streak-hero-msg">{theme.label}</div>
       </div>
 
       {/* Stats row */}

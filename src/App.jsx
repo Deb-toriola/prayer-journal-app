@@ -326,7 +326,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
           <div className="tab-content">
             {/* Greeting */}
             <div className="home-greeting">
-              <p className="home-greeting-text">{greeting} <PrayingHands size={22} /></p>
+              <p className="home-greeting-text">{greeting} 🙏</p>
               <p className="home-greeting-sub">
                 {hasPrayedToday
                   ? 'You\'ve prayed today — well done.'
@@ -350,20 +350,52 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
               />
             )}
 
+            {/* Prayer preview card — surfaces one prayer to pray from home */}
+            {activePrayers.length > 0 && (() => {
+              const featured = activePrayers.find(p => p.urgent) || activePrayers[0];
+              const preview = featured.content ? featured.content.slice(0, 80) + (featured.content.length > 80 ? '…' : '') : '';
+              return (
+                <button className="home-prayer-preview" onClick={() => handleTabChange('prayers')}>
+                  <div className="home-prayer-preview-title">{featured.title}</div>
+                  {preview && <div className="home-prayer-preview-body">{preview}</div>}
+                  <div className="home-prayer-preview-cta">Pray now →</div>
+                </button>
+              );
+            })()}
+
             {/* At-a-glance summary */}
             <div className="home-glance">
-              <button className="home-glance-item" onClick={() => handleTabChange('prayers')}>
-                <span className="home-glance-number">{activePrayers.length}</span>
-                <span className="home-glance-label">Active prayers</span>
-              </button>
+              {/* Active prayers — invite if zero */}
+              {activePrayers.length > 0 ? (
+                <button className="home-glance-item" onClick={() => handleTabChange('prayers')}>
+                  <span className="home-glance-number">{activePrayers.length}</span>
+                  <span className="home-glance-label">Active prayers</span>
+                </button>
+              ) : (
+                <button className="home-glance-item home-glance-empty-cta" onClick={() => { handleTabChange('prayers'); setShowForm(true); }}>
+                  <span className="home-glance-cta-plus">+</span>
+                  <span className="home-glance-label">Add first prayer</span>
+                </button>
+              )}
+
               <button className="home-glance-item" onClick={() => handleTabChange('prayers')}>
                 <span className="home-glance-number">{testimonies.length}</span>
                 <span className="home-glance-label">Testimonies</span>
               </button>
-              <button className="home-glance-item" onClick={() => handleTabChange('plan')}>
-                <span className="home-glance-number">{plans.length > 0 ? `${plans.length} active` : '—'}</span>
-                <span className="home-glance-label">{plans.length > 0 ? 'Plans' : 'No plan'}</span>
-              </button>
+
+              {/* Plan — invite if none */}
+              {plans.length > 0 ? (
+                <button className="home-glance-item" onClick={() => handleTabChange('plan')}>
+                  <span className="home-glance-number">{plans.length} active</span>
+                  <span className="home-glance-label">Plans</span>
+                </button>
+              ) : (
+                <button className="home-glance-item home-glance-empty-cta" onClick={() => handleTabChange('plan')}>
+                  <span className="home-glance-cta-arrow">→</span>
+                  <span className="home-glance-label">Start a plan</span>
+                </button>
+              )}
+
               {urgentCount > 0 && (
                 <button className="home-glance-item home-glance-urgent" onClick={() => handleTabChange('prayers')}>
                   <span className="home-glance-number">{urgentCount}</span>

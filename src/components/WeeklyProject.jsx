@@ -72,7 +72,7 @@ export default function WeeklyProject({ project, onUpdate }) {
         </div>
       ) : isEmpty ? (
         <button className="weekly-project-empty" onClick={() => setEditing(true)}>
-          Tap to set your prayer focus for this week
+          <em>What are you believing God for this week?</em>
         </button>
       ) : (
         <div className="weekly-project-display">
