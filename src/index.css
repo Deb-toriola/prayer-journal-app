@@ -4330,8 +4330,9 @@ html.minimal-mode .daily-checkin-card.daily-checkin-prayed {
 
 .streak-hero-check {
   position: absolute;
-  bottom: -4px;
-  right: -8px;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
   color: rgba(255, 255, 255, 0.95);
   background: rgba(255, 255, 255, 0.25);
   border-radius: 50%;
