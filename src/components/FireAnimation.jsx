@@ -5,31 +5,50 @@
  *  • 2-D grid of heat values 0–255. Bottom row = constant source (255).
  *  • Each frame, for every cell: read heat from the row below, subtract a
  *    random 0–1 base cooling amount PLUS a height-proportional bonus
- *    (0 near the source, up to +6 near the tip), write the cooled value
+ *    (0 near the source, up to ~10 near the tip), write the cooled value
  *    one row above (with a small random horizontal drift).
- *  • A 256-entry RGBA palette maps heat → colour (black → crimson → orange
- *    → amber → yellow → near-white). Heat values below 80 map to alpha=0
- *    so the flame tapers naturally into the card background.
+ *  • A 256-entry RGBA palette maps heat → colour (transparent → deep
+ *    crimson → red-orange → amber → yellow → near-white).
+ *  • A pre-computed SHAPE mask (Float32Array, built once at module load)
+ *    gives the flame a pointed silhouette: full-width at the base, narrowing
+ *    to a soft tip at the top. It is applied as a multiplier on the palette
+ *    alpha at render time — the heat grid itself stays fully rectangular so
+ *    the turbulent Doom physics are completely unaffected.
  *  • The canvas is rendered at ~½ display size; browser bilinear upscaling
  *    smooths the pixels into a soft, realistic flame.
- *
- * Height-proportional cooling is the key addition for icon-sized fire:
- * the original Doom used ~168 rows of cooling; we only have 36, so we
- * amplify cooling near the tip to reproduce the same taper effect.
- *
- * The randomness means frames never repeat — it is genuinely organic.
  */
 
 import { useEffect, useRef } from 'react';
 
 // ── Logical canvas dimensions ─────────────────────────────────────────────
-// Deliberately small. Bilinear CSS upscaling blurs the pixels into soft fire.
 const W = 22;
 const H = 36;
 
+// ── Flame-shape mask (built once at module load) ───────────────────────────
+// Each entry is 0.0–1.0 and gets multiplied by the palette alpha at paint time.
+// Formula: halfWidth(y) = (W/2) × (0.12 + 0.88 × (y/(H−1))^0.65)
+//   y=0 (canvas top = flame tip)  → halfWidth ≈ 1.3px  (narrow point)
+//   y=H−1 (canvas bottom = base) → halfWidth = W/2    (full width)
+// Edge softness: 1.5-pixel cosine feather so the silhouette is anti-aliased
+// rather than a hard-edged cutout.
+const SHAPE = (() => {
+  const s  = new Float32Array(W * H);
+  const cx = (W - 1) / 2;          // horizontal centre
+  for (let y = 0; y < H; y++) {
+    const yNorm = y / (H - 1);                           // 0 at tip, 1 at base
+    const halfW = (W / 2) * (0.12 + 0.88 * Math.pow(yNorm, 0.65));
+    for (let x = 0; x < W; x++) {
+      const dist = Math.abs(x - cx);
+      // Smooth step over a 1.5-pixel feather zone at each edge
+      const raw  = (halfW + 0.75 - dist) / 1.5;
+      s[y * W + x] = raw <= 0 ? 0 : raw >= 1 ? 1 : raw * raw * (3 - 2 * raw);
+    }
+  }
+  return s;
+})();
+
 // ── Colour palette (built once at module load) ────────────────────────────
-// 256 RGBA entries.
-// Alpha is 0 for heat < 80 so cold cells vanish into the card background.
+// 256 RGBA entries. Heat < 80 → alpha 0 (transparent into card background).
 // Hues: transparent → deep crimson → red-orange → amber → yellow-white
 const PALETTE = (() => {
   const p = new Uint8ClampedArray(256 * 4);
@@ -63,7 +82,6 @@ const PALETTE = (() => {
     }
 
     // ── Alpha: transparent for cold cells, opaque for hot ──
-    // Threshold at 80 — below that the cell is invisible so flame tapers.
     if (i < 80) {
       a = 0;
     } else if (i < 140) {
@@ -114,9 +132,6 @@ export default function FireAnimation({ size = 48, style }) {
 
       // ── Doom spread: rise + cool + drift ────────────────────────────────
       // y iterates bottom→top so each cell is read BEFORE it is overwritten.
-      // heightFade: 0 near the source row, up to +6 near the tip — this
-      // compensates for having only 36 rows instead of Doom's original ~168,
-      // so the flame tapers to transparent at the top just as the original did.
       for (let y = 1; y < H; y++) {
         for (let x = 0; x < W; x++) {
           const heat = f[y * W + x];
@@ -124,28 +139,27 @@ export default function FireAnimation({ size = 48, style }) {
             f[(y - 1) * W + x] = 0;
             continue;
           }
-          // rand: 0-3 → drift = x-rand+1, base cool = rand & 1 (0 or 1)
-          const rand        = (Math.random() * 4) | 0;
-          const dstX        = Math.max(0, Math.min(W - 1, x - rand + 1));
-          // Height-proportional extra cooling: 0 at source, up to ~10 at tip.
-          // Multiplier 10 is calibrated so the avg tip heat lands at ~78,
-          // right at the palette transparency threshold — cells there are
-          // a mix of transparent and barely-glowing, giving a natural ragged edge.
-          const heightFade  = ((H - y + 1) / H * 10) | 0;
-          const cool        = (rand & 1) + heightFade;
+          // rand 0–3: drift = x − rand + 1, base cool = rand & 1 (0 or 1)
+          const rand       = (Math.random() * 4) | 0;
+          const dstX       = Math.max(0, Math.min(W - 1, x - rand + 1));
+          // Height-proportional extra cooling: 0 at source, up to ~10 at tip
+          const heightFade = ((H - y + 1) / H * 10) | 0;
+          const cool       = (rand & 1) + heightFade;
           f[(y - 1) * W + dstX] = heat > cool ? heat - cool : 0;
         }
       }
 
-      // ── Paint heat grid → RGBA via palette ─────────────────────────────
+      // ── Paint heat grid → RGBA via palette + shape mask ─────────────────
+      // SHAPE[i] narrows the visible flame from full-width at the base to a
+      // pointed tip at the top — multiply into alpha, leave RGB untouched.
       const data = stateRef.current.img.data;
       for (let i = 0; i < W * H; i++) {
-        const pi = fire[i] << 2; // × 4
-        const di = i       << 2;
+        const pi = fire[i] << 2;                            // palette offset
+        const di = i       << 2;                            // image-data offset
         data[di]     = PALETTE[pi];
         data[di + 1] = PALETTE[pi + 1];
         data[di + 2] = PALETTE[pi + 2];
-        data[di + 3] = PALETTE[pi + 3];
+        data[di + 3] = (PALETTE[pi + 3] * SHAPE[i]) | 0;  // shape mask on alpha
       }
       ctx.putImageData(stateRef.current.img, 0, 0);
 
@@ -172,9 +186,7 @@ export default function FireAnimation({ size = 48, style }) {
         width: displayW,
         height: size,
         display: 'block',
-        // 'auto' = bilinear upscaling — blurs the pixel grid into
-        // smooth, soft flame rather than a blocky pixelated look
-        imageRendering: 'auto',
+        imageRendering: 'auto',   // bilinear — soft, not blocky
         ...style,
       }}
     />
