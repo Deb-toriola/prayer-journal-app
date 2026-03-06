@@ -9,9 +9,10 @@
 
 :root {
   /* === Typography === */
-  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-serif: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-sans: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-body: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --nav-active: #FBBF24;
 
   /* === Semantic surface tokens (dark mode defaults) === */
   --bg-primary: #0F172A;
@@ -97,6 +98,7 @@
 
 /* ===== Light Mode ===== */
 html.light-mode {
+  --nav-active: #881337;
   --bg-primary: #FAFAF8;
   --bg-secondary: #F5F4F0;
   --bg-tertiary: #ECEAE4;
@@ -106,7 +108,7 @@ html.light-mode {
   --text-primary: #0A1628;
   --text-secondary: rgba(10, 22, 40, 0.7);
   --text-muted: rgba(10, 22, 40, 0.42);
-  --nav-bg: rgba(240, 244, 255, 0.97);
+  --nav-bg: rgba(245, 244, 240, 0.97);
   --purple-darkest: #E8EEFF;
   --purple-dark: #D4DCFF;
   --purple-deep: #C4CFFF;
@@ -127,6 +129,7 @@ html.light-mode body::after {
 /* ===== Minimal Mode — warm parchment / gold dust / dusty brown ===== */
 /* Inherits light-mode class, then overrides with earthy journal tones */
 html.minimal-mode {
+  --nav-active: #881337;
   --bg-primary: #F5EDD9;
   --bg-secondary: #EDE0C4;
   --bg-tertiary: #E2D0AA;
@@ -394,7 +397,7 @@ body::after {
 }
 
 .bottom-nav-item-active {
-  color: var(--gold);
+  color: var(--nav-active);
 }
 
 .bottom-nav-icon-wrap {
@@ -492,9 +495,15 @@ body::after {
 }
 
 .prayers-subtab-active {
-  background: rgba(255, 255, 255, 0.12);
-  color: var(--white);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: var(--purple-darkest);
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(251, 191, 36, 0.35);
+}
+
+.prayers-subtab-active .prayers-subtab-count {
+  background: rgba(0, 0, 0, 0.18);
+  color: var(--purple-darkest);
 }
 
 .prayers-subtab-count {
@@ -522,8 +531,8 @@ body::after {
 
 .home-greeting-text {
   font-family: var(--font-serif);
-  font-size: 1.4rem;
-  font-weight: 600;
+  font-size: 1.55rem;
+  font-weight: 700;
   color: var(--white);
   margin-bottom: 4px;
 }
@@ -543,10 +552,10 @@ body::after {
 }
 
 .home-glance-item {
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: var(--radius-md);
-  padding: 12px 8px;
+  padding: 14px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -577,10 +586,11 @@ body::after {
 
 .home-glance-number {
   font-family: var(--font-serif);
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--gold);
   line-height: 1;
+  text-shadow: 0 1px 4px rgba(251, 191, 36, 0.25);
 }
 
 .home-glance-urgent .home-glance-number {
@@ -718,19 +728,23 @@ body::after {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius);
-  padding: 14px 16px;
+  padding: 0;
+  overflow: hidden;
   cursor: pointer;
   transition: transform 0.15s, opacity 0.15s;
   margin-bottom: 12px;
   text-align: left;
   width: 100%;
+  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.18);
 }
 .home-plan-card:active { transform: scale(0.985); }
 .home-plan-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
 }
 .home-plan-card-label {
   display: flex;
@@ -748,32 +762,35 @@ body::after {
   padding: 2px 8px;
   border-radius: 12px;
 }
-.home-plan-badge-on-track  { background: rgba(110,231,183,0.12); color: #6EE7B7; }
-.home-plan-badge-todo      { background: rgba(212,175,55,0.15);  color: var(--gold); }
-.home-plan-badge-complete  { background: rgba(110,231,183,0.12); color: #6EE7B7; }
+.home-plan-badge-on-track  { background: linear-gradient(135deg, #10B981, #047857); color: #fff; }
+.home-plan-badge-todo      { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--purple-darkest); }
+.home-plan-badge-complete  { background: linear-gradient(135deg, #10B981, #047857); color: #fff; }
 .home-plan-card-name {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 10px;
+  padding: 10px 14px 4px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 .home-plan-progress-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
+  margin: 0 14px 10px;
 }
 .home-plan-progress-bar {
   flex: 1;
-  height: 4px;
+  height: 6px;
   background: rgba(255,255,255,0.08);
-  border-radius: 2px;
+  border-radius: 3px;
   overflow: hidden;
 }
 .home-plan-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--gold), var(--gold-dark));
-  border-radius: 2px;
+  background: linear-gradient(90deg, #10B981, var(--gold), var(--gold-dark));
+  border-radius: 3px;
   transition: width 0.4s ease;
 }
 .home-plan-progress-text {
@@ -786,18 +803,20 @@ body::after {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  width: 100%;
-  padding: 8px;
-  background: rgba(212,175,55,0.1);
-  border: 1px solid rgba(212,175,55,0.25);
+  width: calc(100% - 28px);
+  margin: 0 14px 12px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  border: none;
   border-radius: var(--radius-sm);
-  color: var(--gold);
+  color: var(--purple-darkest);
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.15s;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
 }
-.home-plan-checkin-btn:active { transform: scale(0.97); background: rgba(212,175,55,0.2); }
+.home-plan-checkin-btn:active { transform: scale(0.97); opacity: 0.9; }
 
 /* ===== Home Prayer Brief ===== */
 .home-prayer-brief {
@@ -807,10 +826,12 @@ body::after {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius);
-  padding: 14px 16px;
+  padding: 0;
+  overflow: hidden;
   cursor: pointer;
   transition: transform 0.15s;
   margin-bottom: 12px;
+  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.18);
 }
 .home-prayer-brief:active { transform: scale(0.985); }
 .home-prayer-brief-header {
@@ -821,39 +842,69 @@ body::after {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-muted);
-  margin-bottom: 10px;
+  color: var(--gold);
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
 }
 .home-prayer-brief-more {
   margin-left: auto;
   font-size: 0.72rem;
   color: var(--text-muted);
   opacity: 0.75;
+  font-weight: 500;
 }
-.home-prayer-brief-list  { display: flex; flex-direction: column; gap: 7px; }
-.home-prayer-brief-item  { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-primary); }
+.home-prayer-brief-list  { display: flex; flex-direction: column; gap: 0; }
+.home-prayer-brief-item  {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.home-prayer-brief-item:last-child { border-bottom: none; }
 .home-prayer-brief-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .home-prayer-brief-urgent-icon { color: #FCA5A5; flex-shrink: 0; }
 
-/* Minimal/light overrides */
+/* Minimal/light overrides — home plan card */
 html.minimal-mode .home-plan-progress-bar     { background: rgba(140,100,45,0.15); }
-html.minimal-mode .home-plan-badge-on-track   { background: rgba(101,119,75,0.15); color: #3D5229; }
-html.minimal-mode .home-plan-badge-complete   { background: rgba(101,119,75,0.15); color: #3D5229; }
-html.minimal-mode .home-plan-checkin-btn      { background: rgba(184,134,11,0.1); border-color: rgba(184,134,11,0.25); color: #7C4F0B; }
+html.minimal-mode .home-plan-badge-on-track   { background: linear-gradient(135deg, #3D7A5F, #2D5C47); color: #fff; }
+html.minimal-mode .home-plan-badge-complete   { background: linear-gradient(135deg, #3D7A5F, #2D5C47); color: #fff; }
+html.minimal-mode .home-plan-checkin-btn      { background: linear-gradient(135deg, #B8860B, #7C4F0B); box-shadow: 0 2px 6px rgba(184,134,11,0.25); color: #FFFBF0; border: none; }
+html.minimal-mode .home-plan-card .home-plan-card-header { border-bottom-color: rgba(140,100,45,0.12); background: rgba(245,237,217,0.4); }
+html.light-mode:not(.minimal-mode) .home-plan-card { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+html.light-mode:not(.minimal-mode) .home-plan-card .home-plan-card-header { border-bottom-color: var(--gray-100); background: #FAFAF8; }
+html.light-mode:not(.minimal-mode) .home-plan-progress-bar { background: rgba(0,0,0,0.07); }
+
+/* Minimal/light overrides — home prayer brief */
 html.minimal-mode .home-prayer-brief-urgent-icon { color: #7C4F0B; }
+html.minimal-mode .home-prayer-brief .home-prayer-brief-header { border-bottom-color: rgba(140,100,45,0.12); background: rgba(245,237,217,0.4); color: #7C4F0B; }
+html.minimal-mode .home-prayer-brief .home-prayer-brief-item  { border-bottom-color: rgba(140,100,45,0.08); }
+html.light-mode:not(.minimal-mode) .home-prayer-brief { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+html.light-mode:not(.minimal-mode) .home-prayer-brief .home-prayer-brief-header { border-bottom-color: var(--gray-100); background: #FAFAF8; color: #7C4F0B; }
+html.light-mode:not(.minimal-mode) .home-prayer-brief .home-prayer-brief-item  { border-bottom-color: var(--gray-100); }
+
+/* Minimal/light overrides — weekly project */
+html.minimal-mode .weekly-project .weekly-project-header { border-bottom-color: rgba(140,100,45,0.12); background: rgba(245,237,217,0.4); }
+html.minimal-mode .weekly-project-empty { border-color: rgba(140,100,45,0.25); }
+html.light-mode:not(.minimal-mode) .weekly-project { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+html.light-mode:not(.minimal-mode) .weekly-project .weekly-project-header { border-bottom-color: var(--gray-100); background: #FAFAF8; }
+html.light-mode:not(.minimal-mode) .weekly-project-empty { border-color: rgba(0,0,0,0.15); }
 
 /* ===== Notification blocked message ===== */
 .notification-blocked-msg {
   display: flex;
-  gap: 10px;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 8px;
   padding: 12px;
   background: rgba(251,191,36,0.07);
   border: 1px solid rgba(251,191,36,0.2);
   border-radius: var(--radius-sm);
   margin-bottom: 8px;
 }
-.notification-blocked-msg svg { color: var(--gold); flex-shrink: 0; margin-top: 1px; }
+.notification-blocked-msg > svg { color: var(--gold); flex-shrink: 0; align-self: flex-start; }
 .notification-blocked-msg p   { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; margin: 0; }
 .notification-blocked-badge {
   font-size: 0.65rem;
@@ -888,6 +939,119 @@ html.minimal-mode .home-prayer-brief-urgent-icon { color: #7C4F0B; }
   letter-spacing: 1.5px;
   margin-bottom: 8px;
   padding: 0 2px;
+}
+
+/* ===== Auto-streak toast ===== */
+.streak-toast {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #10B981, #047857);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.45);
+  white-space: nowrap;
+  z-index: 9999;
+  pointer-events: none;
+  animation: toastSlideUp 0.3s var(--ease-spring) forwards,
+             toastFadeOut 0.4s ease 2.6s forwards;
+}
+@keyframes toastSlideUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes toastFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+}
+
+/* ===== Lazy-load fallback ===== */
+.tab-loading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+/* ===== What's New panel ===== */
+.whats-new-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 16px;
+}
+.whats-new-version {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.whats-new-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.whats-new-item {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.whats-new-coming-soon {
+  background: rgba(139,92,246,0.07);
+  border: 1px solid rgba(139,92,246,0.2);
+  border-radius: 10px;
+  padding: 14px;
+}
+.whats-new-coming-soon-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #a78bfa;
+  background: rgba(139,92,246,0.15);
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin-bottom: 8px;
+}
+.whats-new-coming-soon-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.whats-new-coming-soon-sub {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ===== Notification open-settings button ===== */
+.notification-open-settings-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 8px 16px;
+  font-size: 0.82rem;
+  background: rgba(201,130,10,0.1);
+  border: 1px solid rgba(201,130,10,0.3);
+  border-radius: 8px;
+  color: var(--gold);
+  cursor: pointer;
 }
 
 .more-app-info {
@@ -953,19 +1117,24 @@ html.minimal-mode .home-prayer-brief-urgent-icon { color: #7C4F0B; }
 
 /* ===== Weekly Project ===== */
 .weekly-project {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-lg);
-  padding: 16px;
+  padding: 0;
+  overflow: hidden;
   margin-bottom: 16px;
+  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.18);
 }
 
 .weekly-project-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  padding: 13px 16px 11px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
+  margin-bottom: 0;
 }
 
 .weekly-project-label {
@@ -978,6 +1147,10 @@ html.minimal-mode .home-prayer-brief-urgent-icon { color: #7C4F0B; }
   color: var(--gold);
   text-transform: uppercase;
   letter-spacing: 1px;
+}
+
+.weekly-project-display {
+  padding: 12px 16px 14px;
 }
 
 .weekly-project-title {
@@ -1006,12 +1179,13 @@ html.minimal-mode .home-prayer-brief-urgent-icon { color: #7C4F0B; }
   border: 1px dashed rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-md);
   padding: 16px;
+  margin: 12px 16px 14px;
+  width: calc(100% - 32px);
   color: var(--text-muted);
   font-family: var(--font-body);
   font-size: 0.85rem;
   font-style: italic;
   cursor: pointer;
-  width: 100%;
   text-align: center;
   transition: all var(--transition);
 }
@@ -1025,6 +1199,7 @@ html.minimal-mode .home-prayer-brief-urgent-icon { color: #7C4F0B; }
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 12px 16px 14px;
 }
 
 .weekly-field-label {
@@ -1279,8 +1454,9 @@ html.minimal-mode .home-prayer-brief-urgent-icon { color: #7C4F0B; }
 }
 
 .prayer-card-answered {
-  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
-  border: 1px solid rgba(251, 191, 36, 0.3);
+  background: linear-gradient(160deg, #FFFBEB 0%, #FEF9C3 60%, #FEF3C7 100%);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  box-shadow: var(--shadow-md), 0 0 0 1px rgba(251, 191, 36, 0.1), inset 0 1px 0 rgba(255,255,255,0.8);
 }
 
 .prayer-card-top {
@@ -1590,21 +1766,26 @@ html.minimal-mode .home-prayer-brief-urgent-icon { color: #7C4F0B; }
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 10px;
-  border: 1px solid var(--gold);
-  background: transparent;
-  color: var(--gold-deeper);
+  padding: 5px 12px;
+  border: none;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: var(--purple-darkest);
   font-family: var(--font-sans);
   font-size: 0.7rem;
-  font-weight: 500;
+  font-weight: 700;
   border-radius: var(--radius-full);
   cursor: pointer;
+  box-shadow: 0 2px 6px rgba(251, 191, 36, 0.3);
   transition: all var(--transition);
 }
 
 .btn-answered:hover {
-  background: var(--gold);
-  color: var(--purple-darkest);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-answered:active {
+  transform: scale(0.96);
 }
 
 /* ===== Prayer Log Bar ===== */
@@ -1612,8 +1793,8 @@ html.minimal-mode .home-prayer-brief-urgent-icon { color: #7C4F0B; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #FDF2F8;
-  border: 1px solid #FCE7F3;
+  background: linear-gradient(135deg, rgba(236,72,153,0.08), rgba(190,24,93,0.05));
+  border: 1px solid rgba(236, 72, 153, 0.22);
   border-radius: var(--radius-md);
   padding: 8px 12px;
   margin-top: 10px;
@@ -1674,15 +1855,22 @@ html.minimal-mode .home-prayer-brief-urgent-icon { color: #7C4F0B; }
 }
 
 .btn-log-pray:hover {
-  background: #EC4899;
-  color: var(--text-primary);
-  border-color: #EC4899;
+  background: linear-gradient(135deg, #EC4899, #BE185D);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-log-pray:active {
+  transform: scale(0.96);
 }
 
 .btn-log-pray-active {
-  background: #EC4899;
-  color: var(--text-primary);
-  border-color: #EC4899;
+  background: linear-gradient(135deg, #EC4899, #BE185D);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.35);
   animation: heartPulse 0.4s ease;
 }
 
@@ -3306,25 +3494,78 @@ html.minimal-mode .home-prayer-brief-urgent-icon { color: #7C4F0B; }
 
 /* ===== Prayer Plan ===== */
 .prayer-plan-card {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-lg);
-  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  padding: 0;
   margin-bottom: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ── Plan card header section ── */
+.prayer-plan-active-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* ── Plan name + progress section ── */
+.prayer-plan-summary {
+  padding: 14px 16px 4px;
+}
+
+.prayer-plan-progress-bar {
+  margin: 8px 16px 0;
+  width: auto; /* override any fixed width */
+}
+
+/* ── Day circles section ── */
+.prayer-plan-days-scroller {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.12);
+  margin-top: 10px;
+  padding: 12px 16px 8px;
+}
+
+/* ── Action / check-in section ── */
+.prayer-plan-checkin-btn,
+.prayer-plan-checked-today,
+.prayer-plan-complete-msg {
+  margin: 0 16px 14px;
+  width: calc(100% - 32px);
+}
+
+/* ── Timer + notes + partners ── */
+.plan-timer-toggle {
+  margin: 0 16px;
+}
+
+.prayer-notes-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 4px;
+}
+
+.prayer-notes-section .prayer-notes-toggle {
+  padding: 10px 16px;
+}
+
+.prayer-notes-section .prayer-notes-body {
+  padding: 0 16px 14px;
 }
 
 .prayer-plan-label {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--font-serif);
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 700;
   color: var(--gold);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 10px;
+  letter-spacing: 1.2px;
+  margin-bottom: 0;
 }
 
 .prayer-plan-empty-btn {
@@ -3333,21 +3574,30 @@ html.minimal-mode .home-prayer-brief-urgent-icon { color: #7C4F0B; }
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: none;
-  border: 1px dashed rgba(255, 255, 255, 0.2);
+  background: rgba(251, 191, 36, 0.07);
+  border: 1px dashed rgba(251, 191, 36, 0.35);
   border-radius: var(--radius-md);
   padding: 14px;
-  color: var(--text-muted);
+  color: var(--gold);
   font-family: var(--font-body);
   font-size: 0.85rem;
-  font-style: italic;
+  font-weight: 500;
   cursor: pointer;
   transition: all var(--transition);
 }
 
 .prayer-plan-empty-btn:hover {
-  border-color: var(--gold);
-  color: var(--gold);
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  border-color: transparent;
+  border-style: solid;
+  color: var(--purple-darkest);
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(251, 191, 36, 0.35);
+  transform: translateY(-1px);
+}
+
+.prayer-plan-empty-btn:active {
+  transform: scale(0.97);
 }
 
 .prayer-plan-completed-count {
@@ -3576,8 +3826,8 @@ html.minimal-mode .note-voice-coming-soon {
 }
 
 .prayer-plan-badge-success {
-  background: #DCFCE7;
-  color: #15803D;
+  background: linear-gradient(135deg, #10B981, #047857);
+  color: #fff;
 }
 
 .prayer-plan-badge-warning {
@@ -3608,9 +3858,11 @@ html.minimal-mode .note-voice-coming-soon {
 
 .prayer-plan-name {
   font-family: var(--font-serif);
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--white);
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 
 .prayer-plan-progress-text {
@@ -3621,18 +3873,18 @@ html.minimal-mode .note-voice-coming-soon {
 
 .prayer-plan-progress-bar {
   width: 100%;
-  height: 4px;
+  height: 6px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  margin-bottom: 12px;
+  border-radius: 3px;
+  margin-bottom: 0;
   overflow: hidden;
 }
 
 .prayer-plan-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--gold), var(--gold-dark));
-  border-radius: 2px;
-  transition: width 0.4s var(--ease-out);
+  background: linear-gradient(90deg, #10B981, var(--gold), var(--gold-dark));
+  border-radius: 3px;
+  transition: width 0.5s var(--ease-out);
 }
 
 /* Day scroller */
@@ -3680,9 +3932,22 @@ html.minimal-mode .note-voice-coming-soon {
 }
 
 .prayer-plan-day-checked {
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-  border-color: var(--gold);
-  color: var(--purple-darkest);
+  background: linear-gradient(135deg, #10B981, #047857);
+  border-color: #10B981;
+  color: #fff;
+  cursor: pointer;
+}
+.prayer-plan-day-checked:hover {
+  background: linear-gradient(135deg, #34D399, #059669);
+  border-color: #34D399;
+}
+
+/* Tiny tick shown in bottom-right of a checked day circle */
+.prayer-plan-day-mini-check {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  opacity: 0.85;
 }
 
 .prayer-plan-day-current {
@@ -3698,6 +3963,64 @@ html.minimal-mode .note-voice-coming-soon {
 
 .prayer-plan-day-past {
   opacity: 0.5;
+}
+
+/* Day circles are now <button> elements — reset browser defaults */
+button.prayer-plan-day {
+  font: inherit;
+  cursor: default;
+  -webkit-appearance: none;
+}
+button.prayer-plan-day:not(.prayer-plan-day-checked) {
+  background: none;
+}
+button.prayer-plan-day:disabled {
+  cursor: default;
+}
+
+/* Retroactive days (1–3 days back) are tappable */
+.prayer-plan-day-retroactive {
+  opacity: 0.65;
+  cursor: pointer;
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.prayer-plan-day-retroactive:hover {
+  opacity: 1;
+  border-color: #10B981;
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.12);
+  transform: scale(1.08);
+}
+.prayer-plan-day-retroactive:active {
+  transform: scale(0.95);
+}
+
+/* Retro-confirm mini-sheet */
+.retro-confirm-sheet {
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  border-radius: var(--radius-md);
+  animation: fadeInUp 0.2s var(--ease-spring);
+}
+.retro-confirm-text {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  margin: 0 0 10px;
+  line-height: 1.4;
+}
+.retro-confirm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+html.light-mode .retro-confirm-sheet,
+html.minimal-mode .retro-confirm-sheet {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.22);
 }
 
 .prayer-plan-checkin-btn {
@@ -3976,6 +4299,101 @@ html.minimal-mode .daily-checkin-card.daily-checkin-prayed {
 }
 .daily-checkin-undo:hover {
   color: rgba(255, 255, 255, 0.9);
+}
+
+/* ── "How did you pray today?" type sheet ── */
+.prayer-type-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeInUp 0.22s var(--ease-spring);
+}
+.prayer-type-sheet-title {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+.prayer-type-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.prayer-type-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 12px 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition);
+  color: rgba(255, 255, 255, 0.9);
+  font: inherit;
+  -webkit-appearance: none;
+}
+.prayer-type-option:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+.prayer-type-option:active {
+  transform: scale(0.96);
+}
+.prayer-type-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.prayer-type-label {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.2;
+}
+.prayer-type-cancel {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 4px;
+  text-align: center;
+  transition: color var(--transition);
+}
+.prayer-type-cancel:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Light/parchment theme adjustments */
+html.light-mode .prayer-type-sheet-title,
+html.minimal-mode .prayer-type-sheet-title {
+  color: var(--text-primary);
+}
+html.light-mode .prayer-type-option,
+html.minimal-mode .prayer-type-option {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: var(--text-primary);
+}
+html.light-mode .prayer-type-option:hover,
+html.minimal-mode .prayer-type-option:hover {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+html.light-mode .prayer-type-cancel,
+html.minimal-mode .prayer-type-cancel {
+  color: var(--text-muted);
+}
+html.light-mode .prayer-type-cancel:hover,
+html.minimal-mode .prayer-type-cancel:hover {
+  color: var(--text-secondary);
 }
 
 /* ===== Community Prayer ===== */
@@ -4613,10 +5031,6 @@ html.light-mode .daily-verse-ref {
 /* Bottom nav light mode */
 html.light-mode .bottom-nav-item {
   color: rgba(10, 22, 40, 0.4);
-}
-
-html.light-mode .bottom-nav-item-active {
-  color: #1E3A6E;
 }
 
 html.light-mode .app-header-title {
@@ -7046,11 +7460,13 @@ html.light-mode .intercede-coming-soon::after {
 }
 
 .plan-featured-header {
-  font-size: 0.78rem;
+  font-family: var(--font-serif);
+  font-size: 1rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--text-secondary);
-  padding: 4px 2px 8px;
+  font-style: italic;
+  color: var(--text-primary);
+  padding: 8px 2px 10px;
+  letter-spacing: -0.01em;
 }
 
 .plan-featured-cards {
@@ -7090,11 +7506,13 @@ html.light-mode .intercede-coming-soon::after {
 }
 
 .plan-featured-card-name {
-  font-size: 0.82rem;
+  font-family: var(--font-serif);
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.3;
-  margin-top: 2px;
+  margin-top: 4px;
+  letter-spacing: -0.01em;
 }
 
 .plan-featured-card-desc {
@@ -7107,26 +7525,31 @@ html.light-mode .intercede-coming-soon::after {
 .plan-featured-card-btn {
   margin-top: 8px;
   width: 100%;
-  padding: 7px 0;
-  background: rgba(99, 102, 241, 0.12);
-  border: 1px solid rgba(99, 102, 241, 0.25);
+  padding: 8px 0;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  border: none;
   border-radius: var(--radius-md);
-  color: #818CF8;
+  color: var(--purple-darkest);
   font-family: var(--font-sans);
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
   transition: all var(--transition);
 }
 
 .plan-featured-card-btn:hover {
-  background: rgba(99, 102, 241, 0.22);
-  border-color: rgba(99, 102, 241, 0.45);
+  box-shadow: 0 4px 14px rgba(251, 191, 36, 0.45);
+  transform: translateY(-1px);
+}
+
+.plan-featured-card-btn:active {
+  transform: scale(0.97);
 }
 
 /* Light mode */
 html.light-mode .plan-featured-card {
-  background: var(--white);
+  background: #FFFFFF;
   border-color: var(--gray-200);
 }
 
@@ -7136,17 +7559,12 @@ html.light-mode .plan-featured-card-days {
 }
 
 html.light-mode .plan-featured-card-btn {
-  background: rgba(99, 102, 241, 0.07);
-  border-color: rgba(99, 102, 241, 0.2);
-  color: #4F46E5;
-}
-
-html.light-mode .plan-featured-card-btn:hover {
-  background: rgba(99, 102, 241, 0.14);
+  color: var(--purple-darkest);
 }
 
 html.minimal-mode .plan-featured-card {
-  background: var(--surface);
+  background: var(--bg-secondary);
+  border-color: rgba(140, 100, 45, 0.22);
 }
 
 html.minimal-mode .plan-featured-card-days {
@@ -7155,11 +7573,465 @@ html.minimal-mode .plan-featured-card-days {
 }
 
 html.minimal-mode .plan-featured-card-btn {
-  background: rgba(99, 102, 241, 0.07);
-  border-color: rgba(99, 102, 241, 0.2);
-  color: #4338CA;
+  color: var(--purple-darkest);
 }
 
-html.minimal-mode .plan-featured-card-btn:hover {
-  background: rgba(99, 102, 241, 0.14);
+/* Parchment mode — prayer plan card container & template list */
+html.minimal-mode .prayer-plan-card {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(140, 100, 45, 0.2);
+  box-shadow: 0 2px 12px rgba(100, 70, 20, 0.1);
+}
+html.minimal-mode .prayer-plan-card .prayer-plan-active-header {
+  border-bottom-color: rgba(140, 100, 45, 0.12);
+  background: rgba(245, 237, 217, 0.4);
+}
+html.minimal-mode .prayer-plan-card .prayer-plan-days-scroller {
+  border-top-color: rgba(140, 100, 45, 0.12);
+  background: rgba(200, 165, 100, 0.08);
+}
+html.minimal-mode .prayer-plan-card .prayer-notes-section {
+  border-top-color: rgba(140, 100, 45, 0.1);
+}
+html.minimal-mode .prayer-plan-progress-bar {
+  background: rgba(140, 100, 45, 0.12);
+}
+
+/* Light mode */
+html.light-mode:not(.minimal-mode) .prayer-plan-card {
+  background: #FFFFFF;
+  border-color: var(--gray-200);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+}
+html.light-mode:not(.minimal-mode) .prayer-plan-card .prayer-plan-active-header {
+  border-bottom-color: var(--gray-100);
+  background: #FAFAF8;
+}
+html.light-mode:not(.minimal-mode) .prayer-plan-card .prayer-plan-days-scroller {
+  border-top-color: var(--gray-100);
+  background: #F5F4F0;
+}
+html.light-mode:not(.minimal-mode) .prayer-plan-card .prayer-notes-section {
+  border-top-color: var(--gray-100);
+}
+html.light-mode:not(.minimal-mode) .prayer-plan-progress-bar {
+  background: var(--gray-100);
+}
+
+html.minimal-mode .prayer-plan-template {
+  background: rgba(255, 255, 255, 0.45);
+  border-color: rgba(140, 100, 45, 0.2);
+}
+
+html.minimal-mode .prayer-plan-template:hover {
+  background: rgba(180, 130, 60, 0.12);
+}
+
+html.minimal-mode .prayer-plan-template-active {
+  background: rgba(184, 134, 11, 0.14) !important;
+  border-color: var(--gold) !important;
+}
+
+html.minimal-mode .prayer-plan-input {
+  background: rgba(245, 237, 217, 0.8);
+  border-color: rgba(140, 100, 45, 0.22);
+  color: #3D2B1F;
+}
+
+html.minimal-mode .prayer-plan-day-pill {
+  border-color: rgba(140, 100, 45, 0.22);
+  color: var(--text-secondary);
+}
+
+html.minimal-mode .prayer-plan-day-pill:hover {
+  border-color: rgba(140, 100, 45, 0.4);
+  background: rgba(184, 134, 11, 0.08);
+  color: var(--text-primary);
+}
+
+/* ===================================================
+   ONBOARDING — First-launch full-screen experience
+   =================================================== */
+
+.onboarding-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  /* iOS safe areas */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Subtle radial glow in the background */
+.onboarding-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 20%, rgba(251, 191, 36, 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 60%);
+}
+
+/* ── Slide track ── */
+.onboarding-track {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  transition: transform 380ms var(--ease-out);
+  will-change: transform;
+}
+
+.onboarding-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px 16px;
+  text-align: center;
+  gap: 0;
+}
+
+/* ── Slide 1: Welcome ── */
+.onboarding-icon-wrap {
+  margin-bottom: 28px;
+  filter: drop-shadow(0 8px 32px rgba(251, 191, 36, 0.25));
+  animation: onboarding-float 3s ease-in-out infinite;
+}
+
+@keyframes onboarding-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+
+.onboarding-wordmark {
+  font-family: var(--font-sans);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.onboarding-tagline {
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+  line-height: 1.65;
+  max-width: 300px;
+  margin-bottom: 36px;
+}
+
+.onboarding-verse {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  max-width: 320px;
+}
+
+.onboarding-verse-text {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.65;
+  font-style: italic;
+}
+
+.onboarding-verse-ref {
+  font-size: var(--text-xs);
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ── Slide 2: Features ── */
+.onboarding-slide-eyebrow {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.onboarding-slide-heading {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+  margin-bottom: 28px;
+  letter-spacing: -0.01em;
+}
+
+.onboarding-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.onboarding-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  text-align: left;
+}
+
+.onboarding-feature-dot {
+  font-size: 20px;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.onboarding-feature-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.onboarding-feature-text strong {
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.onboarding-feature-text span {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ── Slide 3: CTA ── */
+.onboarding-slide-cta {
+  justify-content: center;
+  gap: 0;
+}
+
+.onboarding-cta-icon {
+  font-size: 52px;
+  margin-bottom: 20px;
+  animation: onboarding-float 3s ease-in-out infinite;
+}
+
+.onboarding-cta-sub {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  line-height: 1.65;
+  max-width: 300px;
+  margin-bottom: 32px;
+}
+
+.onboarding-cta-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.onboarding-btn-primary {
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--gold);
+  color: #1a1100;
+  font-size: var(--text-base);
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: background var(--transition), transform var(--transition);
+}
+
+.onboarding-btn-primary:hover {
+  background: var(--gold-dark);
+  transform: translateY(-1px);
+}
+
+.onboarding-btn-primary:active {
+  transform: translateY(0);
+}
+
+.onboarding-btn-secondary {
+  width: 100%;
+  padding: 13px 24px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  font-weight: 500;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.onboarding-btn-secondary:hover {
+  background: var(--surface-hover);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.onboarding-btn-skip {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  padding: 8px;
+  transition: color var(--transition);
+  margin-top: 2px;
+}
+
+.onboarding-btn-skip:hover {
+  color: var(--text-secondary);
+}
+
+.onboarding-privacy-note {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: 20px;
+  letter-spacing: 0.02em;
+}
+
+/* ── Dots ── */
+.onboarding-dots {
+  display: flex;
+  gap: 8px;
+  padding: 12px 0 8px;
+  flex-shrink: 0;
+}
+
+.onboarding-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-full);
+  background: var(--surface-border);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--transition), width 260ms var(--ease-out);
+}
+
+.onboarding-dot-active {
+  background: var(--gold);
+  width: 22px;
+}
+
+/* ── Nav buttons (slides 1–2 only) ── */
+.onboarding-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 360px;
+  padding: 8px 32px 20px;
+  flex-shrink: 0;
+}
+
+.onboarding-nav-back {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  padding: 6px 0;
+  transition: color var(--transition);
+}
+
+.onboarding-nav-back:hover {
+  color: var(--text-secondary);
+}
+
+.onboarding-nav-next {
+  padding: 11px 28px;
+  background: var(--gold);
+  color: #1a1100;
+  font-size: var(--text-base);
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+  margin-left: auto;
+}
+
+.onboarding-nav-next:hover {
+  background: var(--gold-dark);
+  transform: translateY(-1px);
+}
+
+.onboarding-nav-skip {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  padding: 6px 0;
+  transition: color var(--transition);
+  position: absolute;
+  right: 20px;
+  top: 20px;
+}
+
+.onboarding-nav-skip:hover {
+  color: var(--text-secondary);
+}
+
+/* ── Responsive: larger phones / tablets ── */
+@media (min-height: 812px) {
+  .onboarding-slide {
+    padding-top: 64px;
+    gap: 4px;
+  }
+
+  .onboarding-icon-wrap {
+    margin-bottom: 32px;
+  }
+
+  .onboarding-features {
+    gap: 16px;
+  }
+}
+
+@media (max-height: 667px) {
+  .onboarding-slide {
+    padding: 24px 28px 8px;
+    justify-content: flex-start;
+  }
+
+  .onboarding-verse {
+    display: none;
+  }
+
+  .onboarding-wordmark {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
+
+  .onboarding-slide-heading {
+    font-size: 1.25rem;
+    margin-bottom: 16px;
+  }
+
+  .onboarding-features {
+    gap: 10px;
+  }
+
+  .onboarding-feature-item {
+    padding: 10px 14px;
+  }
 }

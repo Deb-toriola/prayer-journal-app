@@ -4,6 +4,7 @@ import {
   MessageSquarePlus, ChevronDown, ChevronUp, BookMarked, Ear, Sparkles, Eye, BookOpen, Mic,
 } from 'lucide-react';
 import { PLAN_TEMPLATES, PLAN_CATEGORIES } from '../hooks/usePrayerPlan';
+import PrayingHands from './PrayingHands';
 import { formatRelativeDate } from '../utils/constants';
 import { getScriptureUrl } from '../utils/bibleBooks';
 import ScripturePicker from './ScripturePicker';
@@ -129,7 +130,7 @@ function PlanTimer() {
       )}
 
       {finished ? (
-        <div className="plan-timer-finished">Time&apos;s up — well done! 🙏</div>
+        <div className="plan-timer-finished">Time&apos;s up — well done! <PrayingHands size={18} /></div>
       ) : (
         <div className={`plan-timer-display ${running ? 'plan-timer-display-running' : ''}`}>
           {fmt(displaySecs)}
@@ -155,11 +156,19 @@ function PlanTimer() {
 }
 
 /* ─── Single active plan card ─── */
-function PlanCard({ plan, onCheckIn, onDelete, today, onAddNote, onDeleteNote, bibleTranslation, onAddPartner, onRemovePartner, onLogPartnerPrayed, onUndoPartnerPrayed }) {
+function PlanCard({ plan, onCheckIn, onDelete, today, onAddNote, onDeleteNote, bibleTranslation, onAddPartner, onRemovePartner, onLogPartnerPrayed, onUndoPartnerPrayed, onAutoStreak }) {
   const [showTimer, setShowTimer] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [newNote, setNewNote] = useState('');
   const [noteType, setNoteType] = useState('update');
+  const [retroConfirm, setRetroConfirm] = useState(null); // { date, dayNum, action: 'check'|'uncheck' }
+
+  const getDayLabel = (dateStr) => {
+    const d = Math.floor((new Date(today) - new Date(dateStr + 'T12:00:00')) / 86400000);
+    if (d === 0) return 'today';
+    if (d === 1) return 'yesterday';
+    return new Date(dateStr + 'T12:00:00').toLocaleDateString('en', { weekday: 'long' });
+  };
 
   // Local partner timer state (isolated per plan card)
   const [partnerTimerId, setPartnerTimerId] = useState(null);
@@ -193,6 +202,7 @@ function PlanCard({ plan, onCheckIn, onDelete, today, onAddNote, onDeleteNote, b
     if (!newNote.trim()) return;
     onAddNote(plan.id, newNote.trim(), noteType);
     setNewNote('');
+    onAutoStreak?.(); // writing a plan journal entry counts as prayer engagement
   };
   const startDate = new Date(plan.startDate);
   const start = new Date(plan.startDate);
@@ -242,28 +252,79 @@ function PlanCard({ plan, onCheckIn, onDelete, today, onAddNote, onDeleteNote, b
           const dateStr = dayDate.toISOString().split('T')[0];
           const isChecked = plan.checkedDays.includes(dateStr);
           const isCurrent = dateStr === today && !isComplete;
-          const isPast = dateStr < today && !isChecked;
+          const daysDiff = Math.floor((new Date(today) - new Date(dateStr)) / 86400000);
+          // Interactive: today + up to 3 days back (grace window). Future = locked.
+          const isInteractive = dateStr <= today && daysDiff <= 3;
+          const isRetroactive = dateStr < today && daysDiff <= 3; // past but within window
 
           let cls = 'prayer-plan-day';
           if (isChecked) cls += ' prayer-plan-day-checked';
           else if (isCurrent) cls += ' prayer-plan-day-current';
           else if (dateStr > today) cls += ' prayer-plan-day-future';
-          else if (isPast) cls += ' prayer-plan-day-past';
+          else if (isRetroactive) cls += ' prayer-plan-day-retroactive';
+          else cls += ' prayer-plan-day-past';
+
+          const handleDayClick = () => {
+            if (isChecked) {
+              setRetroConfirm({ date: dateStr, dayNum, action: 'uncheck' });
+            } else if (isCurrent) {
+              onCheckIn(plan.id, today);
+              onAutoStreak?.();
+            } else {
+              setRetroConfirm({ date: dateStr, dayNum, action: 'check' });
+            }
+          };
 
           return (
-            <div key={dayNum} className={cls} title={`Day ${dayNum}`}>
+            <button
+              key={dayNum}
+              type="button"
+              className={cls}
+              title={`Day ${dayNum}${isRetroactive ? ' — tap to log' : ''}`}
+              onClick={isInteractive ? handleDayClick : undefined}
+              disabled={!isInteractive}
+            >
               {isChecked ? (
-                <Check size={14} strokeWidth={3} />
+                <>
+                  <span className="prayer-plan-day-number">{dayNum}</span>
+                  <Check size={9} strokeWidth={3} className="prayer-plan-day-mini-check" />
+                </>
               ) : (
                 <>
                   <span className="prayer-plan-day-number">{dayNum}</span>
                   {isCurrent && <span className="prayer-plan-day-label">Today</span>}
                 </>
               )}
-            </div>
+            </button>
           );
         })}
       </div>
+
+      {/* Retroactive confirmation sheet */}
+      {retroConfirm && (
+        <div className="retro-confirm-sheet">
+          <p className="retro-confirm-text">
+            {retroConfirm.action === 'check'
+              ? `Log prayer for ${getDayLabel(retroConfirm.date)}? This will count toward your streak.`
+              : `Remove the prayer log for ${getDayLabel(retroConfirm.date)}?`}
+          </p>
+          <div className="retro-confirm-actions">
+            <button className="btn btn-sm btn-secondary" onClick={() => setRetroConfirm(null)}>
+              Cancel
+            </button>
+            <button
+              className="btn btn-sm btn-primary"
+              onClick={() => {
+                onCheckIn(plan.id, retroConfirm.date);
+                if (retroConfirm.action === 'check') onAutoStreak?.();
+                setRetroConfirm(null);
+              }}
+            >
+              {retroConfirm.action === 'check' ? '🔥 Log Prayer' : 'Remove'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Timer toggle */}
       <button className="plan-timer-toggle" onClick={() => setShowTimer(v => !v)}>
@@ -282,7 +343,7 @@ function PlanCard({ plan, onCheckIn, onDelete, today, onAddNote, onDeleteNote, b
           ✨ You prayed today — keep it up!
         </div>
       ) : (
-        <button className="prayer-plan-checkin-btn" onClick={() => onCheckIn(plan.id)}>
+        <button className="prayer-plan-checkin-btn" onClick={() => { onCheckIn(plan.id, today); onAutoStreak?.(); }}>
           <CalendarCheck size={15} />
           I prayed today
         </button>
@@ -428,6 +489,7 @@ export default function PrayerPlan({
   completedPlansCount,
   today,
   bibleTranslation,
+  onAutoStreak,
 }) {
   const [showCreator, setShowCreator] = useState(false);
   const [customName, setCustomName] = useState('');
@@ -556,20 +618,21 @@ export default function PrayerPlan({
           onRemovePartner={onRemovePartner}
           onLogPartnerPrayed={onLogPartnerPrayed}
           onUndoPartnerPrayed={onUndoPartnerPrayed}
+          onAutoStreak={onAutoStreak}
         />
       ))}
 
       {/* Thanksgiving & Praise */}
       <FeaturedPlanSection
         categoryId="thanksgiving"
-        label="🙌 Thanksgiving & Praise"
+        label="✨ Thanksgiving & Praise"
         onStart={onStart}
       />
 
       {/* Personal Intercession */}
       <FeaturedPlanSection
         categoryId="intercession"
-        label="🛡️ Personal Intercession"
+        label="🕊️ Personal Intercession"
         onStart={onStart}
       />
     </>

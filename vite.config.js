@@ -4,6 +4,23 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   base: './',
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react':     ['react', 'react-dom'],
+          'vendor-supabase':  ['@supabase/supabase-js'],
+          'vendor-lucide':    ['lucide-react'],
+          'vendor-capacitor': [
+            '@capacitor/core',
+            '@capacitor/app',
+            '@capacitor/local-notifications',
+            '@capacitor/haptics',
+          ],
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({

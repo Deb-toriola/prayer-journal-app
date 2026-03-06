@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Bell, BellOff, Plus, X, Clock, Settings, AlertCircle } from 'lucide-react';
+import { Bell, BellOff, Plus, X, Clock, Settings, AlertCircle, ExternalLink } from 'lucide-react';
+import { openAppSettings } from '../utils/openAppSettings';
 
 export default function NotificationSettings({
   settings,
@@ -31,8 +32,9 @@ export default function NotificationSettings({
 
   const isBlocked = permissionState === 'denied';
 
+  // Platform-aware blocked message — shorter when a button handles navigation
   const blockedMessage = isNative
-    ? 'Notifications are blocked. Open iPhone Settings → My Prayer App → Notifications → turn on Allow Notifications, then come back.'
+    ? 'Notifications are blocked. Tap below to open Settings and enable them.'
     : 'Notifications are blocked in your browser. Click the lock icon (🔒) in the address bar, set Notifications to Allow, then refresh.';
 
   return (
@@ -57,6 +59,15 @@ export default function NotificationSettings({
             <div className="notification-blocked-msg">
               <AlertCircle size={15} />
               <p>{blockedMessage}</p>
+              {isNative && (
+                <button
+                  className="btn btn-sm notification-open-settings-btn"
+                  onClick={openAppSettings}
+                >
+                  <ExternalLink size={13} />
+                  Open Settings
+                </button>
+              )}
             </div>
           ) : (
             <div className="notification-enable-row">

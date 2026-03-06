@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { loadGuestPrayers, saveGuestPrayers } from './useGuestStorage';
 
 // Convert Supabase row → app prayer shape
 function rowToPrayer(row) {
@@ -52,9 +53,15 @@ export function usePrayers(userId) {
   const [prayers, setPrayers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Load prayers from Supabase on mount
+  // Load prayers — from localStorage (guest) or Supabase (authenticated)
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      // Guest mode: load from localStorage so data persists across restarts
+      const stored = loadGuestPrayers();
+      setPrayers(stored);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     supabase
       .from('prayers')
@@ -66,6 +73,13 @@ export function usePrayers(userId) {
         setLoading(false);
       });
   }, [userId]);
+
+  // Guest mode: auto-save prayers to localStorage on every state change
+  useEffect(() => {
+    if (!userId && !loading) {
+      saveGuestPrayers(prayers);
+    }
+  }, [prayers, userId, loading]);
 
   // Helper: update a single prayer in state and sync to Supabase
   const syncPrayer = useCallback(async (updatedPrayer) => {

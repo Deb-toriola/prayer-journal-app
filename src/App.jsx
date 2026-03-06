@@ -1,12 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { Plus } from 'lucide-react';
 import DoveIcon from './components/DoveIcon';
 import ErrorBoundary from './components/ErrorBoundary';
 import BottomNav from './components/BottomNav';
 import DailyVerse from './components/DailyVerse';
 import DailyCheckin from './components/DailyCheckin';
-import PrayerPlan from './components/PrayerPlan';
-import CommunityPrayer from './components/CommunityPrayer';
 import WeeklyProject from './components/WeeklyProject';
 import HomePlanCard from './components/HomePlanCard';
 import HomePrayerBrief from './components/HomePrayerBrief';
@@ -15,8 +13,15 @@ import SearchAndFilter from './components/SearchAndFilter';
 import PrayerCard from './components/PrayerCard';
 import PrayerForm from './components/PrayerForm';
 import EmptyState from './components/EmptyState';
-import ExportPDF from './components/ExportPDF';
-import AuthScreen from './components/AuthScreen';
+import PrayingHands from './components/PrayingHands';
+
+// ── Lazy-loaded: only fetched when the user navigates to that tab/action ──
+const PrayerPlan      = lazy(() => import('./components/PrayerPlan'));
+const CommunityPrayer = lazy(() => import('./components/CommunityPrayer'));
+const ExportPDF       = lazy(() => import('./components/ExportPDF'));
+const AuthScreen      = lazy(() => import('./components/AuthScreen'));
+const Onboarding      = lazy(() => import('./components/Onboarding'));
+import { migrateGuestData } from './utils/migrateGuestData';
 import { usePrayers } from './hooks/usePrayers';
 import { usePrayerTimer } from './hooks/usePrayerTimer';
 import { useWeeklyProject } from './hooks/useWeeklyProject';
@@ -39,9 +44,21 @@ const TAB_TITLES = {
   more:      'More',
 };
 
+const ONBOARDING_KEY = 'hasSeenOnboarding';
+
 export default function App() {
-  const { user, loading: authLoading, error: authError, signIn, signUp, signOut, resetPassword, clearError, deleteAccount } = useAuth();
-  const [authModal, setAuthModal] = useState(null); // null | 'login' | 'signup'
+  const { user, loading: authLoading, error: authError, signIn, signUp, signOut, resetPassword, updatePassword, clearError, deleteAccount, passwordRecovery } = useAuth();
+  const [authModal, setAuthModal] = useState(null); // null | 'login' | 'signup' | 'newPassword'
+
+  // Show onboarding only if not seen before AND user isn't already signed in
+  const [showOnboarding, setShowOnboarding] = useState(
+    () => !localStorage.getItem(ONBOARDING_KEY)
+  );
+
+  const finishOnboarding = () => {
+    localStorage.setItem(ONBOARDING_KEY, '1');
+    setShowOnboarding(false);
+  };
 
   const openAuthModal = (view = 'login') => { clearError(); setAuthModal(view); };
   const closeAuthModal = () => { clearError(); setAuthModal(null); };
@@ -54,6 +71,35 @@ export default function App() {
   const handleSignUp = async (email, pw) => {
     return await signUp(email, pw); // stays open to show confirmation
   };
+  const handleUpdatePassword = async (pw) => {
+    const ok = await updatePassword(pw);
+    if (ok) closeAuthModal();
+    return ok;
+  };
+
+  // Auto-open "Set new password" modal when a recovery link is followed
+  useEffect(() => {
+    if (passwordRecovery) openAuthModal('newPassword');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [passwordRecovery]);
+
+  // Migrate guest data the first time a user's auth session becomes active
+  const prevUserRef = useRef(null);
+  useEffect(() => {
+    if (user && !prevUserRef.current) {
+      migrateGuestData(user.id);
+    }
+    prevUserRef.current = user;
+  }, [user]);
+
+  // Onboarding CTA handlers
+  const handleOnboardingSignUp = () => {
+    finishOnboarding();
+    openAuthModal('signup');
+  };
+  const handleOnboardingGuest = () => {
+    finishOnboarding();
+  };
 
   if (authLoading) {
     return (
@@ -65,18 +111,32 @@ export default function App() {
 
   return (
     <>
+      {/* Show onboarding for brand-new users who aren't signed in yet */}
+      {showOnboarding && !user && (
+        <Suspense fallback={<div className="tab-loading" />}>
+          <Onboarding
+            onSignUp={handleOnboardingSignUp}
+            onGuest={handleOnboardingGuest}
+          />
+        </Suspense>
+      )}
+
       <AppInner user={user} signOut={signOut} onOpenAuth={openAuthModal} deleteAccount={deleteAccount} />
+
       {authModal && (
-        <AuthScreen
-          isModal
-          initialView={authModal}
-          onClose={closeAuthModal}
-          onSignIn={handleSignIn}
-          onSignUp={handleSignUp}
-          onResetPassword={resetPassword}
-          error={authError}
-          clearError={clearError}
-        />
+        <Suspense fallback={<div className="tab-loading" />}>
+          <AuthScreen
+            isModal
+            initialView={authModal}
+            onClose={closeAuthModal}
+            onSignIn={handleSignIn}
+            onSignUp={handleSignUp}
+            onResetPassword={resetPassword}
+            onUpdatePassword={handleUpdatePassword}
+            error={authError}
+            clearError={clearError}
+          />
+        </Suspense>
       )}
     </>
   );
@@ -116,14 +176,16 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
     new Set(prayers.flatMap((p) => (p.prayerLog || []).map((ts) => ts.split('T')[0])))
   , [prayers]);
 
-  const { hasPrayedToday, hasManualCheckinToday, checkInToday, uncheckToday, currentStreak, longestStreak, totalDaysPrayed } = useDailyCheckin(user?.id, prayerLogDates);
-
   const {
     plans, startPlan, checkInPlan, deletePlan,
     addPlanNote, deletePlanNote,
     addPlanPartner, removePlanPartner, logPlanPartnerPrayed, undoPlanPartnerPrayed,
     completedPlansCount, today: planToday,
+    allPlanCheckinDates,
   } = usePrayerPlan(user?.id);
+
+  // Merge prayer logs + plan check-ins so ALL engagement counts toward the streak
+  const { hasPrayedToday, hasManualCheckinToday, checkInToday, uncheckToday, currentStreak, longestStreak, totalDaysPrayed } = useDailyCheckin(user?.id, prayerLogDates, allPlanCheckinDates);
 
   const { memberStats, totalGroupMinutes: legacyGroupMinutes, todayGroupMinutes: legacyTodayMinutes, addMember, removeMember, logSession } = useCommunity(user?.id);
   const {
@@ -157,10 +219,46 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
 
   const hasFilters = searchQuery.trim() !== '' || selectedCategory !== '';
 
+  // ── Auto-streak: fire when any meaningful prayer action happens ──────────
+  const [showStreakToast, setShowStreakToast] = useState(false);
+  const streakToastTimerRef = useRef(null);
+  const hasPrayedTodayRef = useRef(hasPrayedToday);
+  const toastShownRef = useRef(hasPrayedToday); // don't toast at startup if already counted
+  useEffect(() => { hasPrayedTodayRef.current = hasPrayedToday; }, [hasPrayedToday]);
+
+  // Show toast exactly once when hasPrayedToday transitions false → true
+  const prevPrayedRef = useRef(hasPrayedToday);
+  useEffect(() => {
+    if (!prevPrayedRef.current && hasPrayedToday && !toastShownRef.current) {
+      toastShownRef.current = true;
+      setShowStreakToast(true);
+      if (streakToastTimerRef.current) clearTimeout(streakToastTimerRef.current);
+      streakToastTimerRef.current = setTimeout(() => setShowStreakToast(false), 3000);
+    }
+    prevPrayedRef.current = hasPrayedToday;
+  }, [hasPrayedToday]);
+
+  // Explicit auto-streak trigger for actions that don't auto-update prayerLogDates
+  const handleAutoStreak = useCallback(() => {
+    checkInToday(); // idempotent — writes to daily_checkins, triggers hasPrayedToday → toast
+  }, [checkInToday]);
+
+  // Dwell-time trigger: user stays on Prayers tab with prayers visible for 20+ seconds
+  const dwellTimerRef = useRef(null);
+  useEffect(() => {
+    if (activeTab === 'prayers' && activePrayers.length > 0 && !hasPrayedTodayRef.current) {
+      dwellTimerRef.current = setTimeout(() => handleAutoStreak(), 20000);
+    } else {
+      clearTimeout(dwellTimerRef.current);
+    }
+    return () => clearTimeout(dwellTimerRef.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, activePrayers.length]);
+
   // ── Handlers ──────────────────────────────────────────
   const handleSave = (prayerData) => {
     if (editingPrayer) updatePrayer(editingPrayer.id, prayerData);
-    else addPrayer(prayerData);
+    else { addPrayer(prayerData); handleAutoStreak(); } // adding a new prayer = prayer engagement
     setEditingPrayer(null);
   };
 
@@ -228,7 +326,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
           <div className="tab-content">
             {/* Greeting */}
             <div className="home-greeting">
-              <p className="home-greeting-text">{greeting} 🙏</p>
+              <p className="home-greeting-text">{greeting} <PrayingHands size={22} /></p>
               <p className="home-greeting-sub">
                 {hasPrayedToday
                   ? 'You\'ve prayed today — well done.'
@@ -385,7 +483,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
                     prayer={prayer}
                     onEdit={() => handleEdit(prayer)}
                     onDelete={() => deletePrayer(prayer.id)}
-                    onMarkAnswered={(note) => markAnswered(prayer.id, note)}
+                    onMarkAnswered={(note) => { markAnswered(prayer.id, note); handleAutoStreak(); }}
                     onRestore={() => restorePrayer(prayer.id)}
                     onLogPrayed={() => logPrayed(prayer.id)}
                     onUndoLog={() => undoLogPrayed(prayer.id)}
@@ -421,27 +519,31 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
             {appSettings.showWeeklyFocusOnHome !== true && (
               <WeeklyProject project={project} onUpdate={updateProject} />
             )}
-            <PrayerPlan
-              plans={plans}
-              onStart={startPlan}
-              onCheckIn={checkInPlan}
-              onDelete={deletePlan}
-              onAddNote={addPlanNote}
-              onDeleteNote={deletePlanNote}
-              onAddPartner={addPlanPartner}
-              onRemovePartner={removePlanPartner}
-              onLogPartnerPrayed={logPlanPartnerPrayed}
-              onUndoPartnerPrayed={undoPlanPartnerPrayed}
-              completedPlansCount={completedPlansCount}
-              today={planToday}
-              bibleTranslation={appSettings.bibleTranslation}
-            />
+            <Suspense fallback={<div className="tab-loading" />}>
+              <PrayerPlan
+                plans={plans}
+                onStart={startPlan}
+                onCheckIn={checkInPlan}
+                onDelete={deletePlan}
+                onAddNote={addPlanNote}
+                onDeleteNote={deletePlanNote}
+                onAddPartner={addPlanPartner}
+                onRemovePartner={removePlanPartner}
+                onLogPartnerPrayed={logPlanPartnerPrayed}
+                onUndoPartnerPrayed={undoPlanPartnerPrayed}
+                completedPlansCount={completedPlansCount}
+                today={planToday}
+                bibleTranslation={appSettings.bibleTranslation}
+                onAutoStreak={handleAutoStreak}
+              />
+            </Suspense>
           </div>
         );
 
       case 'community':
         return (
           <div className="tab-content">
+            <Suspense fallback={<div className="tab-loading" />}>
             <CommunityPrayer
               groups={groups}
               activeGroupId={activeGroupId}
@@ -472,6 +574,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
               user={user}
               onRequireAuth={() => onOpenAuth('login')}
             />
+            </Suspense>
           </div>
         );
 
@@ -553,11 +656,20 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
       )}
 
       {showExport && (
-        <ExportPDF
-          prayers={prayers}
-          allCategories={allCategories}
-          onClose={() => setShowExport(false)}
-        />
+        <Suspense fallback={<div className="tab-loading" />}>
+          <ExportPDF
+            prayers={prayers}
+            allCategories={allCategories}
+            onClose={() => setShowExport(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* Auto-streak toast */}
+      {showStreakToast && (
+        <div className="streak-toast" role="status" aria-live="polite">
+          🔥 Streak recorded for today
+        </div>
       )}
     </div>
   );

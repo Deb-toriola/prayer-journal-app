@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTodayString } from '../utils/constants';
 
@@ -9,11 +9,11 @@ export const PLAN_TEMPLATES = [
   { id: '30day', name: '30-Day Prayer Warrior Challenge',days: 30, icon: '🛡️', desc: 'Deepen your prayer life with a month-long challenge.',                category: 'habits' },
   { id: '40day', name: '40-Day Prayer & Fasting Journey',days: 40, icon: '🔥', desc: 'A transformative journey of prayer and fasting.',                     category: 'habits' },
   // Thanksgiving & Praise
-  { id: 'thanks-7',  name: '7-Day Thanksgiving Journey', days: 7,  icon: '🙌', desc: 'Seven days of intentional gratitude and praise to God.',             category: 'thanksgiving' },
-  { id: 'thanks-21', name: '21-Day Praise & Gratitude',  days: 21, icon: '🙌', desc: 'Build a daily habit of thanksgiving and praise.',                    category: 'thanksgiving' },
+  { id: 'thanks-7',  name: '7-Day Thanksgiving Journey', days: 7,  icon: '☀️', desc: 'Seven days of intentional gratitude and praise to God.',             category: 'thanksgiving' },
+  { id: 'thanks-21', name: '21-Day Praise & Gratitude',  days: 21, icon: '✨', desc: 'Build a daily habit of thanksgiving and praise.',                    category: 'thanksgiving' },
   // Personal Intercession
-  { id: 'intercede-14', name: '14-Day Personal Intercession', days: 14, icon: '🛡️', desc: 'Dedicated intercession for people and situations on your heart.', category: 'intercession' },
-  { id: 'intercede-30', name: '30-Day Intercession Journey',  days: 30, icon: '🛡️', desc: 'A month of standing in the gap for others in prayer.',             category: 'intercession' },
+  { id: 'intercede-14', name: '14-Day Personal Intercession', days: 14, icon: '🕊️', desc: 'Dedicated intercession for people and situations on your heart.', category: 'intercession' },
+  { id: 'intercede-30', name: '30-Day Intercession Journey',  days: 30, icon: '⚔️', desc: 'A month of standing in the gap for others in prayer.',             category: 'intercession' },
 ];
 
 export const PLAN_CATEGORIES = [
@@ -78,12 +78,24 @@ export function usePrayerPlan(userId) {
     } catch (err) { console.error('startPlan error:', err.message); }
   }, [userId]);
 
-  const checkInPlan = useCallback(async (planId) => {
+  const checkInPlan = useCallback(async (planId, date) => {
     const plan = plans.find(p => p.id === planId);
     if (!plan) return;
     const today = getTodayString();
-    if (plan.checkedDays.includes(today)) return;
-    const updated = [...plan.checkedDays, today];
+    const targetDate = date || today;
+
+    // Block future dates and anything more than 3 days back
+    const daysDiff = Math.floor((new Date(today) - new Date(targetDate)) / 86400000);
+    if (targetDate > today || daysDiff > 3) return;
+
+    // Toggle: uncheck if already checked, check if not
+    let updated;
+    if (plan.checkedDays.includes(targetDate)) {
+      updated = plan.checkedDays.filter(d => d !== targetDate);
+    } else {
+      updated = [...plan.checkedDays, targetDate];
+    }
+
     setPlans(prev => prev.map(p => p.id === planId ? { ...p, checkedDays: updated } : p));
     if (userId) {
       try {
@@ -91,6 +103,8 @@ export function usePrayerPlan(userId) {
         if (error) console.error('checkInPlan failed:', error.message);
       } catch (err) { console.error('checkInPlan error:', err.message); }
     }
+    // Return the checked date (so callers can trigger streak for that date)
+    return plan.checkedDays.includes(targetDate) ? null : targetDate;
   }, [plans, userId]);
 
   const deletePlan = useCallback(async (planId) => {
@@ -198,10 +212,16 @@ export function usePrayerPlan(userId) {
 
   const today = getTodayString();
 
+  // All unique dates across all plans — fed into streak calculation
+  const allPlanCheckinDates = useMemo(() =>
+    new Set(plans.flatMap(p => p.checkedDays || []))
+  , [plans]);
+
   return {
     plans, startPlan, checkInPlan, deletePlan,
     addPlanNote, deletePlanNote,
     addPlanPartner, removePlanPartner, logPlanPartnerPrayed, undoPlanPartnerPrayed,
     completedPlansCount: completedCount, today,
+    allPlanCheckinDates,
   };
 }

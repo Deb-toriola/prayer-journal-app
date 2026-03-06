@@ -19,7 +19,7 @@ function saveToStorage(dates) {
   } catch { /* ignore */ }
 }
 
-export function useDailyCheckin(userId, prayerLogDates) {
+export function useDailyCheckin(userId, prayerLogDates, planCheckinDates) {
   const [manualCheckins, setManualCheckins] = useState(() => loadFromStorage());
   const today = getTodayString();
 
@@ -40,9 +40,14 @@ export function useDailyCheckin(userId, prayerLogDates) {
       });
   }, [userId]);
 
+  // Merge all prayer signals: manual check-ins + prayer log dates + plan check-in dates
   const allCheckinDates = useMemo(() => {
-    return new Set([...manualCheckins, ...(prayerLogDates || [])]);
-  }, [manualCheckins, prayerLogDates]);
+    return new Set([
+      ...manualCheckins,
+      ...(prayerLogDates || []),
+      ...(planCheckinDates || []),
+    ]);
+  }, [manualCheckins, prayerLogDates, planCheckinDates]);
 
   const hasPrayedToday = allCheckinDates.has(today);
   // True only if the user manually pressed the button (can be undone)

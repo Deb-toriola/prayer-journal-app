@@ -5,6 +5,7 @@ export function useAuth() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
 
   useEffect(() => {
     // Get initial session
@@ -14,9 +15,11 @@ export function useAuth() {
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
       setLoading(false);
+      // Fired when user follows a password-reset email link
+      if (event === 'PASSWORD_RECOVERY') setPasswordRecovery(true);
     });
 
     return () => subscription.unsubscribe();
@@ -52,6 +55,14 @@ export function useAuth() {
       redirectTo: window.location.origin,
     });
     if (error) { setError(error.message); return false; }
+    return true;
+  };
+
+  const updatePassword = async (newPassword) => {
+    setError(null);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) { setError(error.message); return false; }
+    setPasswordRecovery(false);
     return true;
   };
 
@@ -107,5 +118,5 @@ export function useAuth() {
     }
   };
 
-  return { user, loading, error, signUp, signIn, signOut, resetPassword, clearError, deleteAccount };
+  return { user, loading, error, signUp, signIn, signOut, resetPassword, updatePassword, clearError, deleteAccount, passwordRecovery };
 }

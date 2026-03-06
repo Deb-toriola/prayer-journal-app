@@ -37,7 +37,7 @@ export function useCategories(userId) {
     setCustomCategories((prev) => prev.filter((c) => c.value !== value));
     if (userId && cat?.id) {
       try {
-        const { error } = await supabase.from('categories').delete().eq('id', cat.id);
+        const { error } = await supabase.from('categories').delete().eq('id', cat.id).eq('user_id', userId);
         if (error) console.error('deleteCategory failed:', error.message);
       } catch (err) { console.error('deleteCategory error:', err.message); }
     }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import PrayingHands from './PrayingHands';
 
 export default function JoinGroupModal({ onClose, onJoin }) {
   const [inviteCode, setInviteCode] = useState('');
@@ -31,7 +32,7 @@ export default function JoinGroupModal({ onClose, onJoin }) {
           {pending ? (
             <>
               <div className="join-pending-msg">
-                <div className="join-pending-icon">🙏</div>
+                <div className="join-pending-icon"><PrayingHands size={56} /></div>
                 <div className="join-pending-title">Request sent!</div>
                 <p className="join-pending-sub">
                   Your request has been sent — waiting for admin approval. You&apos;ll appear in the group once approved.

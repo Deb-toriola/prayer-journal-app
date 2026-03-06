@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { Flame, CheckCircle2 } from 'lucide-react';
 
+const PRAYER_TYPES = [
+  { id: 'personal', icon: '🙏', label: 'Personal prayer' },
+  { id: 'app',      icon: '📱', label: 'Used the app' },
+  { id: 'scripture',icon: '📖', label: 'Read scripture' },
+  { id: 'other',    icon: '✨', label: 'Other' },
+];
+
 export default function DailyCheckin({
   hasPrayedToday,
   hasManualCheckinToday,
@@ -10,12 +17,11 @@ export default function DailyCheckin({
   longestStreak,
   totalDaysPrayed,
 }) {
-  const [justCheckedIn, setJustCheckedIn] = useState(false);
+  const [showTypeSheet, setShowTypeSheet] = useState(false);
 
-  const handleCheckIn = () => {
+  const handleSelectType = () => {
+    setShowTypeSheet(false);
     onCheckIn();
-    setJustCheckedIn(true);
-    setTimeout(() => setJustCheckedIn(false), 2000);
   };
 
   const stateClass = hasPrayedToday ? 'daily-checkin-prayed' : 'daily-checkin-not-prayed';
@@ -66,11 +72,31 @@ export default function DailyCheckin({
             </button>
           )}
         </div>
+      ) : showTypeSheet ? (
+        /* Intentional prayer — "How did you pray?" sheet */
+        <div className="prayer-type-sheet">
+          <p className="prayer-type-sheet-title">How did you pray today?</p>
+          <div className="prayer-type-options">
+            {PRAYER_TYPES.map(pt => (
+              <button
+                key={pt.id}
+                className="prayer-type-option"
+                onClick={() => handleSelectType(pt.id)}
+              >
+                <span className="prayer-type-icon">{pt.icon}</span>
+                <span className="prayer-type-label">{pt.label}</span>
+              </button>
+            ))}
+          </div>
+          <button className="prayer-type-cancel" onClick={() => setShowTypeSheet(false)}>
+            Cancel
+          </button>
+        </div>
       ) : (
         <button
-          className={`daily-checkin-btn ${justCheckedIn ? 'daily-checkin-btn-success' : ''}`}
-          onClick={handleCheckIn}
-          aria-label="Mark today as prayed"
+          className="daily-checkin-btn"
+          onClick={() => setShowTypeSheet(true)}
+          aria-label="Record today's prayer"
         >
           <Flame size={16} />
           I prayed today

@@ -1,4 +1,5 @@
 import { AlertTriangle } from 'lucide-react';
+import PrayingHands from './PrayingHands';
 
 export default function HomePrayerBrief({ prayers, onNavigate }) {
   if (!prayers || prayers.length === 0) return null;
@@ -12,7 +13,7 @@ export default function HomePrayerBrief({ prayers, onNavigate }) {
   return (
     <button className="home-prayer-brief" onClick={onNavigate}>
       <div className="home-prayer-brief-header">
-        🙏 <span>Active Prayers</span>
+        <PrayingHands size={18} /> <span>Active Prayers</span>
         {remaining > 0 && (
           <span className="home-prayer-brief-more">+{remaining} more →</span>
         )}
