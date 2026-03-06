@@ -1,20 +1,20 @@
 export const DEFAULT_CATEGORIES = [
-  { value: 'personal', label: 'Personal', color: '#8B5CF6', isDefault: true },
-  { value: 'family', label: 'Family', color: '#A855F7', isDefault: true },
-  { value: 'health', label: 'Health', color: '#C084FC', isDefault: true },
-  { value: 'gratitude', label: 'Gratitude', color: '#D946EF', isDefault: true },
-  { value: 'guidance', label: 'Guidance', color: '#7C3AED', isDefault: true },
-  { value: 'others', label: 'Others', color: '#9333EA', isDefault: true },
+  { value: 'personal',  label: 'Personal',  color: '#8b5a2b', isDefault: true }, // warm brown
+  { value: 'family',    label: 'Family',    color: '#a06030', isDefault: true }, // amber
+  { value: 'health',    label: 'Health',    color: '#6b7a3a', isDefault: true }, // muted olive
+  { value: 'gratitude', label: 'Gratitude', color: '#c9820a', isDefault: true }, // gold
+  { value: 'guidance',  label: 'Guidance',  color: '#5a6ea0', isDefault: true }, // muted blue (intentional contrast)
+  { value: 'others',    label: 'Others',    color: '#7a6a5a', isDefault: true }, // warm grey
 ];
 
 // Keep backward compat
 export const CATEGORIES = DEFAULT_CATEGORIES;
 
-// Color palette for custom categories
+// Color palette for custom categories — warm/earthy tones on-brand
 export const CATEGORY_COLORS = [
-  '#8B5CF6', '#A855F7', '#C084FC', '#D946EF', '#7C3AED', '#9333EA',
-  '#EC4899', '#F43F5E', '#EF4444', '#F97316', '#FBBF24', '#84CC16',
-  '#22C55E', '#14B8A6', '#06B6D4', '#3B82F6', '#6366F1', '#78716C',
+  '#8b5a2b', '#a06030', '#b87040', '#c9820a', '#6b7a3a', '#5a8050',
+  '#5a6ea0', '#7a6a5a', '#a05050', '#c05030', '#8b4a00', '#6b5a80',
+  '#4a7090', '#7a9060', '#b04060', '#805070', '#6b4030', '#909090',
 ];
 
 export function getCategoryByValue(value, allCategories) {

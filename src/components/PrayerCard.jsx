@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   MoreVertical, Pencil, Trash2, CheckCircle2, RotateCcw, BookOpen,
-  Calendar, Heart, Undo2, AlertTriangle, MessageSquarePlus,
+  Heart, Undo2, AlertTriangle, MessageSquarePlus,
   ChevronDown, ChevronUp, X, Ear, Sparkles, Users2, BookMarked, Eye,
   Timer, Square, Clock, Mic,
 } from 'lucide-react';
@@ -13,12 +13,12 @@ import { formatDuration, formatDurationReadable } from '../hooks/usePrayerTimer'
 import { getScriptureUrl, getScriptureDeepLink } from '../utils/bibleBooks';
 
 const NOTE_TYPES = [
-  { value: 'update', label: 'Update', icon: MessageSquarePlus, color: '#7C3AED', placeholder: 'What\u2019s happening with this prayer...' },
-  { value: 'word', label: 'Word from God', icon: Ear, color: '#D97706', placeholder: 'What is the Lord saying...' },
-  { value: 'scripture', label: 'Scripture', icon: BookMarked, color: '#059669', placeholder: 'A scripture He laid on your heart...' },
-  { value: 'confirmation', label: 'Confirmation', icon: Sparkles, color: '#2563EB', placeholder: 'A sign, confirmation, or witness...' },
-  { value: 'vision', label: 'Vision / Dream', icon: Eye, color: '#9333EA', placeholder: 'What did you see...' },
-  { value: 'voice', label: 'Voice Note', icon: Mic, color: '#EC4899', placeholder: '' },
+  { value: 'update',       label: 'Update',        icon: MessageSquarePlus, color: '#7C3AED', placeholder: 'What\'s happening with this prayer...' },
+  { value: 'word',         label: 'Word from God',  icon: Ear,               color: '#D97706', placeholder: 'What is the Lord saying...' },
+  { value: 'scripture',    label: 'Scripture',      icon: BookMarked,        color: '#059669', placeholder: 'A scripture He laid on your heart...' },
+  { value: 'confirmation', label: 'Confirmation',   icon: Sparkles,          color: '#2563EB', placeholder: 'A sign, confirmation, or witness...' },
+  { value: 'vision',       label: 'Vision / Dream', icon: Eye,               color: '#9333EA', placeholder: 'What did you see...' },
+  { value: 'voice',        label: 'Voice Note',     icon: Mic,               color: '#EC4899', placeholder: '' },
 ];
 
 function getNoteType(type) {
@@ -39,14 +39,15 @@ export default function PrayerCard({
   timerPrayerId, timerPartnerId, onStartPartnerTimer, onStopPartnerTimer,
   bibleTranslation,
 }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [justLogged, setJustLogged] = useState(false);
-  const [showNotes, setShowNotes] = useState(false);
-  const [newNote, setNewNote] = useState('');
-  const [noteType, setNoteType] = useState('update');
+  const [menuOpen, setMenuOpen]             = useState(false);
+  const [confirmDelete, setConfirmDelete]   = useState(false);
+  const [justLogged, setJustLogged]         = useState(false);
+  const [showNotes, setShowNotes]           = useState(false);
+  const [showPartners, setShowPartners]     = useState(false);
+  const [newNote, setNewNote]               = useState('');
+  const [noteType, setNoteType]             = useState('update');
   const [showTestimonyPrompt, setShowTestimonyPrompt] = useState(false);
-  const [testimonyNote, setTestimonyNote] = useState('');
+  const [testimonyNote, setTestimonyNote]   = useState('');
 
   const handleAction = (action) => { setMenuOpen(false); action(); };
 
@@ -70,21 +71,29 @@ export default function PrayerCard({
     setNewNote('');
   };
 
-  const prayerCount = (prayer.prayerLog || []).length;
-  const lastPrayed = getLastPrayedText(prayer.prayerLog);
-  const notes = prayer.notes || [];
-  const sessions = prayer.prayerSessions || [];
+  const prayerCount    = (prayer.prayerLog || []).length;
+  const lastPrayed     = getLastPrayedText(prayer.prayerLog);
+  const notes          = prayer.notes || [];
+  const sessions       = prayer.prayerSessions || [];
   const totalPrayerTime = sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+  const partnerCount   = (prayer.partners || []).length;
+  const notesCount     = notes.length;
 
   return (
     <div className={`prayer-card ${prayer.answered ? 'prayer-card-answered' : ''} ${prayer.urgent && !prayer.answered ? 'prayer-card-urgent' : ''}`}>
+
+      {/* ── Top row: category + overflow menu ── */}
       <div className="prayer-card-top">
         <div className="prayer-card-top-left">
           <CategoryBadge category={prayer.category} allCategories={allCategories} />
           {prayer.urgent && !prayer.answered && <span className="urgent-badge">Urgent</span>}
         </div>
         <div className="prayer-card-menu-wrapper">
-          <button className="btn-icon" onClick={() => { setMenuOpen(!menuOpen); setConfirmDelete(false); }} aria-label="More options">
+          <button
+            className="btn-icon"
+            onClick={() => { setMenuOpen(!menuOpen); setConfirmDelete(false); }}
+            aria-label="More options"
+          >
             <MoreVertical size={16} />
           </button>
           {menuOpen && (
@@ -93,18 +102,49 @@ export default function PrayerCard({
               <div className="prayer-card-menu">
                 {!prayer.answered ? (
                   <>
-                    <button className="menu-item" onClick={() => handleAction(onEdit)}><Pencil size={14} /> Edit</button>
+                    <button className="menu-item" onClick={() => handleAction(onEdit)}>
+                      <Pencil size={14} /> Edit
+                    </button>
                     <button className="menu-item" onClick={() => handleAction(onToggleUrgent)}>
                       <AlertTriangle size={14} /> {prayer.urgent ? 'Remove Urgent' : 'Mark Urgent'}
+                    </button>
+                    {/* Journey & Updates — opened from here */}
+                    <button
+                      className="menu-item"
+                      onClick={() => handleAction(() => setShowNotes(v => !v))}
+                    >
+                      <MessageSquarePlus size={14} />
+                      Journey &amp; Updates
+                      {notesCount > 0 && <span className="menu-item-badge">{notesCount}</span>}
+                    </button>
+                    {/* Prayer Partners — opened from here */}
+                    <button
+                      className="menu-item"
+                      onClick={() => handleAction(() => setShowPartners(v => !v))}
+                    >
+                      <Users2 size={14} />
+                      Prayer Partners
+                      {partnerCount > 0 && <span className="menu-item-badge">{partnerCount}</span>}
                     </button>
                     <button className="menu-item menu-item-gold" onClick={handleMarkAnswered}>
                       <CheckCircle2 size={14} /> Mark Answered
                     </button>
                   </>
                 ) : (
-                  <button className="menu-item" onClick={() => handleAction(onRestore)}>
-                    <RotateCcw size={14} /> Restore to Active
-                  </button>
+                  <>
+                    <button className="menu-item" onClick={() => handleAction(onRestore)}>
+                      <RotateCcw size={14} /> Restore to Active
+                    </button>
+                    {/* Journey still accessible for answered prayers */}
+                    <button
+                      className="menu-item"
+                      onClick={() => handleAction(() => setShowNotes(v => !v))}
+                    >
+                      <MessageSquarePlus size={14} />
+                      Prayer Journey
+                      {notesCount > 0 && <span className="menu-item-badge">{notesCount}</span>}
+                    </button>
+                  </>
                 )}
                 {!confirmDelete ? (
                   <button className="menu-item menu-item-danger" onClick={() => setConfirmDelete(true)}>
@@ -121,25 +161,23 @@ export default function PrayerCard({
         </div>
       </div>
 
+      {/* ── Title & body (body truncated to 2 lines) ── */}
       <h3 className="prayer-card-title">{prayer.title}</h3>
-      <p className="prayer-card-content">{prayer.content}</p>
+      <p className="prayer-card-content prayer-card-content-clamp">{prayer.content}</p>
 
+      {/* ── Scripture pill ── */}
       {prayer.scripture && (() => {
         const translation = bibleTranslation || 'NKJV';
-        const browserUrl = getScriptureUrl(prayer.scripture, translation);
-        const deepLink = getScriptureDeepLink(prayer.scripture, translation);
+        const browserUrl  = getScriptureUrl(prayer.scripture, translation);
+        const deepLink    = getScriptureDeepLink(prayer.scripture, translation);
         if (!browserUrl) {
           return <div className="prayer-card-scripture"><BookOpen size={13} /><span>{prayer.scripture}</span></div>;
         }
         const handleScriptureTap = (e) => {
           e.stopPropagation();
-          // Try the YouVersion deep link first (opens the app on mobile).
-          // After 1 s, if the page is still visible (app not installed), open the browser fallback.
           if (deepLink) {
             window.location.href = deepLink;
-            setTimeout(() => {
-              window.open(browserUrl, '_blank');
-            }, 1000);
+            setTimeout(() => window.open(browserUrl, '_blank'), 1000);
           } else {
             window.open(browserUrl, '_blank');
           }
@@ -157,10 +195,12 @@ export default function PrayerCard({
         );
       })()}
 
+      {/* ── Testimony note (answered only) ── */}
       {prayer.answered && prayer.testimonyNote && (
         <div className="testimony-note"><CheckCircle2 size={13} /><p>{prayer.testimonyNote}</p></div>
       )}
 
+      {/* ── Testimony prompt (mark-answered flow) ── */}
       {showTestimonyPrompt && (
         <div className="testimony-prompt">
           <p className="testimony-prompt-title">God answered this prayer!</p>
@@ -180,7 +220,7 @@ export default function PrayerCard({
         </div>
       )}
 
-      {/* Prayer log bar */}
+      {/* ── Prayer log bar ── */}
       {!prayer.answered && (
         <div className="prayer-log-bar">
           <div className="prayer-log-info">
@@ -205,12 +245,14 @@ export default function PrayerCard({
         <div className="prayer-log-bar prayer-log-bar-answered">
           <div className="prayer-log-info">
             <Heart size={12} fill="#EC4899" color="#EC4899" />
-            <span className="prayer-log-count">Covered in prayer {prayerCount} time{prayerCount !== 1 ? 's' : ''} while awaiting manifestation</span>
+            <span className="prayer-log-count">
+              Covered in prayer {prayerCount} time{prayerCount !== 1 ? 's' : ''} while awaiting manifestation
+            </span>
           </div>
         </div>
       )}
 
-      {/* Prayer Timer */}
+      {/* ── Timer bar (integrated, not bolted-on) ── */}
       {!prayer.answered && (
         <div className={`prayer-timer-bar ${isTimerRunning ? 'prayer-timer-bar-active' : ''}`}>
           {isTimerRunning ? (
@@ -255,14 +297,19 @@ export default function PrayerCard({
         </div>
       )}
 
-      {/* Journey / Updates */}
-      <div className="prayer-notes-section">
-        <button className="prayer-notes-toggle" onClick={() => setShowNotes(!showNotes)}>
-          <MessageSquarePlus size={13} />
-          <span>{prayer.answered ? 'Prayer Journey' : 'Journey & Updates'} {notes.length > 0 ? `(${notes.length})` : ''}</span>
-          {showNotes ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-        </button>
-        {showNotes && (
+      {/* ── Journey & Updates — revealed via overflow menu ── */}
+      {showNotes && (
+        <div className="prayer-notes-section prayer-notes-section-open">
+          <div className="prayer-notes-section-header">
+            <span>
+              <MessageSquarePlus size={13} />
+              {prayer.answered ? 'Prayer Journey' : 'Journey & Updates'}
+              {notesCount > 0 && ` (${notesCount})`}
+            </span>
+            <button className="prayer-notes-close-btn" onClick={() => setShowNotes(false)} aria-label="Close">
+              <X size={14} />
+            </button>
+          </div>
           <div className="prayer-notes-body">
             {notes.length > 0 && (
               <div className="prayer-notes-list">
@@ -278,7 +325,7 @@ export default function PrayerCard({
                         <span className="prayer-note-type-label" style={{ color: nt.color }}>{nt.label}</span>
                         {note.type === 'scripture' ? (() => {
                           const translation = bibleTranslation || 'NKJV';
-                          const browserUrl = getScriptureUrl(note.text, translation);
+                          const browserUrl  = getScriptureUrl(note.text, translation);
                           return browserUrl
                             ? <a href={browserUrl} target="_blank" rel="noopener noreferrer" className="prayer-note-scripture-link" onClick={(e) => e.stopPropagation()}><BookOpen size={11} /><span>{note.text}</span><span className="scripture-open-hint">↗</span></a>
                             : <p>{note.text}</p>;
@@ -304,7 +351,9 @@ export default function PrayerCard({
                       <button
                         key={nt.value}
                         className={`note-type-chip ${noteType === nt.value ? 'note-type-chip-active' : ''}`}
-                        style={noteType === nt.value ? { background: nt.color, borderColor: nt.color } : { borderColor: nt.color + '44', color: nt.color }}
+                        style={noteType === nt.value
+                          ? { background: nt.color, borderColor: nt.color }
+                          : { borderColor: nt.color + '44', color: nt.color }}
                         onClick={() => setNoteType(nt.value)}
                       >
                         <ChipIcon size={10} /> {nt.label}
@@ -336,32 +385,47 @@ export default function PrayerCard({
               </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      <PrayerPartners
-        prayer={prayer}
-        onAddPartner={onAddPartner}
-        onRemovePartner={onRemovePartner}
-        onLogPartnerPrayed={onLogPartnerPrayed}
-        onUndoPartnerPrayed={onUndoPartnerPrayed}
-        timerPartnerId={timerPartnerId}
-        timerPrayerId={timerPrayerId}
-        timerElapsed={timerPrayerId === prayer.id ? timerElapsed : 0}
-        onStartPartnerTimer={onStartPartnerTimer}
-        onStopPartnerTimer={onStopPartnerTimer}
-      />
+      {/* ── Prayer Partners — revealed via overflow menu ── */}
+      {showPartners && !prayer.answered && (
+        <div className="prayer-partners-wrapper">
+          <div className="prayer-notes-section-header">
+            <span><Users2 size={13} /> Prayer Partners</span>
+            <button className="prayer-notes-close-btn" onClick={() => setShowPartners(false)} aria-label="Close">
+              <X size={14} />
+            </button>
+          </div>
+          <PrayerPartners
+            prayer={prayer}
+            onAddPartner={onAddPartner}
+            onRemovePartner={onRemovePartner}
+            onLogPartnerPrayed={onLogPartnerPrayed}
+            onUndoPartnerPrayed={onUndoPartnerPrayed}
+            timerPartnerId={timerPartnerId}
+            timerPrayerId={timerPrayerId}
+            timerElapsed={timerPrayerId === prayer.id ? timerElapsed : 0}
+            onStartPartnerTimer={onStartPartnerTimer}
+            onStopPartnerTimer={onStopPartnerTimer}
+          />
+        </div>
+      )}
 
+      {/* ── Footer ── */}
       <div className="prayer-card-footer">
-        <span className="prayer-card-date">
-          <Calendar size={12} />
-          {prayer.answered ? `Answered ${formatRelativeDate(prayer.answeredAt)}` : `Started ${formatRelativeDate(prayer.createdAt)}`}
-        </span>
-        {!prayer.answered && !showTestimonyPrompt && (
-          <button className="btn-answered" onClick={handleMarkAnswered} title="Mark as answered">
-            <CheckCircle2 size={14} /> Answered
+        {prayer.answered ? (
+          /* Answered cards: show the answered date */
+          <span className="prayer-card-date">
+            <CheckCircle2 size={12} />
+            Answered {formatRelativeDate(prayer.answeredAt)}
+          </span>
+        ) : !showTestimonyPrompt ? (
+          /* Active cards: just the Answered button, full-width */
+          <button className="btn-answered btn-answered-full" onClick={handleMarkAnswered}>
+            <CheckCircle2 size={14} /> Mark Answered
           </button>
-        )}
+        ) : null}
       </div>
     </div>
   );

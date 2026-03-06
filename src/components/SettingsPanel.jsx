@@ -80,15 +80,51 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
 
       <div className="settings-page-body">
 
+        {/* Notifications — retention-critical, shown first */}
+        <Group title="Notifications">
+          <SettingRow
+            icon={notifSettings?.enabled ? <Bell size={16} /> : <BellOff size={16} />}
+            label="Daily prayer reminder"
+            sub={notifSettings?.enabled
+              ? `${notifSettings.times?.length || 0} reminder${(notifSettings.times?.length || 0) !== 1 ? 's' : ''} set · manage in More tab`
+              : "Set a daily nudge to keep your streak alive"}
+          >
+            <Toggle
+              on={notifSettings?.enabled || false}
+              onToggle={onToggleNotif}
+            />
+          </SettingRow>
+          <SettingRow
+            icon={<Flame size={16} />}
+            label="Streak reminder"
+            sub="Remind me if I haven't prayed by end of day"
+          >
+            <Toggle
+              on={settings.streakReminder === true}
+              onToggle={() => onUpdate({ streakReminder: !settings.streakReminder })}
+            />
+          </SettingRow>
+          <SettingRow
+            icon={<Bell size={16} />}
+            label="Prayer partner activity"
+            sub="Notify when a partner logs prayer time"
+          >
+            <Toggle
+              on={settings.communityAlerts === true}
+              onToggle={() => onUpdate({ communityAlerts: !settings.communityAlerts })}
+            />
+          </SettingRow>
+        </Group>
+
         {/* Appearance */}
         <Group title="Appearance">
           <SettingRow
             icon={settings.theme === 'dark' ? <Moon size={16} /> : settings.theme === 'minimal' ? <Minimize2 size={16} /> : <Sun size={16} />}
             label="Theme"
-            sub={settings.theme === 'dark' ? 'Dark mode' : settings.theme === 'minimal' ? 'Minimal mode' : 'Light mode'}
+            sub={settings.theme === 'dark' ? 'Dark mode' : settings.theme === 'minimal' ? 'Warm mode' : 'Light mode'}
           >
             <SegmentedControl
-              options={[{ value: 'dark', label: '🌙 Dark' }, { value: 'light', label: '☀️ Light' }, { value: 'minimal', label: '○ Minimal' }]}
+              options={[{ value: 'dark', label: '🌙 Dark' }, { value: 'light', label: '☀️ Light' }, { value: 'minimal', label: '✦ Warm' }]}
               value={settings.theme}
               onChange={(v) => onUpdate({ theme: v })}
             />
@@ -118,7 +154,7 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
           <SettingRow
             icon={settings.showNeglected !== false ? <Eye size={16} /> : <EyeOff size={16} />}
             label="Neglected prayer alerts"
-            sub="Warn when prayers uncovered 3+ days"
+            sub="Remind me when a prayer hasn't been prayed in 3+ days"
           >
             <Toggle on={settings.showNeglected !== false} onToggle={() => onUpdate({ showNeglected: !settings.showNeglected })} />
           </SettingRow>
@@ -130,32 +166,6 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
             <Toggle
               on={settings.showWeeklyFocusOnHome === true}
               onToggle={() => onUpdate({ showWeeklyFocusOnHome: !settings.showWeeklyFocusOnHome })}
-            />
-          </SettingRow>
-        </Group>
-
-        {/* Notifications */}
-        <Group title="Notifications">
-          <SettingRow
-            icon={notifSettings?.enabled ? <Bell size={16} /> : <BellOff size={16} />}
-            label="Prayer reminders"
-            sub={notifSettings?.enabled
-              ? `${notifSettings.times?.length || 0} reminder${(notifSettings.times?.length || 0) !== 1 ? 's' : ''} set`
-              : 'Tap to set up daily reminders'}
-          >
-            <Toggle
-              on={notifSettings?.enabled || false}
-              onToggle={onToggleNotif}
-            />
-          </SettingRow>
-          <SettingRow
-            icon={<Bell size={16} />}
-            label="Community prayer alerts"
-            sub="Notify when someone requests intercession"
-          >
-            <Toggle
-              on={settings.communityAlerts === true}
-              onToggle={() => onUpdate({ communityAlerts: !settings.communityAlerts })}
             />
           </SettingRow>
         </Group>
