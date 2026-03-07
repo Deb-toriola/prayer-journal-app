@@ -1,6 +1,5 @@
 import { CheckCircle2, Flame } from 'lucide-react';
 import { getStreakTheme } from '../utils/streakTheme';
-import FireAnimation from './FireAnimation';
 import CardFireAnimation from './CardFireAnimation';
 
 // ── Card-fire seed heat per streak tier ───────────────────────────────────
@@ -57,17 +56,9 @@ export default function DailyCheckin({
       {/* ── Content sits above the fire at z-index 2 ── */}
       <div className="daily-checkin-content">
 
-        {/* ── Hero: animated flame icon + streak number + label ── */}
+        {/* ── Hero: streak number + label only ── */}
+        {/* Fire icon and checkmark removed — the card background is the fire */}
         <div className="streak-hero">
-          <div className="streak-hero-icon-wrap">
-            <FireAnimation
-              size={theme.flameSize}
-              style={{ filter: theme.flameFilter }}
-            />
-            {hasPrayedToday && (
-              <CheckCircle2 size={20} className="streak-hero-check" />
-            )}
-          </div>
           <div className="streak-hero-number" style={numberStyle}>{currentStreak}</div>
           <div className="streak-hero-msg">{theme.label}</div>
         </div>
@@ -90,10 +81,7 @@ export default function DailyCheckin({
           </div>
         </div>
 
-        {/* ── Toggle button ──────────────────────────────────────────
-            State is ONLY driven by hasManualCheckinToday — never by
-            prayer-log or plan dates — so it always toggles freely.
-        ────────────────────────────────────────────────────────── */}
+        {/* ── Toggle button ── */}
         {hasManualCheckinToday ? (
           <button
             className="daily-checkin-prayed-btn daily-checkin-prayed-btn-tappable"
