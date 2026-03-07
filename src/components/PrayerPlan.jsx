@@ -240,7 +240,7 @@ function PlanCard({ plan, onCheckIn, onDelete, today, onAddNote, onDeleteNote, b
       <div className="prayer-plan-progress-bar">
         <div
           className="prayer-plan-progress-fill"
-          style={{ width: `${Math.round((plan.checkedDays.length / plan.totalDays) * 100)}%` }}
+          style={{ width: `${Math.round((currentDayNumber / plan.totalDays) * 100)}%` }}
         />
       </div>
 

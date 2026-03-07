@@ -6,8 +6,10 @@ export default function HomePlanCard({ plan, today, onCheckIn, onClick }) {
   const currentDay = Math.min(Math.floor((now - start) / 86400000) + 1, plan.totalDays);
   const hasPrayedToday = plan.checkedDays.includes(today);
   const isComplete = plan.checkedDays.length >= plan.totalDays;
+  // Use calendar progress (currentDay/totalDays) so the bar matches
+  // the "Day X/Y" label shown beside it.
   const progress = plan.totalDays > 0
-    ? Math.round((plan.checkedDays.length / plan.totalDays) * 100)
+    ? Math.round((currentDay / plan.totalDays) * 100)
     : 0;
 
   return (

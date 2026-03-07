@@ -137,8 +137,8 @@ html.minimal-mode {
   --surface-hover: rgba(180, 130, 60, 0.13);
   --surface-border: rgba(140, 100, 45, 0.18);
   --text-primary: #3D2B1F;
-  --text-secondary: rgba(61, 43, 31, 0.65);
-  --text-muted: rgba(61, 43, 31, 0.40);
+  --text-secondary: rgba(61, 43, 31, 0.75);  /* was 0.65 — too faint on parchment */
+  --text-muted: rgba(61, 43, 31, 0.55);      /* was 0.40 — too faint on parchment */
   --nav-bg: rgba(245, 237, 217, 0.97);
   --purple-darkest: #EDE0C4;
   --purple-dark: #E2D0AA;
