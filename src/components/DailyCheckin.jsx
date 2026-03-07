@@ -6,7 +6,7 @@ import CardFireAnimation from './CardFireAnimation';
 // seedHeat controls how high the flames rise (higher = taller fire).
 // Values tuned down from the original so the fire is warm and alive,
 // not frantic. The ~15 fps throttle in CardFireAnimation keeps it calm.
-//   null → no card fire (gradient only)        — streak 0–2
+//   155  → ember glow, lower ~25 % of card     — streak 1–2
 //   175  → gentle glow, lower ~45 % of card    — streak 3–6
 //   200  → steady flame, lower ~70 %           — streak 7–13
 //   220  → strong fire, lower ~85 %            — streak 14–29
@@ -16,6 +16,7 @@ function cardFireSeed(streak) {
   if (streak >= 14) return 220;
   if (streak >= 7)  return 200;
   if (streak >= 3)  return 175;
+  if (streak >= 1)  return 155;
   return null;
 }
 
