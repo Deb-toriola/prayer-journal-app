@@ -76,22 +76,32 @@ export default function CardFireAnimation({ seedHeat = 255 }) {
     // Seed the bottom row
     for (let x = 0; x < W; x++) fire[(H - 1) * W + x] = seedRef.current;
 
-    stateRef.current = { fire, img, raf: null };
+    stateRef.current = { fire, img, raf: null, frame: 0 };
 
     function tick() {
-      const f  = stateRef.current.fire;
+      const s = stateRef.current;
+      s.frame++;
+
+      // ── Throttle to ~15 fps (every 4th RAF tick) ─────────────────────
+      // At 60 fps the card fire is frantic. Updating every 4th frame gives
+      // slow, meditative flames — warm and alive, not hellfire.
+      if (s.frame % 4 !== 0) {
+        s.raf = requestAnimationFrame(tick);
+        return;
+      }
+
+      const f  = s.fire;
       const sh = seedRef.current;
 
       // ── Vary heat source ─────────────────────────────────────────────
+      // 4 % cool-spot chance (down from 7 %) keeps the base steadier.
       for (let x = 0; x < W; x++) {
-        f[(H - 1) * W + x] = Math.random() < 0.07
-          ? ((sh * 0.65 + Math.random() * sh * 0.25) | 0)  // cool spot
+        f[(H - 1) * W + x] = Math.random() < 0.04
+          ? ((sh * 0.70 + Math.random() * sh * 0.20) | 0)  // cool spot
           : sh;
       }
 
       // ── Doom spread: rise + cool + drift ─────────────────────────────
-      // heightFade multiplier = 6, calibrated for H=50 so that with
-      // seedHeat=255 the tip row reaches avg heat ≈ 78 (palette threshold).
       for (let y = 1; y < H; y++) {
         for (let x = 0; x < W; x++) {
           const heat = f[y * W + x];
@@ -105,7 +115,7 @@ export default function CardFireAnimation({ seedHeat = 255 }) {
       }
 
       // ── Paint ────────────────────────────────────────────────────────
-      const data = stateRef.current.img.data;
+      const data = s.img.data;
       for (let i = 0; i < W * H; i++) {
         const pi = fire[i] << 2;
         const di = i       << 2;
@@ -114,9 +124,9 @@ export default function CardFireAnimation({ seedHeat = 255 }) {
         data[di + 2] = PALETTE[pi + 2];
         data[di + 3] = PALETTE[pi + 3];
       }
-      ctx.putImageData(stateRef.current.img, 0, 0);
+      ctx.putImageData(s.img, 0, 0);
 
-      stateRef.current.raf = requestAnimationFrame(tick);
+      s.raf = requestAnimationFrame(tick);
     }
 
     stateRef.current.raf = requestAnimationFrame(tick);

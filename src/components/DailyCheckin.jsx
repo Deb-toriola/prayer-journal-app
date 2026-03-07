@@ -4,17 +4,19 @@ import FireAnimation from './FireAnimation';
 import CardFireAnimation from './CardFireAnimation';
 
 // ── Card-fire seed heat per streak tier ───────────────────────────────────
-// seedHeat controls how high the flames rise (higher = taller fire):
-//   null → no card fire (gradient only)       — streak 0–2
-//   195  → flames fill lower ~60 % of card    — streak 3–6
-//   220  → flames fill lower ~85 %            — streak 7–13
-//   240  → flames nearly fill the card        — streak 14–29
-//   255  → full inferno, tips touch the top   — streak 30+
+// seedHeat controls how high the flames rise (higher = taller fire).
+// Values tuned down from the original so the fire is warm and alive,
+// not frantic. The ~15 fps throttle in CardFireAnimation keeps it calm.
+//   null → no card fire (gradient only)        — streak 0–2
+//   175  → gentle glow, lower ~45 % of card    — streak 3–6
+//   200  → steady flame, lower ~70 %           — streak 7–13
+//   220  → strong fire, lower ~85 %            — streak 14–29
+//   238  → near-full card, tips barely visible — streak 30+
 function cardFireSeed(streak) {
-  if (streak >= 30) return 255;
-  if (streak >= 14) return 240;
-  if (streak >= 7)  return 220;
-  if (streak >= 3)  return 195;
+  if (streak >= 30) return 238;
+  if (streak >= 14) return 220;
+  if (streak >= 7)  return 200;
+  if (streak >= 3)  return 175;
   return null;
 }
 
