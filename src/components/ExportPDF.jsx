@@ -293,8 +293,8 @@ function generateHTML(prayers, options) {
     .category {
       display: inline-block;
       padding: 2px 10px;
-      background: #F5F3FF;
-      color: #7C3AED;
+      background: rgba(212,137,26,0.08);
+      color: #D4891A;
       font-size: 0.7rem;
       font-weight: 600;
       font-family: 'Crimson Pro', serif;
@@ -343,8 +343,8 @@ function generateHTML(prayers, options) {
     .scripture {
       display: inline-block;
       padding: 4px 12px;
-      background: #F5F3FF;
-      color: #7C3AED;
+      background: rgba(212,137,26,0.08);
+      color: #D4891A;
       font-size: 0.8rem;
       font-style: italic;
       border-radius: 20px;
@@ -410,7 +410,7 @@ function generateHTML(prayers, options) {
 
     .note-type {
       font-weight: 600;
-      color: #7C3AED;
+      color: #D4891A;
       font-size: 0.7rem;
       text-transform: uppercase;
       margin-right: 6px;
@@ -454,7 +454,7 @@ function generateHTML(prayers, options) {
 
     .session-dur {
       font-weight: 600;
-      color: #7C3AED;
+      color: #D4891A;
     }
 
     .session-total {

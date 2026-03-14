@@ -11,12 +11,12 @@ import ScripturePicker from './ScripturePicker';
 import PrayerPartners from './PrayerPartners';
 
 const PLAN_NOTE_TYPES = [
-  { value: 'update',       label: 'Update',         icon: MessageSquarePlus, color: '#7C3AED', placeholder: 'What\'s happening in this journey...' },
-  { value: 'word',         label: 'Word from God',  icon: Ear,               color: '#D97706', placeholder: 'What is the Lord saying...' },
-  { value: 'scripture',    label: 'Scripture',      icon: BookMarked,        color: '#059669', placeholder: 'A scripture He laid on your heart...' },
-  { value: 'confirmation', label: 'Confirmation',   icon: Sparkles,          color: '#2563EB', placeholder: 'A sign, confirmation, or witness...' },
-  { value: 'vision',       label: 'Vision / Dream', icon: Eye,               color: '#9333EA', placeholder: 'What did you see...' },
-  { value: 'voice',        label: 'Voice Note',     icon: Mic,               color: '#EC4899', placeholder: '' },
+  { value: 'update',       label: 'Update',         icon: MessageSquarePlus, color: '#D4891A', placeholder: 'What\'s happening in this journey...' },
+  { value: 'word',         label: 'Word from God',  icon: Ear,               color: '#C9803A', placeholder: 'What is the Lord saying...' },
+  { value: 'scripture',    label: 'Scripture',      icon: BookMarked,        color: '#A06830', placeholder: 'A scripture He laid on your heart...' },
+  { value: 'confirmation', label: 'Confirmation',   icon: Sparkles,          color: '#D4891A', placeholder: 'A sign, confirmation, or witness...' },
+  { value: 'vision',       label: 'Vision / Dream', icon: Eye,               color: '#C9803A', placeholder: 'What did you see...' },
+  { value: 'voice',        label: 'Voice Note',     icon: Mic,               color: '#A06830', placeholder: '' },
 ];
 
 function getPlanNoteType(type) {

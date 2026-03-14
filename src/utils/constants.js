@@ -19,7 +19,7 @@ export const CATEGORY_COLORS = [
 
 export function getCategoryByValue(value, allCategories) {
   const list = allCategories || DEFAULT_CATEGORIES;
-  return list.find((c) => c.value === value) || { value, label: value, color: '#9333EA', isDefault: false };
+  return list.find((c) => c.value === value) || { value, label: value, color: '#D4891A', isDefault: false };
 }
 
 export function formatDate(isoString) {

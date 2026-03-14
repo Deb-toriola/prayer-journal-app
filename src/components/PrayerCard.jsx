@@ -13,12 +13,12 @@ import { formatDuration, formatDurationReadable } from '../hooks/usePrayerTimer'
 import { getScriptureUrl, getScriptureDeepLink } from '../utils/bibleBooks';
 
 const NOTE_TYPES = [
-  { value: 'update',       label: 'Update',        icon: MessageSquarePlus, color: '#7C3AED', placeholder: 'What\'s happening with this prayer...' },
-  { value: 'word',         label: 'Word from God',  icon: Ear,               color: '#D97706', placeholder: 'What is the Lord saying...' },
-  { value: 'scripture',    label: 'Scripture',      icon: BookMarked,        color: '#059669', placeholder: 'A scripture He laid on your heart...' },
-  { value: 'confirmation', label: 'Confirmation',   icon: Sparkles,          color: '#2563EB', placeholder: 'A sign, confirmation, or witness...' },
-  { value: 'vision',       label: 'Vision / Dream', icon: Eye,               color: '#9333EA', placeholder: 'What did you see...' },
-  { value: 'voice',        label: 'Voice Note',     icon: Mic,               color: '#EC4899', placeholder: '' },
+  { value: 'update',       label: 'Update',        icon: MessageSquarePlus, color: '#D4891A', placeholder: 'What\'s happening with this prayer...' },
+  { value: 'word',         label: 'Word from God',  icon: Ear,               color: '#C9803A', placeholder: 'What is the Lord saying...' },
+  { value: 'scripture',    label: 'Scripture',      icon: BookMarked,        color: '#A06830', placeholder: 'A scripture He laid on your heart...' },
+  { value: 'confirmation', label: 'Confirmation',   icon: Sparkles,          color: '#D4891A', placeholder: 'A sign, confirmation, or witness...' },
+  { value: 'vision',       label: 'Vision / Dream', icon: Eye,               color: '#C9803A', placeholder: 'What did you see...' },
+  { value: 'voice',        label: 'Voice Note',     icon: Mic,               color: '#A06830', placeholder: '' },
 ];
 
 function getNoteType(type) {
@@ -225,7 +225,7 @@ export default function PrayerCard({
       {!prayer.answered && (
         <div className="prayer-log-bar">
           <div className="prayer-log-info">
-            <Heart size={12} fill={prayerCount > 1 ? '#EC4899' : 'none'} color="#EC4899" />
+            <Heart size={12} fill={prayerCount > 1 ? '#D4891A' : 'none'} color="#D4891A" />
             <span className="prayer-log-count">Prayed {prayerCount}x</span>
             {lastPrayed && <span className="prayer-log-last">&middot; Last: {lastPrayed}</span>}
           </div>
@@ -245,7 +245,7 @@ export default function PrayerCard({
       {prayer.answered && prayerCount > 0 && (
         <div className="prayer-log-bar prayer-log-bar-answered">
           <div className="prayer-log-info">
-            <Heart size={12} fill="#EC4899" color="#EC4899" />
+            <Heart size={12} fill="#D4891A" color="#D4891A" />
             <span className="prayer-log-count">
               Covered in prayer {prayerCount} time{prayerCount !== 1 ? 's' : ''} while awaiting manifestation
             </span>

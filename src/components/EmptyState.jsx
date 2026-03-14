@@ -25,7 +25,7 @@ export default function EmptyState({ type, hasFilters }) {
     <div className="empty-state">
       <HandHeart size={48} strokeWidth={1} />
       <h3>Start your prayer journey</h3>
-      <p>Tap the button below to add your first prayer</p>
+      <p>Every prayer you write becomes part of your story</p>
     </div>
   );
 }
