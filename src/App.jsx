@@ -394,7 +394,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
           <div className="tab-content">
             {/* Greeting */}
             <div className="home-greeting">
-              <p className="home-greeting-text">{greeting} 🙏</p>
+              <p className="home-greeting-text">{greeting}</p>
               <p className="home-greeting-sub">
                 {hasPrayedToday
                   ? 'You\'ve prayed today — well done.'

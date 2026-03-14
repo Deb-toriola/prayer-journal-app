@@ -587,8 +587,8 @@ body::after {
 }
 
 .home-glance-item {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.13);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius-md);
   padding: 14px 8px;
   display: flex;
@@ -601,8 +601,8 @@ body::after {
 }
 
 .home-glance-item:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: var(--gold);
+  background: var(--amber-tint);
+  border-color: var(--amber-primary);
   transform: translateY(-1px);
 }
 
@@ -635,7 +635,7 @@ body::after {
 .home-glance-label {
   font-family: var(--font-sans);
   font-size: 0.62rem;
-  color: var(--text-secondary);
+  color: var(--body-text);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   line-height: 1.2;
@@ -711,12 +711,12 @@ body::after {
 
 /* ===== Glance empty-state CTAs ===== */
 .home-glance-empty-cta {
-  border-color: rgba(212, 175, 55, 0.25) !important;
-  background: rgba(212, 175, 55, 0.05) !important;
+  border-color: rgba(212, 137, 26, 0.20) !important;
+  background: var(--card-bg) !important;
 }
 .home-glance-empty-cta:hover {
-  border-color: var(--gold) !important;
-  background: rgba(212, 175, 55, 0.1) !important;
+  border-color: var(--amber-primary) !important;
+  background: var(--amber-tint) !important;
 }
 .home-glance-cta-plus {
   font-family: var(--font-sans);
@@ -746,14 +746,14 @@ html.minimal-mode .home-prayer-preview:hover {
   border-color: var(--gold);
 }
 html.minimal-mode .home-glance-empty-cta {
-  border-color: rgba(140, 100, 45, 0.3) !important;
-  background: rgba(245, 235, 200, 0.4) !important;
+  border-color: rgba(201, 128, 58, 0.20) !important;
+  background: var(--card-bg) !important;
 }
 
 /* ===== Home community snapshot ===== */
 .home-community-snapshot {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 14px;
   padding: 14px 16px;
   margin-bottom: 16px;
@@ -987,6 +987,7 @@ html.minimal-mode .home-glance-empty-cta {
   font-size: 0.85rem;
   color: var(--text-primary);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: 3px solid var(--amber-primary);
 }
 .home-prayer-brief-item:last-child { border-bottom: none; }
 .home-prayer-brief-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1578,9 +1579,10 @@ html.light-mode:not(.minimal-mode) .weekly-project-empty { border-color: rgba(0,
 }
 
 .prayer-card-answered {
-  background: linear-gradient(160deg, #FFFBEB 0%, #FEF9C3 60%, #FEF3C7 100%);
-  border: 1px solid rgba(251, 191, 36, 0.35);
-  box-shadow: var(--shadow-md), 0 0 0 1px rgba(251, 191, 36, 0.1), inset 0 1px 0 rgba(255,255,255,0.8);
+  background: var(--testimony-card-bg);
+  border: 1px solid var(--card-border);
+  border-left: 3px solid var(--amber-primary);
+  box-shadow: var(--card-shadow);
 }
 
 .prayer-card-top {
@@ -2004,8 +2006,8 @@ html.light-mode:not(.minimal-mode) .weekly-project-empty { border-color: rgba(0,
 }
 
 .prayer-log-bar-answered {
-  background: #FFFBEB;
-  border-color: #FEF3C7;
+  background: var(--amber-tint);
+  border-color: rgba(212, 137, 26, 0.22);
 }
 
 .prayer-log-info {
@@ -2043,9 +2045,9 @@ html.light-mode:not(.minimal-mode) .weekly-project-empty { border-color: rgba(0,
   align-items: center;
   gap: 4px;
   padding: 5px 12px;
-  border: 1.5px solid rgba(255,255,255,0.6);
+  border: 1.5px solid var(--amber-primary);
   background: transparent;
-  color: #FFFFFF;
+  color: var(--amber-primary);
   font-family: var(--font-sans);
   font-size: 0.72rem;
   font-weight: 600;
@@ -2414,12 +2416,13 @@ html.light-mode:not(.minimal-mode) .weekly-project-empty { border-color: rgba(0,
 }
 
 .btn-secondary {
-  background: var(--gray-100);
-  color: var(--gray-600);
+  background: transparent;
+  border: 1.5px solid var(--amber-primary);
+  color: var(--amber-primary);
 }
 
 .btn-secondary:hover {
-  background: var(--gray-200);
+  background: var(--amber-tint);
 }
 
 .btn-icon {
@@ -5252,12 +5255,12 @@ html.minimal-mode .prayer-type-cancel:hover {
 
 /* Home glance items */
 .home-glance-item {
-  background: var(--surface);
-  border-color: var(--surface-border);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
 }
 
 .home-glance-label {
-  color: var(--text-muted);
+  color: var(--meta-text);
 }
 
 /* Prayer cards */
@@ -6844,7 +6847,8 @@ html.light-mode .auth-card {
 .group-feed {}
 
 .group-composer {
-  background: var(--surface-3);
+  background: var(--card-bg);
+  border: 1.5px dashed var(--amber-primary);
   border-radius: 8px;
   padding: 12px;
   margin-bottom: 16px;
@@ -6885,7 +6889,7 @@ html.light-mode .auth-card {
   margin-bottom: 8px;
   box-sizing: border-box;
 }
-.group-composer-input::placeholder { color: var(--text-muted); }
+.group-composer-input::placeholder { color: var(--meta-text); }
 .group-post-btn {
   margin-left: auto;
   display: flex;
@@ -6898,10 +6902,11 @@ html.light-mode .auth-card {
   gap: 10px;
 }
 .group-post {
-  background: var(--surface-3);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 8px;
   padding: 12px;
-  border-left: 3px solid var(--border);
+  border-left: 3px solid var(--amber-primary);
 }
 .group-post-note { border-left-color: var(--amber-primary); }
 .group-post-scripture { border-left-color: var(--gold); }
@@ -6934,11 +6939,11 @@ html.light-mode .auth-card {
 .group-post-name {
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--heading-text);
 }
 .group-post-time {
   font-size: 0.72rem;
-  color: var(--text-muted);
+  color: var(--meta-text);
 }
 .group-post-type-badge {
   font-size: 0.68rem;
@@ -6948,9 +6953,9 @@ html.light-mode .auth-card {
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
-.group-post-type-note { background: var(--amber-tint); color: var(--amber-primary); }
-.group-post-type-scripture { background: rgba(251,191,36,0.15); color: var(--gold); }
-.group-post-type-focus_update { background: rgba(167,139,250,0.15); color: #a78bfa; }
+.group-post-type-note { background: var(--amber-primary); color: #fff; }
+.group-post-type-scripture { background: var(--amber-primary); color: #fff; }
+.group-post-type-focus_update { background: var(--amber-primary); color: #fff; }
 
 .group-post-delete {
   background: none;
@@ -7808,6 +7813,10 @@ html.light-mode .intercede-coming-soon::after {
 /* ===== Featured Plan Sections (Thanksgiving / Intercession) ===== */
 .plan-featured-section {
   margin-bottom: 8px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 12px;
 }
 
 .plan-featured-header {
@@ -7827,8 +7836,8 @@ html.light-mode .intercede-coming-soon::after {
 }
 
 .plan-featured-card {
-  background: var(--surface);
-  border: 1px solid var(--surface-border);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius-lg);
   padding: 14px 12px;
   display: flex;
@@ -7900,8 +7909,8 @@ html.light-mode .intercede-coming-soon::after {
 
 /* Light mode */
 html.light-mode .plan-featured-card {
-  background: #FFFFFF;
-  border-color: var(--gray-200);
+  background: var(--card-bg);
+  border-color: var(--card-border);
 }
 
 html.light-mode .plan-featured-card-days {
@@ -7914,8 +7923,8 @@ html.light-mode .plan-featured-card-btn {
 }
 
 html.minimal-mode .plan-featured-card {
-  background: var(--bg-secondary);
-  border-color: rgba(140, 100, 45, 0.22);
+  background: var(--card-bg);
+  border-color: var(--card-border);
 }
 
 html.minimal-mode .plan-featured-card-days {
