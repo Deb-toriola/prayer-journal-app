@@ -8,7 +8,7 @@ const TABS = [
   { id: 'more',      label: 'More',      Icon: MoreHorizontal },
 ];
 
-export default function BottomNav({ activeTab, onTabChange, prayerCount, testimonyCount, planActive, communityCount }) {
+export default function BottomNav({ activeTab, onTabChange, prayerCount, testimonyCount, planActive, pendingCount }) {
   return (
     <nav className="bottom-nav">
       {TABS.map(({ id, label, Icon }) => {
@@ -17,7 +17,7 @@ export default function BottomNav({ activeTab, onTabChange, prayerCount, testimo
         // Badge values
         let badge = null;
         if (id === 'prayers' && (prayerCount + testimonyCount) > 0) badge = prayerCount;
-        if (id === 'community' && communityCount > 0) badge = communityCount;
+        if (id === 'community' && pendingCount > 0) badge = pendingCount;
         if (id === 'plan' && planActive) badge = '●';
 
         return (

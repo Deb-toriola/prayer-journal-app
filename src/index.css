@@ -355,6 +355,7 @@ body::after {
   font-weight: 600;
   color: var(--white);
   letter-spacing: 0.3px;
+  flex: 1;
 }
 
 /* ===== Bottom Navigation ===== */
@@ -7175,6 +7176,11 @@ html.light-mode .auth-card {
   font-size: 0.72rem;
   color: var(--text-muted);
 }
+.group-member-role-col {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
 .group-admin-badge {
   display: flex;
   align-items: center;
@@ -7185,6 +7191,58 @@ html.light-mode .auth-card {
   color: var(--gold);
   padding: 2px 8px;
   border-radius: 10px;
+}
+/* × button inside the admin badge to demote */
+.group-role-btn-demote {
+  background: none;
+  border: none;
+  color: var(--gold);
+  opacity: 0.6;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0 0 0 4px;
+  margin: 0;
+}
+.group-role-btn-demote:hover { opacity: 1; }
+/* "Make admin" button for regular members */
+.group-role-btn-promote {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: rgba(139,92,246,0.12);
+  color: #a78bfa;
+  border: 1px solid rgba(139,92,246,0.25);
+  padding: 3px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.group-role-btn-promote:hover { background: rgba(139,92,246,0.22); }
+/* Full group badge */
+.group-full-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.62rem;
+  font-weight: 700;
+  background: rgba(239,68,68,0.15);
+  color: #f87171;
+  padding: 1px 7px;
+  border-radius: 8px;
+  margin-left: 6px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+/* Warning shown when group is full and approval is attempted */
+.group-cap-warning {
+  font-size: 0.78rem;
+  color: #f87171;
+  background: rgba(239,68,68,0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 4px 0 8px;
 }
 
 /* Danger zone */
@@ -8292,4 +8350,265 @@ html.minimal-mode .prayer-plan-day-pill:hover {
   .onboarding-feature-item {
     padding: 10px 14px;
   }
+}
+
+
+/* ===== Notification Panel ===== */
+.notif-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.notif-bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.notif-bell:hover,
+.notif-bell:active {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.notif-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--radius-full);
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.notif-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 299;
+}
+
+.notif-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(340px, calc(100vw - 24px));
+  max-height: 70vh;
+  background: var(--bg-secondary);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.notif-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--surface-border);
+  flex-shrink: 0;
+}
+
+.notif-panel-title {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.notif-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition);
+}
+.notif-close:hover { background: var(--surface-hover); color: var(--text-primary); }
+
+.notif-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 8px 0;
+}
+
+.notif-item {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--surface-border);
+  position: relative;
+  transition: background var(--transition);
+}
+.notif-item:last-child { border-bottom: none; }
+.notif-item-unread { background: rgba(59, 130, 246, 0.06); }
+.notif-item-invite { background: rgba(16, 185, 129, 0.06); }
+
+.notif-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.notif-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.notif-text {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.notif-text em {
+  font-style: italic;
+  color: var(--text-primary);
+}
+
+.notif-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.notif-dismiss {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  padding: 2px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition);
+}
+.notif-dismiss:hover { color: var(--text-primary); }
+
+.notif-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 32px 16px;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+/* Header: bell is positioned to the right naturally via flex: 1 on title */
+
+/* ===== Prayer Partner Invite (email) ===== */
+.prayer-partner-invite-wrap {
+  margin-top: 6px;
+}
+
+.prayer-partner-invite-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-xs);
+  color: var(--purple-lighter);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  opacity: 0.85;
+  transition: opacity var(--transition);
+}
+.prayer-partner-invite-toggle:hover { opacity: 1; }
+
+.prayer-partner-invite-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.prayer-partner-invite-status {
+  font-size: var(--text-xs);
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+}
+.prayer-partner-invite-status.success {
+  color: var(--success);
+  background: rgba(16, 185, 129, 0.1);
+}
+.prayer-partner-invite-status.error {
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* ===== Group subtab badge ===== */
+.group-subtab {
+  position: relative;
+}
+.group-subtab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--radius-full);
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  margin-left: 4px;
+  line-height: 1;
+}
+
+/* ===== Group add member form ===== */
+.group-add-member-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.group-add-member-error {
+  font-size: var(--text-xs);
+  color: var(--danger);
+  padding: 4px 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: var(--radius-sm);
+}
+
+.group-add-member-success {
+  font-size: var(--text-xs);
+  color: var(--success);
+  padding: 4px 8px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: var(--radius-sm);
 }

@@ -86,13 +86,21 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
             icon={notifSettings?.enabled ? <Bell size={16} /> : <BellOff size={16} />}
             label="Daily prayer reminder"
             sub={notifSettings?.enabled
-              ? `${notifSettings.times?.length || 0} reminder${(notifSettings.times?.length || 0) !== 1 ? 's' : ''} set · manage in More tab`
+              ? (notifSettings.times?.length || 0) > 0
+                ? `${notifSettings.times.length} reminder${notifSettings.times.length !== 1 ? 's' : ''} set`
+                : "Enabled — set your reminder times below"
               : "Set a daily nudge to keep your streak alive"}
           >
-            <Toggle
-              on={notifSettings?.enabled || false}
-              onToggle={onToggleNotif}
-            />
+            {notifSettings?.enabled && (notifSettings.times?.length || 0) === 0 ? (
+              <button className="btn btn-sm btn-primary" onClick={onClose} style={{ fontSize: '0.72rem', padding: '4px 10px' }}>
+                Set times ↓
+              </button>
+            ) : (
+              <Toggle
+                on={notifSettings?.enabled || false}
+                onToggle={onToggleNotif}
+              />
+            )}
           </SettingRow>
           <SettingRow
             icon={<Flame size={16} />}
@@ -107,11 +115,13 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
           <SettingRow
             icon={<Bell size={16} />}
             label="Prayer partner activity"
-            sub="Notify when a partner logs prayer time"
+            sub={settings.communityAlerts !== false
+              ? "Notify me when a connected partner prays"
+              : "Partner prayer notifications are off"}
           >
             <Toggle
-              on={settings.communityAlerts === true}
-              onToggle={() => onUpdate({ communityAlerts: !settings.communityAlerts })}
+              on={settings.communityAlerts !== false}
+              onToggle={() => onUpdate({ communityAlerts: settings.communityAlerts === false })}
             />
           </SettingRow>
         </Group>
@@ -150,6 +160,16 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
             sub="Daily streak, best, days prayed"
           >
             <Toggle on={settings.showStreak !== false} onToggle={() => onUpdate({ showStreak: !settings.showStreak })} />
+          </SettingRow>
+          <SettingRow
+            icon={<Flame size={18} />}
+            label="Animated fire streak"
+            sub="Show fire animation on active streaks"
+          >
+            <Toggle
+              on={settings.animatedFire !== false}
+              onToggle={() => onUpdate({ animatedFire: !settings.animatedFire })}
+            />
           </SettingRow>
           <SettingRow
             icon={settings.showNeglected !== false ? <Eye size={16} /> : <EyeOff size={16} />}

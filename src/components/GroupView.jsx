@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   MessageSquare, Clock, Settings, Timer, Send, X, Copy, Check,
-  BookOpen, Trash2, Crown, LogOut, Users, RefreshCw, CheckCircle2,
+  BookOpen, Trash2, Crown, LogOut, Users, RefreshCw, CheckCircle2, UserPlus, ShieldCheck,
 } from 'lucide-react';
 import { formatRelativeDate } from '../utils/constants';
 
@@ -212,16 +212,28 @@ function PrayerTimeTab({ members, totalGroupMinutes, todayGroupMinutes, userId, 
   );
 }
 
+const GROUP_MAX = 10;
+
 /* ─── Group Settings Tab ─── */
 function GroupSettingsTab({
   group, members, userId, isAdmin,
-  onUpdateFocus, onLeave, onDelete, onApproveMember, onRejectMember,
+  onUpdateFocus, onLeave, onDelete, onApproveMember, onRejectMember, onAddMemberDirect,
+  onPromoteToAdmin, onDemoteToMember,
 }) {
   const [focus, setFocus] = useState(group.focus || '');
   const [scripture, setScripture] = useState(group.scripture || '');
   const [editingFocus, setEditingFocus] = useState(false);
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showAddMember, setShowAddMember] = useState(false);
+  const [addEmail, setAddEmail] = useState('');
+  const [addName, setAddName] = useState('');
+  const [addStatus, setAddStatus] = useState(null); // null | 'adding' | 'done' | string (error)
+  const [approvalError, setApprovalError] = useState(null);
+  const [roleError, setRoleError] = useState(null);
+
+  const approvedCount = members.filter(m => m.status === 'approved').length;
+  const isFull = approvedCount >= GROUP_MAX;
 
   const handleSaveFocus = async () => {
     setSaving(true);
@@ -325,6 +337,10 @@ function GroupSettingsTab({
             <Users size={14} />
             Pending Approval ({members.filter(m => m.status === 'pending').length})
           </div>
+          {isFull && (
+            <p className="group-cap-warning">Group is full ({GROUP_MAX}/{GROUP_MAX}). Remove a member to approve new requests.</p>
+          )}
+          {approvalError && <p className="group-cap-warning">{approvalError}</p>}
           <div className="group-members-list">
             {members.filter(m => m.status === 'pending').map(m => (
               <div key={m.id} className="group-member-item group-member-pending">
@@ -334,7 +350,16 @@ function GroupSettingsTab({
                   <span className="group-member-joined">Requested {formatDate(m.joined_at)}</span>
                 </div>
                 <div className="group-approval-actions">
-                  <button className="group-approve-btn" onClick={() => onApproveMember(m.id)} title="Approve">
+                  <button
+                    className="group-approve-btn"
+                    onClick={async () => {
+                      setApprovalError(null);
+                      const result = await onApproveMember(m.id);
+                      if (result?.error) setApprovalError(result.error);
+                    }}
+                    disabled={isFull}
+                    title={isFull ? 'Group is full' : 'Approve'}
+                  >
                     <CheckCircle2 size={16} />
                   </button>
                   <button className="group-reject-btn" onClick={() => onRejectMember(m.id)} title="Reject">
@@ -347,12 +372,78 @@ function GroupSettingsTab({
         </div>
       )}
 
+      {/* Admin direct-add by email */}
+      {isAdmin && onAddMemberDirect && (
+        <div className="group-settings-section">
+          <div className="group-settings-label">
+            <UserPlus size={14} />
+            Add Member Directly
+            {!showAddMember && (
+              <button className="group-edit-btn" onClick={() => setShowAddMember(true)}>Add</button>
+            )}
+          </div>
+          {showAddMember && (
+            <div className="group-add-member-form">
+              <input
+                className="form-input"
+                type="email"
+                placeholder="Email address"
+                value={addEmail}
+                onChange={e => setAddEmail(e.target.value)}
+                maxLength={80}
+              />
+              <input
+                className="form-input"
+                type="text"
+                placeholder="Display name (optional)"
+                value={addName}
+                onChange={e => setAddName(e.target.value)}
+                maxLength={30}
+              />
+              {addStatus && addStatus !== 'adding' && addStatus !== 'done' && (
+                <p className="group-add-member-error">{addStatus}</p>
+              )}
+              {addStatus === 'done' && (
+                <p className="group-add-member-success">Member added successfully! 🙏</p>
+              )}
+              <div className="group-focus-actions">
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => { setShowAddMember(false); setAddEmail(''); setAddName(''); setAddStatus(null); }}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn btn-primary btn-sm"
+                  disabled={!addEmail.trim() || addStatus === 'adding'}
+                  onClick={async () => {
+                    setAddStatus('adding');
+                    const result = await onAddMemberDirect(addEmail, addName);
+                    if (result?.success) {
+                      setAddStatus('done');
+                      setAddEmail(''); setAddName('');
+                      setTimeout(() => { setAddStatus(null); setShowAddMember(false); }, 2000);
+                    } else {
+                      setAddStatus(result?.error || 'Something went wrong.');
+                    }
+                  }}
+                >
+                  {addStatus === 'adding' ? 'Adding…' : 'Add Member'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Members list */}
       <div className="group-settings-section">
         <div className="group-settings-label">
           <Users size={14} />
-          Members ({members.filter(m => m.status !== 'pending').length})
+          Members ({approvedCount}/{GROUP_MAX})
+          {isFull && <span className="group-full-badge">Full</span>}
         </div>
+        {roleError && <p className="group-cap-warning">{roleError}</p>}
         <div className="group-members-list">
           {members.filter(m => m.status !== 'pending').map(m => (
             <div key={m.id} className="group-member-item">
@@ -364,11 +455,37 @@ function GroupSettingsTab({
                 </span>
                 <span className="group-member-joined">Joined {formatDate(m.joined_at)}</span>
               </div>
-              {m.role === 'admin' && (
-                <span className="group-admin-badge">
-                  <Crown size={11} /> admin
-                </span>
-              )}
+              <div className="group-member-role-col">
+                {m.role === 'admin' ? (
+                  <span className="group-admin-badge">
+                    <Crown size={11} /> admin
+                    {/* Admin can demote other admins (not themselves) */}
+                    {isAdmin && m.user_id !== userId && (
+                      <button
+                        className="group-role-btn group-role-btn-demote"
+                        title="Remove admin rights"
+                        onClick={async () => {
+                          setRoleError(null);
+                          const result = await onDemoteToMember(m.id);
+                          if (result?.error) setRoleError(result.error);
+                        }}
+                      >×</button>
+                    )}
+                  </span>
+                ) : isAdmin ? (
+                  <button
+                    className="group-role-btn group-role-btn-promote"
+                    title="Make co-admin"
+                    onClick={async () => {
+                      setRoleError(null);
+                      const result = await onPromoteToAdmin(m.id);
+                      if (result?.error) setRoleError(result.error);
+                    }}
+                  >
+                    <ShieldCheck size={11} /> Make admin
+                  </button>
+                ) : null}
+              </div>
             </div>
           ))}
         </div>
@@ -396,18 +513,19 @@ export default function GroupView({
   group, members, posts, totalGroupMinutes, todayGroupMinutes,
   userId, isAdmin, myMember, isPending,
   onLogTime, onAddPost, onDeletePost, onRefreshFeed,
-  onUpdateFocus, onLeave, onDelete, onApproveMember, onRejectMember,
+  onUpdateFocus, onLeave, onDelete, onApproveMember, onRejectMember, onAddMemberDirect,
+  onPromoteToAdmin, onDemoteToMember,
 }) {
   const [activeTab, setActiveTab] = useState('feed');
+
+  const approvedMemberCount = members.filter(m => m.status !== 'pending').length;
+  const pendingCount = members.filter(m => m.status === 'pending').length;
 
   const tabs = [
     { id: 'feed', label: 'Feed', icon: <MessageSquare size={14} /> },
     { id: 'time', label: 'Prayer Time', icon: <Clock size={14} /> },
-    { id: 'group', label: 'Group', icon: <Settings size={14} /> },
+    { id: 'group', label: 'Group', icon: <Settings size={14} />, badge: isAdmin && pendingCount > 0 ? pendingCount : 0 },
   ];
-
-  const approvedMemberCount = members.filter(m => m.status !== 'pending').length;
-  const pendingCount = members.filter(m => m.status === 'pending').length;
 
   return (
     <div className="group-view">
@@ -416,7 +534,8 @@ export default function GroupView({
         <div className="group-view-icon"><Users size={18} /></div>
         <div>
           <p className="group-view-name">{group.name}</p>
-          <p className="group-view-members">{approvedMemberCount} member{approvedMemberCount !== 1 ? 's' : ''}
+          <p className="group-view-members">{approvedMemberCount}/{GROUP_MAX} member{approvedMemberCount !== 1 ? 's' : ''}
+            {approvedMemberCount >= GROUP_MAX && <span className="group-full-badge">Full</span>}
             {isAdmin && pendingCount > 0 && <span className="group-pending-badge">{pendingCount} pending</span>}
           </p>
         </div>
@@ -439,6 +558,9 @@ export default function GroupView({
           >
             {tab.icon}
             {tab.label}
+            {tab.badge > 0 && (
+              <span className="group-subtab-badge">{tab.badge}</span>
+            )}
           </button>
         ))}
       </div>
@@ -476,6 +598,9 @@ export default function GroupView({
             onDelete={onDelete}
             onApproveMember={onApproveMember}
             onRejectMember={onRejectMember}
+            onAddMemberDirect={onAddMemberDirect}
+            onPromoteToAdmin={onPromoteToAdmin}
+            onDemoteToMember={onDemoteToMember}
           />
         )}
       </div>

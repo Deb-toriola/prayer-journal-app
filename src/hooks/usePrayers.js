@@ -223,13 +223,13 @@ export function usePrayers(userId) {
     if (updated) await syncPrayer(updated);
   }, [syncPrayer]);
 
-  const addPartner = useCallback(async (prayerId, name) => {
+  const addPartner = useCallback(async (prayerId, name, partnerUserId = null) => {
     let updated;
     setPrayers((prev) => prev.map((p) => {
       if (p.id !== prayerId) return p;
       const partners = p.partners || [];
       if (partners.some((pt) => pt.name.toLowerCase() === name.toLowerCase())) return p;
-      updated = { ...p, partners: [...partners, { id: generateId(), name, prayerLog: [], prayerSessions: [] }] };
+      updated = { ...p, partners: [...partners, { id: generateId(), name, userId: partnerUserId || null, prayerLog: [], prayerSessions: [] }] };
       return updated;
     }));
     if (updated) await syncPrayer(updated);

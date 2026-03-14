@@ -58,7 +58,7 @@ export default function MoreTab({
           <ChevronRight size={16} className="more-menu-chevron" />
         </button>
 
-        {notificationSupported && notifSettings && (
+        {notifSettings && (
           <div className="more-section" style={{ marginTop: 12 }}>
             <div className="more-section-label">
               <Bell size={14} />
@@ -77,14 +77,12 @@ export default function MoreTab({
           </div>
         )}
 
-        {(prayers?.length > 0) && (
-          <div className="more-section" style={{ marginTop: 12 }}>
-            <button className="btn-export" onClick={onShowExport}>
-              <FileDown size={14} />
-              <span>Export Prayer Journey</span>
-            </button>
-          </div>
-        )}
+        <div className="more-section" style={{ marginTop: 12 }}>
+          <button className="btn-export" onClick={onShowExport}>
+            <FileDown size={14} />
+            <span>Export Prayer Journey</span>
+          </button>
+        </div>
       </div>
 
       {/* What's New */}

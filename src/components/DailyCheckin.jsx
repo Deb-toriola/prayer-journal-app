@@ -28,9 +28,13 @@ export default function DailyCheckin({
   currentStreak,
   longestStreak,
   totalDaysPrayed,
+  animatedFire = true,
 }) {
   const theme    = getStreakTheme(currentStreak);
   const fireSeed = cardFireSeed(currentStreak);
+
+  // When animation is disabled, suppress the fire canvas but keep the solid theme colors
+  const showFire = animatedFire && fireSeed !== null;
 
   const cardStyle = {
     background: theme.background,
@@ -43,11 +47,11 @@ export default function DailyCheckin({
 
   return (
     <div
-      className={`daily-checkin-card${fireSeed !== null ? ' daily-checkin-card--fire' : ''}`}
+      className={`daily-checkin-card${showFire ? ' daily-checkin-card--fire' : ''}`}
       style={cardStyle}
     >
-      {/* ── Live fire canvas background (streak ≥ 3) ── */}
-      {fireSeed !== null && (
+      {/* ── Live fire canvas background (streak ≥ 1, animated fire on) ── */}
+      {showFire && (
         <>
           <CardFireAnimation seedHeat={fireSeed} />
           <div className="card-fire-overlay" />

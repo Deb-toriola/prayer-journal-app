@@ -9,7 +9,7 @@ function SharedGroups({ groups, activeGroupId, onSetActive, activeGroup, members
   totalGroupMinutes, todayGroupMinutes, userId, isAdmin, isPending, myMember,
   onCreateGroup, onJoinGroup, onLogTime, onAddPost, onDeletePost,
   onUpdateFocus, onLeave, onDelete, onApproveMember, onRejectMember, onRefreshFeed,
-  isGuest, onRequireAuth,
+  onAddMemberDirect, onPromoteToAdmin, onDemoteToMember, isGuest, onRequireAuth,
 }) {
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
@@ -120,6 +120,9 @@ function SharedGroups({ groups, activeGroupId, onSetActive, activeGroup, members
             onDelete={onDelete}
             onApproveMember={onApproveMember}
             onRejectMember={onRejectMember}
+            onAddMemberDirect={onAddMemberDirect}
+            onPromoteToAdmin={onPromoteToAdmin}
+            onDemoteToMember={onDemoteToMember}
           />
         )}
       </div>
@@ -167,7 +170,8 @@ export default function CommunityPrayer({
   isAdmin, isPending, myMember,
   onCreateGroup, onJoinGroup, onLogTime, onAddPost, onDeletePost,
   onUpdateGroupFocus, onLeaveGroup, onDeleteGroup,
-  onApproveMember, onRejectMember, onRefreshFeed,
+  onApproveMember, onRejectMember, onRefreshFeed, onAddMemberDirect,
+  onPromoteToAdmin, onDemoteToMember,
   // intercede props
   intercedeRequests, onAddIntercede, onPrayIntercede, onDeleteIntercede,
   // auth
@@ -225,6 +229,9 @@ export default function CommunityPrayer({
           onApproveMember={onApproveMember}
           onRejectMember={onRejectMember}
           onRefreshFeed={onRefreshFeed}
+          onAddMemberDirect={onAddMemberDirect}
+          onPromoteToAdmin={onPromoteToAdmin}
+          onDemoteToMember={onDemoteToMember}
           isGuest={isGuest}
           onRequireAuth={onRequireAuth}
         />

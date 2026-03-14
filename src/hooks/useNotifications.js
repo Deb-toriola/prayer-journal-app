@@ -63,12 +63,26 @@ export function useNotifications() {
     saveNotificationSettings(settings);
   }, [settings]);
 
-  // Check current permission state on mount
+  // Check current permission state on mount + create notification channel on Android
   useEffect(() => {
     (async () => {
       if (IS_NATIVE) {
         const LN = await getLocalNotif();
         if (LN) {
+          // Create channel with IMPORTANCE_HIGH (4) so reminders show as banners with sound.
+          // This is idempotent — calling it again on an existing channel is a no-op.
+          try {
+            await LN.createChannel({
+              id: 'prayer-reminders',
+              name: 'Prayer Reminders',
+              description: 'Daily prayer reminder notifications',
+              importance: 4,   // IMPORTANCE_HIGH — banner + sound
+              sound: 'default',
+              vibration: true,
+              visibility: 1,   // VISIBILITY_PUBLIC — shows on lock screen
+            });
+          } catch { /* ignore — older Capacitor versions may not support createChannel */ }
+
           const { display } = await LN.checkPermissions();
           setPermissionState(display);
         }

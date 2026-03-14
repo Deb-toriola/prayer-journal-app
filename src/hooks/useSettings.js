@@ -10,6 +10,7 @@ const DEFAULTS = {
   notificationsEnabled: false,
   communityAlerts: false,
   bibleTranslation: 'NKJV',
+  animatedFire: true,
 };
 
 function applyTheme(settings) {
@@ -30,7 +31,13 @@ function applyTheme(settings) {
 }
 
 export function useSettings(userId) {
-  const [settings, setSettings] = useState(DEFAULTS);
+  const [settings, setSettings] = useState(() => {
+    const stored = localStorage.getItem('prayer-animated-fire');
+    return {
+      ...DEFAULTS,
+      animatedFire: stored !== null ? JSON.parse(stored) : DEFAULTS.animatedFire,
+    };
+  });
 
   useEffect(() => {
     if (!userId) { applyTheme(DEFAULTS); return; }
@@ -41,6 +48,7 @@ export function useSettings(userId) {
       .maybeSingle()
       .then(({ data }) => {
         if (data) {
+          const stored = localStorage.getItem('prayer-animated-fire');
           const loaded = {
             theme: data.theme || DEFAULTS.theme,
             fontSize: data.font_size || DEFAULTS.fontSize,
@@ -50,6 +58,7 @@ export function useSettings(userId) {
             notificationsEnabled: data.notifications_enabled ?? DEFAULTS.notificationsEnabled,
             communityAlerts: data.community_alerts ?? DEFAULTS.communityAlerts,
             bibleTranslation: data.bible_translation || DEFAULTS.bibleTranslation,
+            animatedFire: stored !== null ? JSON.parse(stored) : DEFAULTS.animatedFire,
           };
           setSettings(loaded);
           applyTheme(loaded);
@@ -63,6 +72,10 @@ export function useSettings(userId) {
     setSettings((prev) => {
       const next = { ...prev, ...patch };
       applyTheme(next);
+      // animatedFire is localStorage-only — persist it but exclude from Supabase
+      if ('animatedFire' in patch) {
+        try { localStorage.setItem('prayer-animated-fire', JSON.stringify(next.animatedFire)); } catch (_) {}
+      }
       if (userId) {
         supabase.from('settings').upsert({
           user_id: userId,

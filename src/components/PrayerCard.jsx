@@ -38,6 +38,7 @@ export default function PrayerCard({
   isTimerRunning, timerElapsed, onStartTimer, onStopTimer,
   timerPrayerId, timerPartnerId, onStartPartnerTimer, onStopPartnerTimer,
   bibleTranslation,
+  userId, onInvitePartner,
 }) {
   const [menuOpen, setMenuOpen]             = useState(false);
   const [confirmDelete, setConfirmDelete]   = useState(false);
@@ -408,6 +409,8 @@ export default function PrayerCard({
             timerElapsed={timerPrayerId === prayer.id ? timerElapsed : 0}
             onStartPartnerTimer={onStartPartnerTimer}
             onStopPartnerTimer={onStopPartnerTimer}
+            userId={userId}
+            onInvitePartner={onInvitePartner}
           />
         </div>
       )}

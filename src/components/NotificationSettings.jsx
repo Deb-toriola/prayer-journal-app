@@ -28,7 +28,7 @@ export default function NotificationSettings({
     setNewLabel('');
   };
 
-  if (!notificationSupported || !settings) return null;
+  if (!settings) return null;
 
   const isBlocked = permissionState === 'denied';
 
@@ -54,8 +54,16 @@ export default function NotificationSettings({
 
       {showPanel && (
         <div className="notification-panel">
-          {/* Blocked — show clear instructions instead of toggle */}
-          {isBlocked ? (
+          {/* Browser doesn't support notifications at all */}
+          {!notificationSupported ? (
+            <div className="notification-blocked-msg">
+              <AlertCircle size={15} />
+              <p>
+                Prayer reminders aren't supported in this browser. For full notification support, use the Android app or Chrome on desktop.
+              </p>
+            </div>
+          ) : isBlocked ? (
+            /* Blocked — show clear instructions instead of toggle */
             <div className="notification-blocked-msg">
               <AlertCircle size={15} />
               <p>{blockedMessage}</p>
@@ -82,8 +90,8 @@ export default function NotificationSettings({
             </div>
           )}
 
-          {/* Time list + add form — only when enabled and not blocked */}
-          {settings.enabled && !isBlocked && (
+          {/* Time list + add form — only when enabled, supported, and not blocked */}
+          {notificationSupported && settings.enabled && !isBlocked && (
             <>
               <div className="notification-times">
                 {(settings.times || []).map((time, i) => (
