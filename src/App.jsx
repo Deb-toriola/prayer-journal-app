@@ -32,6 +32,10 @@ import { useDailyCheckin } from './hooks/useDailyCheckin';
 import { useCommunity } from './hooks/useCommunity';
 import { useGroups } from './hooks/useGroups';
 import { useIntercede } from './hooks/useIntercede';
+import { useInAppNotifications } from './hooks/useInAppNotifications';
+import { usePrayerPartners } from './hooks/usePrayerPartners';
+import { sendNotification } from './utils/sendNotification';
+import NotificationPanel from './components/NotificationPanel';
 import { useStreakStats } from './hooks/useStreak';
 import { useSettings } from './hooks/useSettings';
 import { useAuth } from './hooks/useAuth';
@@ -43,6 +47,8 @@ const TAB_TITLES = {
   community: 'Community',
   more:      'More',
 };
+
+const TAB_ORDER = ['home', 'prayers', 'plan', 'community', 'more'];
 
 const ONBOARDING_KEY = 'hasSeenOnboarding';
 
@@ -100,6 +106,10 @@ export default function App() {
   const handleOnboardingGuest = () => {
     finishOnboarding();
   };
+  const handleOnboardingSignIn = () => {
+    finishOnboarding();
+    openAuthModal('login');
+  };
 
   if (authLoading) {
     return (
@@ -117,6 +127,7 @@ export default function App() {
           <Onboarding
             onSignUp={handleOnboardingSignUp}
             onGuest={handleOnboardingGuest}
+            onSignIn={handleOnboardingSignIn}
           />
         </Suspense>
       )}
@@ -193,10 +204,31 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
     members: groupMembers, posts: groupPosts,
     totalGroupMinutes, todayGroupMinutes,
     isAdmin, isPending, myMember,
+    pendingCount,
     createGroup, joinGroup, leaveGroup, deleteGroup,
     updateGroupFocus, logTime, addPost, deletePost,
-    approveMember, rejectMember, fetchPosts: refreshGroupFeed,
+    approveMember, rejectMember, addMemberDirect,
+    promoteToAdmin, demoteToMember,
+    fetchPosts: refreshGroupFeed,
   } = useGroups(user?.id);
+
+  // Display name: prefer group member name, fallback to email prefix
+  const userDisplayName = myMember?.display_name || user?.email?.split('@')[0] || 'A friend';
+
+  // In-app notifications
+  const {
+    notifications, unreadCount, markAllRead, dismissNotification,
+  } = useInAppNotifications(user?.id, {
+    onPartnerAccepted: (prayerId, partnerName, partnerUserId) => {
+      // Auto-add accepted partner to the prayer locally
+      addPartner(prayerId, partnerName, partnerUserId);
+    },
+  });
+
+  // Cross-user prayer partner invites
+  const {
+    pendingInvites, invitePartner, acceptInvite, declineInvite,
+  } = usePrayerPartners(user?.id, user?.email, userDisplayName);
   const { requests: intercedeRequests, addRequest: addIntercede, prayForRequest: prayIntercede, deleteRequest: deleteIntercede } = useIntercede(user?.id);
   const { settings: appSettings, update: updateAppSettings } = useSettings(user?.id);
 
@@ -265,11 +297,27 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
   const handleEdit = (prayer) => { setEditingPrayer(prayer); setShowForm(true); };
   const handleCloseForm = () => { setShowForm(false); setEditingPrayer(null); };
 
+  // Notify cross-user partner when prayed (if they have a userId stored)
+  const notifyPartnerIfLinked = (prayerId, partnerId) => {
+    const prayer = prayers.find(p => p.id === prayerId);
+    const partner = prayer?.partners?.find(pt => pt.id === partnerId);
+    if (partner?.userId && user?.id && appSettings?.communityAlerts !== false) {
+      sendNotification(
+        partner.userId,
+        'partner_prayed',
+        `${userDisplayName} prayed 🙏`,
+        `They prayed for "${prayer.title}" today`,
+        { prayerId }
+      );
+    }
+  };
+
   const saveSession = (session) => {
     if (!session || session.duration < 2) return;
     if (session.partnerId) {
       addPartnerSession(session.prayerId, session.partnerId, { startedAt: session.startedAt, duration: session.duration });
       logPartnerPrayed(session.prayerId, session.partnerId);
+      notifyPartnerIfLinked(session.prayerId, session.partnerId);
     } else {
       addPrayerSession(session.prayerId, { startedAt: session.startedAt, duration: session.duration });
       logPrayed(session.prayerId);
@@ -293,6 +341,26 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     if (tab !== 'prayers') { setSearchQuery(''); setSelectedCategory(''); }
+  };
+
+  const swipeTouchStartX = useRef(null);
+  const swipeTouchStartY = useRef(null);
+  const handleSwipeTouchStart = (e) => {
+    swipeTouchStartX.current = e.touches[0].clientX;
+    swipeTouchStartY.current = e.touches[0].clientY;
+  };
+  const handleSwipeTouchEnd = (e) => {
+    if (swipeTouchStartX.current === null) return;
+    const diffX = swipeTouchStartX.current - e.changedTouches[0].clientX;
+    const diffY = swipeTouchStartY.current - e.changedTouches[0].clientY;
+    // Only trigger if movement is more horizontal than vertical (swipe, not scroll)
+    if (Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+      const currentIndex = TAB_ORDER.indexOf(activeTab);
+      if (diffX > 0 && currentIndex < TAB_ORDER.length - 1) handleTabChange(TAB_ORDER[currentIndex + 1]);
+      else if (diffX < 0 && currentIndex > 0) handleTabChange(TAB_ORDER[currentIndex - 1]);
+    }
+    swipeTouchStartX.current = null;
+    swipeTouchStartY.current = null;
   };
 
   // ── Render tab content ────────────────────────────────
@@ -347,6 +415,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
                 totalDaysPrayed={totalDaysPrayed}
                 totalPrayers={streakStats.totalPrayers}
                 neglectedPrayers={neglectedCount}
+                animatedFire={appSettings.animatedFire !== false}
               />
             )}
 
@@ -524,7 +593,12 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
                     onDeleteNote={(noteId) => deleteNote(prayer.id, noteId)}
                     onAddPartner={(name) => addPartner(prayer.id, name)}
                     onRemovePartner={(partnerId) => removePartner(prayer.id, partnerId)}
-                    onLogPartnerPrayed={(partnerId) => logPartnerPrayed(prayer.id, partnerId)}
+                    userId={user?.id}
+                    onInvitePartner={invitePartner}
+                    onLogPartnerPrayed={(partnerId) => {
+                      logPartnerPrayed(prayer.id, partnerId);
+                      notifyPartnerIfLinked(prayer.id, partnerId);
+                    }}
                     onUndoPartnerPrayed={(partnerId) => undoPartnerPrayed(prayer.id, partnerId)}
                     allCategories={allCategories}
                     isTimerRunning={timerPrayerId === prayer.id && !timerPartnerId}
@@ -598,6 +672,9 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
               onDeleteGroup={deleteGroup}
               onApproveMember={approveMember}
               onRejectMember={rejectMember}
+              onAddMemberDirect={addMemberDirect}
+              onPromoteToAdmin={promoteToAdmin}
+              onDemoteToMember={demoteToMember}
               onRefreshFeed={refreshGroupFeed}
               intercedeRequests={intercedeRequests}
               onAddIntercede={addIntercede}
@@ -651,10 +728,21 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
             <DoveIcon size={28} color="currentColor" />
           </div>
           <h1 className="app-header-title">{TAB_TITLES[activeTab]}</h1>
+          {user && (
+            <NotificationPanel
+              notifications={notifications}
+              unreadCount={unreadCount}
+              onMarkAllRead={markAllRead}
+              onDismiss={dismissNotification}
+              pendingInvites={pendingInvites}
+              onAcceptInvite={acceptInvite}
+              onDeclineInvite={declineInvite}
+            />
+          )}
         </div>
       </header>
 
-      <main className="main">
+      <main className="main" onTouchStart={handleSwipeTouchStart} onTouchEnd={handleSwipeTouchEnd}>
         <ErrorBoundary key={activeTab}>
           {renderContent()}
         </ErrorBoundary>
@@ -673,7 +761,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
         prayerCount={activePrayers.length}
         testimonyCount={testimonies.length}
         planActive={plans.length > 0}
-        communityCount={groups.length}
+        pendingCount={pendingCount}
       />
 
       {showForm && (
