@@ -171,6 +171,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
     toggleUrgent, addNote, deleteNote,
     addPrayerSession, addPartner, removePartner,
     logPartnerPrayed, addPartnerSession, undoPartnerPrayed,
+    resetAllPrayerLogs,
   } = usePrayers(user?.id);
 
   const {
@@ -196,7 +197,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
   } = usePrayerPlan(user?.id);
 
   // Merge prayer logs + plan check-ins so ALL engagement counts toward the streak
-  const { hasPrayedToday, hasManualCheckinToday, checkInToday, uncheckToday, currentStreak, longestStreak, totalDaysPrayed } = useDailyCheckin(user?.id, prayerLogDates, allPlanCheckinDates);
+  const { hasPrayedToday, hasManualCheckinToday, checkInToday, uncheckToday, resetCheckins, currentStreak, longestStreak, totalDaysPrayed } = useDailyCheckin(user?.id, prayerLogDates, allPlanCheckinDates);
 
   const { memberStats, totalGroupMinutes: legacyGroupMinutes, todayGroupMinutes: legacyTodayMinutes, addMember, removeMember, logSession } = useCommunity(user?.id);
   const {
@@ -710,6 +711,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
               onSignIn={() => onOpenAuth('login')}
               onSignUp={() => onOpenAuth('signup')}
               onDeleteAccount={deleteAccount}
+              onResetStreak={async () => { await resetAllPrayerLogs(); await resetCheckins(); }}
             />
           </div>
         );

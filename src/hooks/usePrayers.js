@@ -297,6 +297,14 @@ export function usePrayers(userId) {
     if (updated) await syncPrayer(updated);
   }, [syncPrayer]);
 
+  const resetAllPrayerLogs = useCallback(async () => {
+    setPrayers((prev) => prev.map((p) => {
+      const updated = { ...p, prayerLog: [], prayerSessions: [], partners: (p.partners || []).map(pt => ({ ...pt, prayerLog: [], prayerSessions: [] })), updatedAt: new Date().toISOString() };
+      syncPrayer(updated);
+      return updated;
+    }));
+  }, [syncPrayer]);
+
   const activePrayers = prayers
     .filter((p) => !p.answered)
     .sort((a, b) => {
@@ -328,5 +336,6 @@ export function usePrayers(userId) {
     logPartnerPrayed,
     addPartnerSession,
     undoPartnerPrayed,
+    resetAllPrayerLogs,
   };
 }

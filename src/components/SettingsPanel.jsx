@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Sun, Moon, Minimize2, Type, Eye, EyeOff, Flame, Bell, BellOff, User, Target, ArrowLeft, ChevronRight, Lock, LogOut, LogIn, UserPlus, Trash2, BookOpen, Shield, ExternalLink } from 'lucide-react';
+import { Sun, Moon, Minimize2, Type, Eye, EyeOff, Flame, Bell, BellOff, User, Target, ArrowLeft, ChevronRight, Lock, LogOut, LogIn, UserPlus, Trash2, BookOpen, Shield, ExternalLink, RotateCcw } from 'lucide-react';
 import AppIcon from './AppIcon';
 import { BIBLE_TRANSLATIONS } from '../utils/bibleBooks';
 
@@ -57,9 +57,11 @@ function Group({ title, children }) {
   );
 }
 
-export default function SettingsPanel({ settings, onUpdate, onClose, notifSettings, onToggleNotif, user, onSignOut, onSignIn, onSignUp, onDeleteAccount }) {
+export default function SettingsPanel({ settings, onUpdate, onClose, notifSettings, onToggleNotif, user, onSignOut, onSignIn, onSignUp, onDeleteAccount, onResetStreak }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showResetStreak, setShowResetStreak] = useState(false);
+  const [resettingStreak, setResettingStreak] = useState(false);
 
   const handleDeleteConfirm = async () => {
     setDeleting(true);
@@ -188,6 +190,14 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
               onToggle={() => onUpdate({ showWeeklyFocusOnHome: !settings.showWeeklyFocusOnHome })}
             />
           </SettingRow>
+          <SettingRow
+            icon={<RotateCcw size={16} />}
+            label="Reset streak"
+            sub="Clear all prayer logs and start fresh"
+            onClick={() => setShowResetStreak(true)}
+            chevron
+            destructive
+          />
         </Group>
 
         {/* Bible */}
@@ -291,6 +301,40 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
         </div>
 
       </div>
+
+      {/* Reset streak confirmation modal */}
+      {showResetStreak && (
+        <div className="delete-confirm-overlay" onClick={() => !resettingStreak && setShowResetStreak(false)}>
+          <div className="delete-confirm-modal" onClick={e => e.stopPropagation()}>
+            <div className="delete-confirm-icon">⚠️</div>
+            <h3 className="delete-confirm-title">Reset your streak?</h3>
+            <p className="delete-confirm-body">
+              This will clear all your prayer logs and daily check-ins. Your prayers and testimonies will be kept, but your streak will reset to zero. This cannot be undone.
+            </p>
+            <div className="delete-confirm-actions">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowResetStreak(false)}
+                disabled={resettingStreak}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-destructive"
+                onClick={async () => {
+                  setResettingStreak(true);
+                  await onResetStreak?.();
+                  setResettingStreak(false);
+                  setShowResetStreak(false);
+                }}
+                disabled={resettingStreak}
+              >
+                {resettingStreak ? 'Resetting…' : 'Reset streak'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete account confirmation modal */}
       {showDeleteConfirm && (

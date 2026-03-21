@@ -21,6 +21,7 @@ export default function MoreTab({
   onSignIn,
   onSignUp,
   onDeleteAccount,
+  onResetStreak,
 }) {
   const [showSettings, setShowSettings] = useState(false);
   const [showWhatsNew, setShowWhatsNew] = useState(false);
@@ -38,6 +39,7 @@ export default function MoreTab({
         onSignIn={onSignIn}
         onSignUp={onSignUp}
         onDeleteAccount={onDeleteAccount}
+        onResetStreak={onResetStreak}
       />
     );
   }

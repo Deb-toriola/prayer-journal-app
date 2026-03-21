@@ -104,5 +104,15 @@ export function useDailyCheckin(userId, prayerLogDates, planCheckinDates) {
     return { currentStreak, longestStreak, totalDaysPrayed: dates.length };
   }, [allCheckinDates, today]);
 
-  return { hasPrayedToday, hasManualCheckinToday, checkInToday, uncheckToday, ...streakStats };
+  const resetCheckins = useCallback(async () => {
+    setManualCheckins([]);
+    saveToStorage([]);
+    if (userId) {
+      try {
+        await supabase.from('daily_checkins').delete().eq('user_id', userId);
+      } catch (err) { console.error('resetCheckins error:', err.message); }
+    }
+  }, [userId]);
+
+  return { hasPrayedToday, hasManualCheckinToday, checkInToday, uncheckToday, resetCheckins, ...streakStats };
 }
