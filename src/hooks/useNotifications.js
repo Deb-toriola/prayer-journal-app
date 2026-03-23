@@ -4,6 +4,10 @@ import { loadNotificationSettings, saveNotificationSettings } from '../utils/sto
 
 const IS_NATIVE = Capacitor.isNativePlatform();
 
+// Reserved notification IDs for special notifications (avoid collision with prayer reminders)
+const STREAK_REMINDER_ID = 9000;
+const NEGLECTED_PRAYER_ID = 9001;
+
 // Lazily import the native plugin to avoid errors in browser builds
 async function getLocalNotif() {
   if (!IS_NATIVE) return null;
@@ -21,11 +25,12 @@ async function scheduleNative(times, enabled) {
   const LN = await getLocalNotif();
   if (!LN) return;
 
-  // Cancel all existing scheduled notifications first
+  // Cancel only prayer reminder notifications (IDs 1-100), not streak/neglected
   try {
     const { notifications: pending } = await LN.getPending();
-    if (pending.length > 0) {
-      await LN.cancel({ notifications: pending.map(n => ({ id: n.id })) });
+    const reminderIds = pending.filter(n => n.id < STREAK_REMINDER_ID).map(n => ({ id: n.id }));
+    if (reminderIds.length > 0) {
+      await LN.cancel({ notifications: reminderIds });
     }
   } catch { /* ignore */ }
 
@@ -49,6 +54,89 @@ async function scheduleNative(times, enabled) {
     });
   } catch (e) {
     console.error('scheduleNative failed:', e?.message);
+  }
+}
+
+// ─── Schedule streak end-of-day reminder (native) ─────────────────────────
+async function scheduleStreakReminder(enabled) {
+  const LN = await getLocalNotif();
+  if (!LN) return;
+
+  // Always cancel existing streak reminder first
+  try {
+    await LN.cancel({ notifications: [{ id: STREAK_REMINDER_ID }] });
+  } catch { /* ignore */ }
+
+  if (!enabled) return;
+
+  try {
+    await LN.schedule({
+      notifications: [{
+        id: STREAK_REMINDER_ID,
+        title: 'Your streak is waiting 🔥',
+        body: "You haven't prayed today yet. One tap to keep your streak alive.",
+        schedule: {
+          on: { hour: 20, minute: 0 },
+          repeats: true,
+          allowWhileIdle: true,
+        },
+        smallIcon: 'ic_notification',
+        iconColor: '#D4891A',
+        channelId: 'prayer-reminders',
+      }],
+    });
+  } catch (e) {
+    console.error('scheduleStreakReminder failed:', e?.message);
+  }
+}
+
+// ─── Schedule neglected prayer reminder (native) ──────────────────────────
+async function scheduleNeglectedReminder(enabled, neglectedPrayers = []) {
+  const LN = await getLocalNotif();
+  if (!LN) return;
+
+  // Always cancel existing neglected reminder first
+  try {
+    await LN.cancel({ notifications: [{ id: NEGLECTED_PRAYER_ID }] });
+  } catch { /* ignore */ }
+
+  if (!enabled || neglectedPrayers.length === 0) return;
+
+  // Find the most neglected prayer (longest time since last prayed)
+  let mostNeglected = neglectedPrayers[0];
+  let maxDays = 0;
+  neglectedPrayers.forEach(p => {
+    const log = p.prayerLog || [];
+    let days;
+    if (log.length === 0) {
+      days = Math.floor((Date.now() - new Date(p.created_at || Date.now()).getTime()) / 86400000);
+    } else {
+      days = Math.floor((Date.now() - new Date(log[log.length - 1]).getTime()) / 86400000);
+    }
+    if (days > maxDays) {
+      maxDays = days;
+      mostNeglected = p;
+    }
+  });
+
+  try {
+    await LN.schedule({
+      notifications: [{
+        id: NEGLECTED_PRAYER_ID,
+        title: 'A prayer needs your attention',
+        body: `You haven't prayed for "${mostNeglected.title}" in ${maxDays} days. Don't let it slip away.`,
+        schedule: {
+          on: { hour: 10, minute: 0 },
+          repeats: true,
+          allowWhileIdle: true,
+        },
+        smallIcon: 'ic_notification',
+        iconColor: '#D4891A',
+        channelId: 'prayer-reminders',
+      }],
+    });
+  } catch (e) {
+    console.error('scheduleNeglectedReminder failed:', e?.message);
   }
 }
 
@@ -179,12 +267,30 @@ export function useNotifications() {
     }));
   }, []);
 
+  // ── Streak reminder: schedule/cancel based on setting ───────────────────
+  const updateStreakReminder = useCallback(async (enabled) => {
+    if (IS_NATIVE && permissionState === 'granted') {
+      await scheduleStreakReminder(enabled);
+    }
+    // Web fallback: no-op for now (streak reminder is native-only)
+  }, [permissionState]);
+
+  // ── Neglected prayer reminder: schedule/cancel based on setting + data ─
+  const updateNeglectedReminder = useCallback(async (enabled, neglectedPrayers = []) => {
+    if (IS_NATIVE && permissionState === 'granted') {
+      await scheduleNeglectedReminder(enabled, neglectedPrayers);
+    }
+    // Web fallback: no-op for now
+  }, [permissionState]);
+
   return {
     settings,
     toggleEnabled,
     addTime,
     removeTime,
     updateTime,
+    updateStreakReminder,
+    updateNeglectedReminder,
     notificationSupported: IS_NATIVE || ('Notification' in window),
     permissionState,
     isNative: IS_NATIVE,

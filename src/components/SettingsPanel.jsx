@@ -107,7 +107,7 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
           <SettingRow
             icon={<Flame size={16} />}
             label="Streak reminder"
-            sub="Remind me if I haven't prayed by end of day"
+            sub="Get a nudge at 8pm if you haven't prayed today"
           >
             <Toggle
               on={settings.streakReminder === true}
@@ -176,7 +176,7 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
           <SettingRow
             icon={settings.showNeglected !== false ? <Eye size={16} /> : <EyeOff size={16} />}
             label="Neglected prayer alerts"
-            sub="Remind me when a prayer hasn't been prayed in 3+ days"
+            sub="Daily reminder for prayers you haven't visited in 3+ days"
           >
             <Toggle on={settings.showNeglected !== false} onToggle={() => onUpdate({ showNeglected: !settings.showNeglected })} />
           </SettingRow>

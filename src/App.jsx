@@ -181,7 +181,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
 
   const { project, updateProject } = useWeeklyProject(user?.id);
   const { allCategories, addCategory, deleteCategory } = useCategories(user?.id);
-  const { settings: notifSettings, toggleEnabled, addTime, removeTime, updateTime, notificationSupported, permissionState: notifPermission, isNative: notifIsNative } = useNotifications();
+  const { settings: notifSettings, toggleEnabled, addTime, removeTime, updateTime, updateStreakReminder, updateNeglectedReminder, notificationSupported, permissionState: notifPermission, isNative: notifIsNative } = useNotifications();
   const streakStats = useStreakStats(prayers);
 
   const prayerLogDates = useMemo(() =>
@@ -232,6 +232,19 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
   } = usePrayerPartners(user?.id, user?.email, userDisplayName);
   const { requests: intercedeRequests, addRequest: addIntercede, prayForRequest: prayIntercede, deleteRequest: deleteIntercede } = useIntercede(user?.id);
   const { settings: appSettings, update: updateAppSettings } = useSettings(user?.id);
+
+  // ── Schedule/cancel streak reminder when setting changes ─────────────
+  useEffect(() => {
+    updateStreakReminder(appSettings.streakReminder === true);
+  }, [appSettings.streakReminder, updateStreakReminder]);
+
+  // ── Schedule/cancel neglected prayer reminder when setting or data changes ─
+  useEffect(() => {
+    updateNeglectedReminder(
+      appSettings.showNeglected !== false,
+      streakStats.neglectedPrayers
+    );
+  }, [appSettings.showNeglected, streakStats.neglectedPrayers, updateNeglectedReminder]);
 
   // ── Prayer list filtering ──────────────────────────────
   const currentList = prayerSubTab === 'active' ? activePrayers : testimonies;
