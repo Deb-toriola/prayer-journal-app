@@ -62,6 +62,18 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
   const [deleting, setDeleting] = useState(false);
   const [showResetStreak, setShowResetStreak] = useState(false);
   const [resettingStreak, setResettingStreak] = useState(false);
+  const [togglingNotif, setTogglingNotif] = useState(false);
+
+  const handleToggleNotif = async () => {
+    if (togglingNotif) return;
+    setTogglingNotif(true);
+    try {
+      await onToggleNotif();
+    } catch (e) {
+      console.error('Toggle notification failed:', e);
+    }
+    setTogglingNotif(false);
+  };
 
   const handleDeleteConfirm = async () => {
     setDeleting(true);
@@ -100,7 +112,8 @@ export default function SettingsPanel({ settings, onUpdate, onClose, notifSettin
             ) : (
               <Toggle
                 on={notifSettings?.enabled || false}
-                onToggle={onToggleNotif}
+                onToggle={handleToggleNotif}
+                disabled={togglingNotif}
               />
             )}
           </SettingRow>

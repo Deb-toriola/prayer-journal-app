@@ -267,22 +267,42 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
 
   // ── Auto-streak: fire when any meaningful prayer action happens ──────────
   const [showStreakToast, setShowStreakToast] = useState(false);
+  const [milestoneData, setMilestoneData] = useState(null);
   const streakToastTimerRef = useRef(null);
   const hasPrayedTodayRef = useRef(hasPrayedToday);
   const toastShownRef = useRef(hasPrayedToday); // don't toast at startup if already counted
   useEffect(() => { hasPrayedTodayRef.current = hasPrayedToday; }, [hasPrayedToday]);
+
+  // Milestone definitions
+  const MILESTONES = [
+    { days: 3, title: '3 days of prayer', message: "You're building something beautiful.", icon: '✨' },
+    { days: 7, title: 'One week of faithful prayer', message: 'A full week. God sees your faithfulness.', icon: '🙏' },
+    { days: 14, title: 'Two weeks strong', message: "Prayer is becoming part of who you are.", icon: '🕯️' },
+    { days: 21, title: "You've built a habit", message: '21 days — science says this is when habits form. Keep going.', icon: '💪' },
+    { days: 30, title: '30 days. Prayer warrior.', message: "A full month of faithful prayer. That's extraordinary.", icon: '🔥' },
+    { days: 50, title: '50 days of devotion', message: 'Like the disciples at Pentecost. The Spirit is with you.', icon: '🕊️' },
+    { days: 100, title: '100 days!', message: "A century of prayer. You're an inspiration.", icon: '👑' },
+    { days: 365, title: 'One full year', message: "365 days of prayer. What a testimony.", icon: '🌟' },
+  ];
 
   // Show toast exactly once when hasPrayedToday transitions false → true
   const prevPrayedRef = useRef(hasPrayedToday);
   useEffect(() => {
     if (!prevPrayedRef.current && hasPrayedToday && !toastShownRef.current) {
       toastShownRef.current = true;
-      setShowStreakToast(true);
-      if (streakToastTimerRef.current) clearTimeout(streakToastTimerRef.current);
-      streakToastTimerRef.current = setTimeout(() => setShowStreakToast(false), 3000);
+
+      // Check if current streak hits a milestone
+      const milestone = MILESTONES.find(m => m.days === currentStreak);
+      if (milestone) {
+        setMilestoneData(milestone);
+      } else {
+        setShowStreakToast(true);
+        if (streakToastTimerRef.current) clearTimeout(streakToastTimerRef.current);
+        streakToastTimerRef.current = setTimeout(() => setShowStreakToast(false), 3000);
+      }
     }
     prevPrayedRef.current = hasPrayedToday;
-  }, [hasPrayedToday]);
+  }, [hasPrayedToday, currentStreak]);
 
   // Explicit auto-streak trigger for actions that don't auto-update prayerLogDates
   const handleAutoStreak = useCallback(() => {
@@ -804,6 +824,26 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
       {showStreakToast && (
         <div className="streak-toast" role="status" aria-live="polite">
           🔥 Streak recorded for today
+        </div>
+      )}
+
+      {/* Milestone celebration modal */}
+      {milestoneData && (
+        <div className="milestone-overlay" onClick={() => setMilestoneData(null)}>
+          <div className="milestone-modal" onClick={e => e.stopPropagation()}>
+            <div className="milestone-icon">{milestoneData.icon}</div>
+            <div className="milestone-streak-count">{milestoneData.days}</div>
+            <h2 className="milestone-title">{milestoneData.title}</h2>
+            <p className="milestone-message">{milestoneData.message}</p>
+            <div className="milestone-flame-row">
+              {Array.from({ length: Math.min(milestoneData.days, 7) }, (_, i) => (
+                <span key={i} className="milestone-flame" style={{ animationDelay: `${i * 0.1}s` }}>🔥</span>
+              ))}
+            </div>
+            <button className="btn btn-primary milestone-btn" onClick={() => setMilestoneData(null)}>
+              Keep going
+            </button>
+          </div>
         </div>
       )}
     </div>

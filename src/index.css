@@ -1095,6 +1095,98 @@ html.light-mode:not(.minimal-mode) .weekly-project-empty { border-color: rgba(0,
   to   { opacity: 0; transform: translateX(-50%) translateY(-6px); }
 }
 
+/* ===== Milestone celebration modal ===== */
+.milestone-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: milestoneOverlayIn 0.3s ease forwards;
+  backdrop-filter: blur(4px);
+}
+@keyframes milestoneOverlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.milestone-modal {
+  background: var(--card-bg, #1a1a2e);
+  border: 1px solid var(--card-border, rgba(255,255,255,0.1));
+  border-radius: 20px;
+  padding: 32px 28px;
+  max-width: 320px;
+  width: 90%;
+  text-align: center;
+  animation: milestoneModalIn 0.4s var(--ease-spring) forwards;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4),
+              0 0 40px rgba(212, 137, 26, 0.2);
+}
+@keyframes milestoneModalIn {
+  from { opacity: 0; transform: scale(0.8) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.milestone-icon {
+  font-size: 3rem;
+  margin-bottom: 4px;
+  animation: milestoneBounce 0.6s var(--ease-spring) 0.3s both;
+}
+@keyframes milestoneBounce {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+.milestone-streak-count {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: var(--amber-primary, #D4891A);
+  line-height: 1;
+  margin-bottom: 4px;
+  font-family: var(--font-sans);
+}
+.milestone-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--heading-text, #F5D888);
+  margin: 8px 0 6px;
+  font-family: var(--font-sans);
+}
+.milestone-message {
+  font-size: 0.88rem;
+  color: var(--body-text, #E0D5C0);
+  line-height: 1.5;
+  margin-bottom: 16px;
+  font-family: var(--font-sans);
+}
+.milestone-flame-row {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+.milestone-flame {
+  font-size: 1.2rem;
+  animation: milestoneFlameIn 0.3s ease both;
+}
+@keyframes milestoneFlameIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.5); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.milestone-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 12px;
+}
+
+/* Light/warm theme adjustments */
+html.light-mode .milestone-modal {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15),
+              0 0 40px rgba(201, 128, 58, 0.1);
+}
+
 /* ===== Lazy-load fallback ===== */
 .tab-loading {
   flex: 1;

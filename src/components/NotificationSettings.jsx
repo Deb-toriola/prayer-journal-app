@@ -16,6 +16,18 @@ export default function NotificationSettings({
   const [newHour, setNewHour] = useState(8);
   const [newMinute, setNewMinute] = useState(0);
   const [newLabel, setNewLabel] = useState('');
+  const [toggling, setToggling] = useState(false);
+
+  const handleToggle = async () => {
+    if (toggling) return;
+    setToggling(true);
+    try {
+      await onToggle();
+    } catch (e) {
+      console.error('Toggle notification failed:', e);
+    }
+    setToggling(false);
+  };
 
   const formatTime = (hour, minute) => {
     const h = hour % 12 || 12;
@@ -82,7 +94,8 @@ export default function NotificationSettings({
               <span>Enable Notifications</span>
               <button
                 className={`toggle-switch ${settings.enabled ? 'toggle-on' : ''}`}
-                onClick={onToggle}
+                onClick={handleToggle}
+                disabled={toggling}
                 aria-label="Toggle notifications"
               >
                 <span className="toggle-knob" />
