@@ -8,6 +8,15 @@ const TYPE_ICON = {
   partner_declined: '😔',
   partner_prayed: '🙏',
   partner_invite: '🤝',
+  partner_invite_new: '🤝',
+  partnership_created: '🔥',
+  partnership_ended: '💔',
+  partner_prayed_today: '🙏',
+  both_prayed: '🔥',
+  partner_encouraged: '🙏',
+  shared_request_new: '📝',
+  shared_prayer_answered: '✨',
+  partnership_milestone: '🏆',
 };
 
 export default function NotificationPanel({

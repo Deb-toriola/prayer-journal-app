@@ -39,6 +39,7 @@ import NotificationPanel from './components/NotificationPanel';
 import { useStreakStats } from './hooks/useStreak';
 import { useSettings } from './hooks/useSettings';
 import { usePrayerSchedule } from './hooks/usePrayerSchedule';
+import { usePartnership } from './hooks/usePartnership';
 import PrayerCalendar from './components/PrayerCalendar';
 import { useAuth } from './hooks/useAuth';
 
@@ -235,6 +236,13 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
     pendingInvites, invitePartner, acceptInvite, declineInvite,
   } = usePrayerPartners(user?.id, user?.email, userDisplayName);
   const { requests: intercedeRequests, addRequest: addIntercede, prayForRequest: prayIntercede, deleteRequest: deleteIntercede } = useIntercede(user?.id);
+  const {
+    partnerships, pendingInvites: pendingPartnerInvites, getPartnershipData,
+    invitePartner: invitePartnerAccount, acceptPartnership, declinePartnership,
+    cancelInvite: cancelPartnerInvite, endPartnership,
+    logPartnershipPrayer, sendEncouragement,
+    addSharedRequest, markRequestAnswered,
+  } = usePartnership(user?.id, userDisplayName);
   const { settings: appSettings, update: updateAppSettings } = useSettings(user?.id);
 
   // ── Schedule/cancel streak reminder when setting changes ─────────────
@@ -729,6 +737,18 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
               onAddIntercede={addIntercede}
               onPrayIntercede={prayIntercede}
               onDeleteIntercede={deleteIntercede}
+              partnerships={partnerships}
+              pendingPartnerInvites={pendingPartnerInvites}
+              getPartnershipData={getPartnershipData}
+              onInvitePartnerAccount={invitePartnerAccount}
+              onAcceptPartnership={acceptPartnership}
+              onDeclinePartnership={declinePartnership}
+              onCancelPartnerInvite={cancelPartnerInvite}
+              onEndPartnership={endPartnership}
+              onLogPartnershipPrayer={logPartnershipPrayer}
+              onSendEncouragement={sendEncouragement}
+              onAddSharedRequest={addSharedRequest}
+              onMarkRequestAnswered={markRequestAnswered}
               user={user}
               onRequireAuth={() => onOpenAuth('login')}
             />

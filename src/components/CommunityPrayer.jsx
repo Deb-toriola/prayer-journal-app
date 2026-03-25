@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Users, Plus, HandHeart, ChevronDown } from 'lucide-react';
+import { Users, Plus, HandHeart, HeartHandshake, ChevronDown } from 'lucide-react';
 import GroupView from './GroupView';
 import CreateGroupModal from './CreateGroupModal';
 import JoinGroupModal from './JoinGroupModal';
+import PartnersTab from './PartnersTab';
 
 /* ─── Shared Prayer Groups Section ─── */
 function SharedGroups({ groups, activeGroupId, onSetActive, activeGroup, members, posts,
@@ -174,6 +175,12 @@ export default function CommunityPrayer({
   onPromoteToAdmin, onDemoteToMember,
   // intercede props
   intercedeRequests, onAddIntercede, onPrayIntercede, onDeleteIntercede,
+  // partner props
+  partnerships, pendingPartnerInvites, getPartnershipData,
+  onInvitePartnerAccount, onAcceptPartnership, onDeclinePartnership,
+  onCancelPartnerInvite, onEndPartnership,
+  onLogPartnershipPrayer, onSendEncouragement,
+  onAddSharedRequest, onMarkRequestAnswered,
   // auth
   user, onRequireAuth,
 }) {
@@ -193,6 +200,16 @@ export default function CommunityPrayer({
           {groups.length > 0 && <span className="community-tab-badge">{groups.length}</span>}
         </button>
         <button
+          className={`community-tab-btn ${activeSection === 'partners' ? 'community-tab-active' : ''}`}
+          onClick={() => setActiveSection('partners')}
+        >
+          <HeartHandshake size={14} />
+          Partners
+          {(partnerships?.length > 0 || pendingPartnerInvites?.length > 0) && (
+            <span className="community-tab-badge">{(partnerships?.length || 0) + (pendingPartnerInvites?.length || 0)}</span>
+          )}
+        </button>
+        <button
           className={`community-tab-btn ${activeSection === 'intercede' ? 'community-tab-active' : ''}`}
           onClick={() => setActiveSection('intercede')}
         >
@@ -204,7 +221,24 @@ export default function CommunityPrayer({
         </button>
       </div>
 
-      {activeSection === 'groups' ? (
+      {activeSection === 'partners' ? (
+        <PartnersTab
+          partnerships={partnerships || []}
+          pendingInvites={pendingPartnerInvites || []}
+          getPartnershipData={getPartnershipData}
+          onInvite={onInvitePartnerAccount}
+          onAccept={onAcceptPartnership}
+          onDecline={onDeclinePartnership}
+          onCancel={onCancelPartnerInvite}
+          onEnd={onEndPartnership}
+          onLogPrayer={onLogPartnershipPrayer}
+          onEncourage={onSendEncouragement}
+          onAddRequest={onAddSharedRequest}
+          onMarkAnswered={onMarkRequestAnswered}
+          userId={user?.id}
+          onRequireAuth={onRequireAuth}
+        />
+      ) : activeSection === 'groups' ? (
         <SharedGroups
           groups={groups}
           activeGroupId={activeGroupId}

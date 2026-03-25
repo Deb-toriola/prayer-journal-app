@@ -9336,3 +9336,416 @@ html.minimal-mode .prayer-plan-day-pill:hover {
   font-size: 0.8rem;
   border-radius: 8px;
 }
+
+/* ===== Prayer Partners Tab ===== */
+.partners-tab {
+  padding: 0 16px 24px;
+}
+.partners-section {
+  margin-bottom: 16px;
+}
+.partners-section-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--meta-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 10px;
+}
+
+/* Partner card */
+.partner-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-left: 3px solid var(--amber-primary);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--card-shadow);
+}
+.partner-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.partner-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--amber-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.partner-info {
+  display: flex;
+  flex-direction: column;
+}
+.partner-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--heading-text);
+}
+.partner-since {
+  font-size: 0.72rem;
+  color: var(--meta-text);
+}
+
+/* Prayer status */
+.partner-status-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.partner-status-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.partner-status-label {
+  font-size: 0.68rem;
+  color: var(--meta-text);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.partner-status-prayed {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--amber-primary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.partner-status-waiting {
+  font-size: 0.82rem;
+  color: var(--meta-text);
+  font-style: italic;
+}
+
+/* Streak */
+.partner-streak {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--amber-primary);
+  margin-bottom: 8px;
+}
+.partner-milestone-badge {
+  display: inline-block;
+  background: var(--amber-tint);
+  color: var(--amber-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 99px;
+  margin-bottom: 10px;
+}
+
+/* Actions */
+.partner-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.partner-action-btn {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Shared requests */
+.partner-requests-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--card-border);
+  padding: 10px 0 4px;
+  color: var(--body-text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+.partner-requests {
+  padding-top: 8px;
+}
+.partner-requests-empty {
+  font-size: 0.78rem;
+  color: var(--meta-text);
+  font-style: italic;
+  margin: 0 0 8px;
+}
+.partner-request {
+  background: var(--amber-tint);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 6px;
+}
+.partner-request--answered {
+  opacity: 0.6;
+}
+.partner-request-content {
+  font-size: 0.82rem;
+  color: var(--body-text);
+  margin: 0 0 6px;
+}
+.partner-request-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.68rem;
+  color: var(--meta-text);
+}
+.partner-request-answered-badge {
+  color: var(--amber-primary);
+  font-weight: 600;
+}
+.partner-request-answer-btn {
+  background: none;
+  border: none;
+  color: var(--amber-primary);
+  font-size: 0.68rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+.partner-add-request {
+  margin-top: 8px;
+}
+.partner-request-input {
+  width: 100%;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 0.82rem;
+  color: var(--body-text);
+  resize: none;
+  font-family: var(--font-sans);
+}
+.partner-add-request-btns {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+.partner-add-request-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: var(--amber-primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 0;
+  font-family: var(--font-sans);
+}
+
+/* End partnership */
+.partner-end-btn {
+  display: block;
+  margin-top: 8px;
+  background: none;
+  border: none;
+  color: #b45555;
+  font-size: 0.7rem;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+.partner-end-confirm {
+  margin-top: 8px;
+  padding: 10px;
+  background: var(--amber-tint);
+  border-radius: 10px;
+}
+.partner-end-confirm p {
+  font-size: 0.78rem;
+  color: var(--body-text);
+  margin: 0 0 10px;
+}
+.partner-end-confirm-btns {
+  display: flex;
+  gap: 8px;
+}
+.partner-end-confirm-remove,
+.partner-end-confirm-keep {
+  flex: 1;
+  padding: 8px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+}
+.partner-end-confirm-remove {
+  background: transparent;
+  border: 1.5px solid #b45555;
+  color: #b45555;
+  cursor: pointer;
+}
+
+/* Invite card */
+.partner-invite-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 8px;
+}
+.partner-invite-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.partner-invite-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--heading-text);
+}
+.partner-invite-msg {
+  font-size: 0.78rem;
+  color: var(--meta-text);
+  display: block;
+}
+.partner-invite-message {
+  font-size: 0.82rem;
+  color: var(--body-text);
+  font-style: italic;
+  margin: 0 0 10px;
+  padding-left: 50px;
+}
+.partner-invite-actions {
+  display: flex;
+  gap: 8px;
+  padding-left: 50px;
+}
+.partner-invite-accept,
+.partner-invite-decline {
+  flex: 1;
+  padding: 8px;
+  font-size: 0.82rem;
+  border-radius: 10px;
+}
+.partner-invite-pending {
+  font-size: 0.78rem;
+  color: var(--meta-text);
+}
+.partner-cancel-btn {
+  background: none;
+  border: none;
+  color: #b45555;
+  font-size: 0.72rem;
+  cursor: pointer;
+  padding: 4px 0;
+  font-family: var(--font-sans);
+}
+
+/* Empty state */
+.partners-empty {
+  text-align: center;
+  padding: 32px 16px;
+}
+.partners-empty-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 12px;
+}
+.partners-empty-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--heading-text);
+  margin: 0 0 8px;
+}
+.partners-empty-body {
+  font-size: 0.85rem;
+  color: var(--body-text);
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+.partners-invite-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 0.9rem;
+  border-radius: 12px;
+}
+.partners-max-note {
+  font-size: 0.68rem;
+  color: var(--meta-text);
+  text-align: center;
+  margin-top: 6px;
+}
+
+/* Invite modal */
+.partner-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(4px);
+}
+.partner-modal {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 340px;
+  width: 90%;
+  animation: milestoneModalIn 0.3s var(--ease-spring) forwards;
+}
+.partner-modal-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--heading-text);
+  margin: 0 0 16px;
+  text-align: center;
+}
+.partner-modal-input,
+.partner-modal-textarea {
+  width: 100%;
+  background: var(--amber-tint);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.88rem;
+  color: var(--body-text);
+  margin-bottom: 10px;
+  font-family: var(--font-sans);
+  box-sizing: border-box;
+}
+.partner-modal-textarea {
+  resize: none;
+}
+.partner-modal-error {
+  font-size: 0.78rem;
+  color: #b45555;
+  margin: 0 0 8px;
+}
+.partner-modal-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.partner-modal-btns .btn {
+  flex: 1;
+  padding: 10px;
+  font-size: 0.88rem;
+  border-radius: 10px;
+}
