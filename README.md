@@ -2,6 +2,10 @@
 
 A faith-based prayer journal that helps users track prayers, build streaks, record testimonies, and connect with prayer partners. Built with React + Vite for the web, and Capacitor for iOS and Android.
 
+**Live:** [myprayerapp.uk](https://myprayerapp.uk)
+**App Store:** Available on iOS
+**Play Store:** Coming soon
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -11,7 +15,20 @@ A faith-based prayer journal that helps users track prayers, build streaks, reco
 | Mobile | Capacitor 8 (iOS + Android) |
 | PWA | Workbox via vite-plugin-pwa |
 | Icons | Lucide React |
-| Styling | CSS custom properties + inline styles |
+| Styling | CSS custom properties (amber theme system) |
+
+## Features
+
+- **Prayer Journal** — Write, categorize, and track prayers with notes, scripture, and updates
+- **Prayer Plans** — Guided multi-day prayer schedules (7, 14, 21, or 30 days)
+- **Daily Streak** — Track consecutive days of prayer with milestone celebrations (Day 3, 7, 14, 21, 30, 50, 100, 365)
+- **Testimonies** — Mark answered prayers and record testimonies
+- **Community Groups** — Create/join prayer groups, share requests, pray together
+- **Prayer Partners** — 1-on-1 partner invites and mutual prayer tracking
+- **Local Notifications** — Streak reminders (8pm), neglected prayer alerts (10am), custom prayer times
+- **Three Themes** — Dark, Light, and Warm mode with consistent amber color palette
+- **Export** — Generate PDF of your prayer journal
+- **Offline-First** — Works without internet, syncs when connected
 
 ## Prerequisites
 
@@ -59,7 +76,7 @@ src/
 ├── index.css                # Global styles, themes, CSS variables
 ├── lib/
 │   └── supabase.js          # Supabase client
-├── components/              # UI components (37 files)
+├── components/              # UI components
 │   ├── Onboarding.jsx       # 3-screen intro flow
 │   ├── AuthScreen.jsx       # Sign in / sign up modal
 │   ├── PrayerCard.jsx       # Prayer display + actions
@@ -67,24 +84,30 @@ src/
 │   ├── CommunityPrayer.jsx  # Groups + posts
 │   ├── GroupView.jsx        # Group details + membership
 │   ├── PrayerPartners.jsx   # Partner invites + management
-│   ├── SettingsPanel.jsx    # Theme, font, toggles
+│   ├── SettingsPanel.jsx    # Theme, font, notification toggles
+│   ├── NotificationSettings.jsx # Prayer reminder time management
+│   ├── ExportPDF.jsx        # PDF generation
 │   └── ...
-├── hooks/                   # Custom React hooks (16 files)
+├── hooks/                   # Custom React hooks
 │   ├── useAuth.js           # Auth session + password recovery
 │   ├── usePrayers.js        # Prayer CRUD + logging
 │   ├── useGroups.js         # Group management + real-time
-│   ├── useStreak.js         # Streak calculation
+│   ├── useStreak.js         # Streak calculation + neglected detection
+│   ├── useNotifications.js  # Local notifications (streak, neglected, reminders)
+│   ├── useDailyCheckin.js   # Daily check-in + streak tracking
 │   ├── usePrayerTimer.js    # Session timer
+│   ├── useSettings.js       # App settings + theme management
 │   └── ...
 ├── utils/
 │   ├── constants.js         # Categories, date formatting
 │   ├── storage.js           # localStorage helpers
 │   ├── streakTheme.js       # Streak-based visual theming
 │   ├── migrateGuestData.js  # Guest → authenticated migration
+│   ├── openAppSettings.js   # Native app settings deep link
 │   └── sendNotification.js  # Cross-user in-app notifications
 └── assets/
     ├── gemini-hands.jpg     # Onboarding background
-    └── praying-hands.jpg    # Decorative image
+    └── praying-hands.jpg    # Home screen image
 ```
 
 ## Architecture
@@ -106,12 +129,30 @@ Supabase channels power live updates for:
 
 ### Theming
 
-Three themes controlled via CSS variables:
-- **Dark** (default): `--bg-primary: #0F172A`
-- **Light**: `html.light-mode`
-- **Minimal**: `html.minimal-mode` (warm parchment)
+Three themes controlled via CSS custom properties with a unified amber color palette:
+- **Dark** (default): Deep navy background, warm amber accents
+- **Light**: Clean white background, amber accents
+- **Warm**: Parchment-tone background, amber accents (`html.minimal-mode`)
+
+Key theme tokens: `--amber-primary`, `--amber-tint`, `--card-bg`, `--card-border`, `--card-shadow`, `--heading-text`, `--body-text`, `--meta-text`
 
 Theme is preloaded in `index.html` via an inline script to prevent flash.
+
+### Notifications
+
+Local notifications only (no push/Firebase/APNs):
+- **Streak reminder**: Daily at 8pm if user hasn't prayed (toggle in Settings)
+- **Neglected prayer alerts**: Daily at 10am for prayers not visited in 3+ days
+- **Custom prayer reminders**: User-set times with labels
+- Uses `@capacitor/local-notifications` on native, Web Notification API on web
+- Reserved IDs: 9000 (streak), 9001 (neglected), 1-100 (custom reminders)
+
+### Milestone Celebrations
+
+Animated celebration modal at streak milestones:
+- Day 3, 7, 14, 21, 30, 50, 100, 365
+- Each has unique icon, title, and warm faith-based message
+- Shows instead of regular streak toast when milestone is hit
 
 ## Mobile Builds
 
@@ -134,7 +175,7 @@ npm run cap:android
 ```
 
 - App ID: `com.myprayerapp.app`
-- Keystore: `android/app/my-prayer-app.keystore`
+- Keystore: `~/Documents/my-prayer-app.keystore` (alias: `myprayerapp`)
 - Build type: Release with signing config
 
 ### Version Sync
@@ -173,6 +214,7 @@ The app expects these Supabase tables (with RLS enabled):
 - `prayer_partners` — Cross-user partner relationships
 - `notifications` — In-app notification queue
 - `weekly_projects` — Weekly prayer focus
+- `settings` — User preferences (theme, toggles, Bible translation)
 
 ## Key Patterns
 
@@ -203,3 +245,12 @@ The app expects these Supabase tables (with RLS enabled):
 |----------|-------------|
 | `VITE_SUPABASE_URL` | Supabase project URL |
 | `VITE_SUPABASE_ANON_KEY` | Supabase anonymous/public key |
+
+## Roadmap
+
+- [ ] Answered prayer celebration (confetti/candle animation)
+- [ ] Weekly summary notification (Sunday recap)
+- [ ] Shareable streak/milestone cards (Instagram/WhatsApp)
+- [ ] Prayer Journey Map (interactive plan progress)
+- [ ] Seasonal/liturgical prayer plans (Lent, Advent, Easter)
+- [ ] OAuth authentication (social login)
