@@ -111,7 +111,7 @@ export function usePartnership(userId, displayName) {
       targetId,
       'partner_invite_new',
       `${displayName || 'Someone'} wants to pray with you 🙏`,
-      message || "They invited you to be their prayer partner.",
+      message || "They invited you to join their prayer circle.",
       { inviterId: userId, inviterName: displayName }
     );
 
@@ -132,8 +132,8 @@ export function usePartnership(userId, displayName) {
       await sendNotification(
         inviterId,
         'partnership_created',
-        `${displayName || 'Your partner'} accepted! 🔥`,
-        `You and ${displayName} are now prayer partners. Pray together today.`,
+        `${displayName} joined your circle 🔥`,
+        `Pray together today.`,
         { partnershipId }
       );
     }
@@ -167,7 +167,7 @@ export function usePartnership(userId, displayName) {
     await sendNotification(
       partnerId,
       'partnership_ended',
-      `${displayName} has ended your prayer partnership.`,
+      `${displayName} has left your prayer circle.`,
       'Your shared prayer requests have been archived.',
       { partnershipId }
     );
@@ -196,11 +196,11 @@ export function usePartnership(userId, displayName) {
 
       if (partnerPrayed) {
         // Both prayed — notify both
-        await sendNotification(partnerId, 'both_prayed', 'You both prayed today! 🔥',
-          `You and ${displayName} both showed up. That's a partnership streak.`, { partnershipId });
+        await sendNotification(partnerId, 'both_prayed', 'Your circle showed up today 🔥',
+          'Every one of you.', { partnershipId });
       } else {
         await sendNotification(partnerId, 'partner_prayed_today', `${displayName} prayed today 🙏`,
-          'Your prayer partner showed up. Keep the streak going.', { partnershipId });
+          'Your circle is showing up. Keep the streak going.', { partnershipId });
       }
     }
     await fetchPartnerships();
@@ -214,8 +214,8 @@ export function usePartnership(userId, displayName) {
     await sendNotification(
       partnerId,
       'partner_encouraged',
-      `${displayName} is praying for you 🙏`,
-      'Your prayer partner sent you encouragement.',
+      `${displayName} is standing with you in prayer right now.`,
+      '',
       { partnershipId }
     );
   }, [userId, displayName, partnerships]);

@@ -9811,3 +9811,119 @@ html.minimal-mode {
   font-size: 0.88rem;
   border-radius: 10px;
 }
+
+/* ===== Circle Logged Out State ===== */
+.circle-logged-out {
+  position: relative;
+  min-height: 480px;
+  overflow: hidden;
+}
+.circle-blur-preview {
+  filter: blur(4px);
+  opacity: 0.55;
+  pointer-events: none;
+  padding: 16px;
+}
+.circle-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 8, 2, 0.38);
+  pointer-events: none;
+}
+.circle-modal-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px 20px 20px;
+  width: 88%;
+  max-width: 340px;
+  z-index: 2;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+}
+.circle-modal-title {
+  font-size: 1.06rem;
+  font-weight: 600;
+  color: #1A0900;
+  text-align: center;
+  margin: 0 0 8px;
+  font-family: var(--font-sans);
+}
+.circle-modal-body {
+  font-size: 0.82rem;
+  color: #5C3D1E;
+  text-align: center;
+  line-height: 1.55;
+  margin: 0 0 16px;
+}
+.circle-benefit-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #faf5ee;
+  border: 0.5px solid rgba(201,128,58,0.15);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.circle-benefit-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #C9803A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.circle-benefit-text {
+  font-size: 0.78rem;
+  color: #5C3D1E;
+  line-height: 1.4;
+}
+.circle-cta-btn {
+  width: 100%;
+  padding: 13px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  border-radius: 50px;
+  margin-top: 8px;
+}
+.circle-footer-text {
+  font-size: 0.68rem;
+  color: #B0905A;
+  text-align: center;
+  margin: 10px 0 0;
+}
+
+/* Dark theme circle modal */
+html:not(.light-mode):not(.minimal-mode) .circle-modal-card {
+  background: #1a1a2e;
+}
+html:not(.light-mode):not(.minimal-mode) .circle-modal-title {
+  color: #F5D888;
+}
+html:not(.light-mode):not(.minimal-mode) .circle-modal-body {
+  color: #E0D5C0;
+}
+html:not(.light-mode):not(.minimal-mode) .circle-benefit-row {
+  background: rgba(212,137,26,0.08);
+  border-color: rgba(255,255,255,0.08);
+}
+html:not(.light-mode):not(.minimal-mode) .circle-benefit-text {
+  color: #E0D5C0;
+}
+html:not(.light-mode):not(.minimal-mode) .circle-benefit-icon {
+  background: #D4891A;
+}
+html:not(.light-mode):not(.minimal-mode) .circle-footer-text {
+  color: #9B8060;
+}
+
+/* Pray button sent state */
+.partner-action-btn--sent {
+  opacity: 0.7;
+  cursor: default;
+}

@@ -184,7 +184,7 @@ export default function CommunityPrayer({
   // auth
   user, onRequireAuth,
 }) {
-  const [activeSection, setActiveSection] = useState('groups');
+  const [activeSection, setActiveSection] = useState('circle');
   const isGuest = !user;
 
   return (
@@ -192,22 +192,22 @@ export default function CommunityPrayer({
       {/* Section toggle */}
       <div className="community-tabs">
         <button
+          className={`community-tab-btn ${activeSection === 'circle' ? 'community-tab-active' : ''}`}
+          onClick={() => setActiveSection('circle')}
+        >
+          <HeartHandshake size={14} />
+          Circle
+          {(partnerships?.length > 0 || pendingPartnerInvites?.length > 0) && (
+            <span className="community-tab-badge">{(partnerships?.length || 0) + (pendingPartnerInvites?.length || 0)}</span>
+          )}
+        </button>
+        <button
           className={`community-tab-btn ${activeSection === 'groups' ? 'community-tab-active' : ''}`}
           onClick={() => setActiveSection('groups')}
         >
           <Users size={14} />
           Prayer Groups
           {groups.length > 0 && <span className="community-tab-badge">{groups.length}</span>}
-        </button>
-        <button
-          className={`community-tab-btn ${activeSection === 'partners' ? 'community-tab-active' : ''}`}
-          onClick={() => setActiveSection('partners')}
-        >
-          <HeartHandshake size={14} />
-          Partners
-          {(partnerships?.length > 0 || pendingPartnerInvites?.length > 0) && (
-            <span className="community-tab-badge">{(partnerships?.length || 0) + (pendingPartnerInvites?.length || 0)}</span>
-          )}
         </button>
         <button
           className={`community-tab-btn ${activeSection === 'intercede' ? 'community-tab-active' : ''}`}
@@ -221,7 +221,7 @@ export default function CommunityPrayer({
         </button>
       </div>
 
-      {activeSection === 'partners' ? (
+      {activeSection === 'circle' ? (
         <PartnersTab
           partnerships={partnerships || []}
           pendingInvites={pendingPartnerInvites || []}
