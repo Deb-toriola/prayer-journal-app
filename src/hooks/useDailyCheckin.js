@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTodayString } from '../utils/constants';
 
@@ -19,9 +19,45 @@ function saveToStorage(dates) {
   } catch { /* ignore */ }
 }
 
+// Calculate ms until next local midnight
+function msUntilMidnight() {
+  const now = new Date();
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+  return midnight - now;
+}
+
 export function useDailyCheckin(userId, prayerLogDates, planCheckinDates) {
   const [manualCheckins, setManualCheckins] = useState(() => loadFromStorage());
-  const today = getTodayString();
+  const [today, setToday] = useState(() => getTodayString());
+  const midnightTimerRef = useRef(null);
+
+  // ── Midnight reset: recalculate "today" at local midnight ──────────
+  useEffect(() => {
+    const scheduleMidnightReset = () => {
+      if (midnightTimerRef.current) clearTimeout(midnightTimerRef.current);
+      const ms = msUntilMidnight() + 100; // +100ms buffer to ensure we're past midnight
+      midnightTimerRef.current = setTimeout(() => {
+        setToday(getTodayString());
+        scheduleMidnightReset(); // schedule next midnight
+      }, ms);
+    };
+
+    scheduleMidnightReset();
+    return () => { if (midnightTimerRef.current) clearTimeout(midnightTimerRef.current); };
+  }, []);
+
+  // ── Visibility change: re-check date when app returns from background ─
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        const currentToday = getTodayString();
+        setToday(prev => prev !== currentToday ? currentToday : prev);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
 
   // Sync from Supabase on mount (merges with localStorage)
   useEffect(() => {
@@ -84,7 +120,9 @@ export function useDailyCheckin(userId, prayerLogDates, planCheckinDates) {
 
   const streakStats = useMemo(() => {
     const dates = [...allCheckinDates].sort().reverse();
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    const yesterday = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     let currentStreak = 0;
     if (dates.length > 0 && (dates[0] === today || dates[0] === yesterday)) {
       currentStreak = 1;

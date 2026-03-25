@@ -7,7 +7,9 @@ export function useStreakStats(prayers) {
     const allLogs = prayers.flatMap((p) => (p.prayerLog || []).map((ts) => ts.split('T')[0]));
     const uniqueDates = [...new Set(allLogs)].sort().reverse();
     const today = getTodayString();
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    const yd = new Date();
+    yd.setDate(yd.getDate() - 1);
+    const yesterday = `${yd.getFullYear()}-${String(yd.getMonth() + 1).padStart(2, '0')}-${String(yd.getDate()).padStart(2, '0')}`;
 
     // Total prayers prayed (all log entries across all prayers)
     const totalPrayers = prayers.reduce((sum, p) => sum + (p.prayerLog || []).length, 0);
