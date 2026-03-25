@@ -29,6 +29,8 @@ export default function MoreTab({
   allCategories,
   showFullCalendar,
   onCloseFullCalendar,
+  onLogDate,
+  onRemoveDate,
 }) {
   const [showSettings, setShowSettings] = useState(false);
   const [showWhatsNew, setShowWhatsNew] = useState(false);
@@ -65,6 +67,8 @@ export default function MoreTab({
         schedule={prayerSchedule}
         onUpdateDay={onUpdateScheduleDay}
         allCategories={allCategories}
+        onLogDate={onLogDate}
+        onRemoveDate={onRemoveDate}
         onClose={() => { setShowCalendar(false); onCloseFullCalendar?.(); }}
       />
     );

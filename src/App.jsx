@@ -201,7 +201,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
   } = usePrayerPlan(user?.id);
 
   // Merge prayer logs + plan check-ins so ALL engagement counts toward the streak
-  const { hasPrayedToday, hasManualCheckinToday, checkInToday, uncheckToday, resetCheckins, currentStreak, longestStreak, totalDaysPrayed } = useDailyCheckin(user?.id, prayerLogDates, allPlanCheckinDates);
+  const { hasPrayedToday, hasManualCheckinToday, checkInToday, uncheckToday, resetCheckins, logPrayerForDate, removeLogForDate, allCheckinDates, currentStreak, longestStreak, totalDaysPrayed } = useDailyCheckin(user?.id, prayerLogDates, allPlanCheckinDates);
 
   const { memberStats, totalGroupMinutes: legacyGroupMinutes, todayGroupMinutes: legacyTodayMinutes, addMember, removeMember, logSession } = useCommunity(user?.id);
   const {
@@ -460,10 +460,12 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
             {/* Compact prayer calendar strip */}
             <PrayerCalendar
               mode="compact"
-              prayerLogDates={prayerLogDates}
+              prayerLogDates={allCheckinDates}
               schedule={prayerSchedule}
               allCategories={allCategories}
               onNavigateToFull={() => { handleTabChange('more'); setShowFullCalendar(true); }}
+              onLogDate={logPrayerForDate}
+              onRemoveDate={removeLogForDate}
             />
 
             {/* Prayer preview card — surfaces one prayer to pray from home */}
@@ -758,12 +760,14 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
               onSignUp={() => onOpenAuth('signup')}
               onDeleteAccount={deleteAccount}
               onResetStreak={async () => { await resetAllPrayerLogs(); await resetCheckins(); }}
-              prayerLogDates={prayerLogDates}
+              prayerLogDates={allCheckinDates}
               prayerSchedule={prayerSchedule}
               onUpdateScheduleDay={updateScheduleDay}
               allCategories={allCategories}
               showFullCalendar={showFullCalendar}
               onCloseFullCalendar={() => setShowFullCalendar(false)}
+              onLogDate={logPrayerForDate}
+              onRemoveDate={removeLogForDate}
             />
           </div>
         );

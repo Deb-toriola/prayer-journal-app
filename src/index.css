@@ -8823,6 +8823,9 @@ html.minimal-mode .prayer-plan-day-pill:hover {
   border-color: #fff;
 }
 
+.prayer-cal-day--prayed {
+  box-shadow: 0 0 8px rgba(212, 137, 26, 0.35);
+}
 .prayer-cal-day--today {
   box-shadow: inset 0 0 0 2px var(--amber-primary);
 }
@@ -8830,7 +8833,12 @@ html.minimal-mode .prayer-plan-day-pill:hover {
   color: var(--amber-primary);
   font-weight: 700;
 }
-.prayer-cal-day--today.prayer-cal-day--prayed .prayer-cal-day-num {
+.prayer-cal-day--today-prayed {
+  background: var(--amber-primary);
+  box-shadow: inset 0 0 0 2px var(--amber-primary), 0 0 8px rgba(212, 137, 26, 0.35);
+}
+.prayer-cal-day--today-prayed .prayer-cal-day-abbr,
+.prayer-cal-day--today-prayed .prayer-cal-day-num {
   color: #fff;
 }
 
@@ -8969,6 +8977,7 @@ html.minimal-mode .prayer-plan-day-pill:hover {
   background: var(--amber-primary);
   color: #fff;
   font-weight: 600;
+  box-shadow: 0 0 8px rgba(212, 137, 26, 0.35);
 }
 .prayer-cal-cell--today {
   box-shadow: inset 0 0 0 2px var(--amber-primary);
@@ -9212,4 +9221,118 @@ html.minimal-mode .prayer-plan-day-pill:hover {
 .prayer-cal-empty-sub {
   color: var(--meta-text) !important;
   font-size: 0.78rem !important;
+}
+
+/* ===== Prayer Calendar — Day Popover ===== */
+.prayer-cal-popover {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 14px;
+  margin: 8px 12px 4px;
+  animation: fadeInUp 0.2s ease forwards;
+  box-shadow: var(--card-shadow);
+}
+.prayer-cal-popover-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.prayer-cal-popover-date {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--heading-text);
+  font-family: var(--font-sans);
+}
+.prayer-cal-popover-close {
+  background: none;
+  border: none;
+  color: var(--meta-text);
+  cursor: pointer;
+  padding: 4px;
+}
+.prayer-cal-popover-status {
+  font-size: 0.82rem;
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.prayer-cal-popover-status--prayed { color: var(--amber-primary); font-weight: 600; }
+.prayer-cal-popover-status--today { color: var(--amber-primary); }
+.prayer-cal-popover-status--missed { color: var(--meta-text); font-style: italic; }
+.prayer-cal-popover-status--future { color: var(--meta-text); }
+.prayer-cal-popover-scheduled {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.prayer-cal-popover-sched-label {
+  font-size: 0.72rem;
+  color: var(--meta-text);
+  font-weight: 600;
+}
+.prayer-cal-popover-actions {
+  margin-top: 10px;
+}
+.prayer-cal-popover-log-btn {
+  width: 100%;
+  padding: 10px;
+  font-size: 0.88rem;
+  border-radius: 10px;
+}
+.prayer-cal-popover-note {
+  font-size: 0.7rem;
+  color: var(--meta-text);
+  text-align: center;
+  margin-top: 6px;
+  font-style: italic;
+}
+.prayer-cal-popover-remove {
+  display: block;
+  margin-top: 10px;
+  background: none;
+  border: none;
+  color: #b45555;
+  font-size: 0.72rem;
+  cursor: pointer;
+  padding: 4px 0;
+  font-family: var(--font-sans);
+}
+.prayer-cal-popover-remove:hover {
+  text-decoration: underline;
+}
+.prayer-cal-popover-confirm {
+  margin-top: 10px;
+  padding: 10px;
+  background: var(--amber-tint);
+  border-radius: 10px;
+}
+.prayer-cal-popover-confirm-text {
+  font-size: 0.78rem;
+  color: var(--body-text);
+  margin: 0 0 10px;
+}
+.prayer-cal-popover-confirm-btns {
+  display: flex;
+  gap: 8px;
+}
+.prayer-cal-popover-confirm-remove {
+  flex: 1;
+  padding: 8px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  background: transparent;
+  border: 1.5px solid #b45555;
+  color: #b45555;
+  cursor: pointer;
+}
+.prayer-cal-popover-confirm-keep {
+  flex: 1;
+  padding: 8px;
+  font-size: 0.8rem;
+  border-radius: 8px;
 }

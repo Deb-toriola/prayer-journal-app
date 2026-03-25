@@ -142,6 +142,37 @@ export function useDailyCheckin(userId, prayerLogDates, planCheckinDates) {
     return { currentStreak, longestStreak, totalDaysPrayed: dates.length };
   }, [allCheckinDates, today]);
 
+  // ── Retrospective logging: log prayer for a specific past date ──────
+  const logPrayerForDate = useCallback(async (dateStr) => {
+    if (manualCheckins.includes(dateStr)) return;
+    const updated = [...manualCheckins, dateStr];
+    setManualCheckins(updated);
+    saveToStorage(updated);
+    if (userId) {
+      try {
+        const { error } = await supabase.from('daily_checkins').upsert({ user_id: userId, checked_date: dateStr });
+        if (error) console.error('logPrayerForDate failed:', error.message);
+      } catch (err) { console.error('logPrayerForDate error:', err.message); }
+    }
+  }, [manualCheckins, userId]);
+
+  // ── Remove a logged date ──────────────────────────────────────────
+  const removeLogForDate = useCallback(async (dateStr) => {
+    if (!manualCheckins.includes(dateStr)) return;
+    const updated = manualCheckins.filter(d => d !== dateStr);
+    setManualCheckins(updated);
+    saveToStorage(updated);
+    if (userId) {
+      try {
+        const { error } = await supabase.from('daily_checkins')
+          .delete()
+          .eq('user_id', userId)
+          .eq('checked_date', dateStr);
+        if (error) console.error('removeLogForDate failed:', error.message);
+      } catch (err) { console.error('removeLogForDate error:', err.message); }
+    }
+  }, [manualCheckins, userId]);
+
   const resetCheckins = useCallback(async () => {
     setManualCheckins([]);
     saveToStorage([]);
@@ -152,5 +183,11 @@ export function useDailyCheckin(userId, prayerLogDates, planCheckinDates) {
     }
   }, [userId]);
 
-  return { hasPrayedToday, hasManualCheckinToday, checkInToday, uncheckToday, resetCheckins, ...streakStats };
+  return {
+    hasPrayedToday, hasManualCheckinToday,
+    checkInToday, uncheckToday, resetCheckins,
+    logPrayerForDate, removeLogForDate,
+    allCheckinDates,
+    ...streakStats,
+  };
 }
