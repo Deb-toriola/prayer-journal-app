@@ -3,37 +3,44 @@ import { createPortal } from 'react-dom';
 import { Heart, Send, X, Check, Clock, Plus, ChevronDown, ChevronUp, Flame } from 'lucide-react';
 
 function PartnerCard({ partnership, data, onLogPrayer, onEncourage, onEnd, onAddRequest, onMarkAnswered, userId }) {
-  const [showRequests, setShowRequests] = useState(false);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [newRequest, setNewRequest] = useState('');
   const [showAddRequest, setShowAddRequest] = useState(false);
 
   const partnerSinceDate = data.partnerSince
-    ? new Date(data.partnerSince).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    ? new Date(data.partnerSince).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     : '';
+  const firstName = data.partnerName.split(' ')[0] || data.partnerName;
 
   return (
     <div className="partner-card">
-      <div className="partner-card-header">
-        <div className="partner-avatar">{data.partnerName.charAt(0).toUpperCase()}</div>
-        <div className="partner-info">
-          <span className="partner-name">{data.partnerName}</span>
-          {partnerSinceDate && <span className="partner-since">Partners since {partnerSinceDate}</span>}
+      {/* Section 1 — Amber header */}
+      <div className="partner-card-amber-header">
+        <div className="partner-card-amber-left">
+          <div className="partner-avatar">{data.partnerName.charAt(0).toUpperCase()}</div>
+          <div>
+            <span className="partner-name">{data.partnerName}</span>
+            {partnerSinceDate && <span className="partner-since">Prayer partner since {partnerSinceDate}</span>}
+          </div>
+        </div>
+        <div className="partner-card-amber-right">
+          <span className="partner-streak-num">🔥 {data.streak}</span>
+          <span className="partner-streak-label">DAYS TOGETHER</span>
         </div>
       </div>
 
-      {/* Prayer status */}
+      {/* Section 2 — Prayer status cards */}
       <div className="partner-status-row">
-        <div className="partner-status-item">
-          <span className="partner-status-label">Their status:</span>
+        <div className="partner-status-card">
+          <span className="partner-status-label">{firstName.toUpperCase()}</span>
           {data.partnerPrayedToday ? (
             <span className="partner-status-prayed"><Check size={13} /> Prayed today</span>
           ) : (
             <span className="partner-status-waiting">Not yet today</span>
           )}
         </div>
-        <div className="partner-status-item">
-          <span className="partner-status-label">Your status:</span>
+        <div className="partner-status-card">
+          <span className="partner-status-label">YOU</span>
           {data.myPrayedToday ? (
             <span className="partner-status-prayed"><Check size={13} /> Prayed today</span>
           ) : (
@@ -42,88 +49,64 @@ function PartnerCard({ partnership, data, onLogPrayer, onEncourage, onEnd, onAdd
         </div>
       </div>
 
-      {/* Partnership streak */}
-      {data.streak > 0 && (
-        <div className="partner-streak">
-          <Flame size={14} />
-          <span>Partnership streak: {data.streak} day{data.streak !== 1 ? 's' : ''}</span>
-        </div>
-      )}
-
       {/* Milestone badge */}
       {data.milestone && (
         <div className="partner-milestone-badge">{data.milestone.label}</div>
       )}
 
-      {/* Action buttons */}
-      <div className="partner-actions">
-        {!data.myPrayedToday && (
-          <button className="btn btn-primary partner-action-btn" onClick={() => onLogPrayer(partnership.id)}>
-            <Heart size={14} /> Pray now
-          </button>
+      {/* Section 3 — Shared requests */}
+      <div className="partner-requests-section">
+        <span className="partner-requests-label">Shared prayer requests</span>
+        {data.requests.length === 0 ? (
+          <p className="partner-requests-empty">No shared requests yet</p>
+        ) : (
+          data.requests.map(req => (
+            <div key={req.id} className={`partner-request ${req.status === 'answered' ? 'partner-request--answered' : ''}`}>
+              <span className="partner-request-content">{req.content}</span>
+              {req.status === 'answered' ? (
+                <span className="partner-request-answered-badge">✓ Answered</span>
+              ) : (
+                <button className="partner-request-pray-pill" onClick={() => onMarkAnswered(req.id)}>
+                  I prayed for this
+                </button>
+              )}
+            </div>
+          ))
         )}
-        <button className="btn btn-secondary partner-action-btn" onClick={() => onEncourage(partnership.id)}>
-          🙏 Pray for them
-        </button>
       </div>
 
-      {/* Shared requests toggle */}
-      <button className="partner-requests-toggle" onClick={() => setShowRequests(!showRequests)}>
-        <span>Shared requests ({data.activeRequests.length})</span>
-        {showRequests ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-      </button>
-
-      {showRequests && (
-        <div className="partner-requests">
-          {data.requests.length === 0 ? (
-            <p className="partner-requests-empty">No shared prayer requests yet</p>
-          ) : (
-            data.requests.map(req => (
-              <div key={req.id} className={`partner-request ${req.status === 'answered' ? 'partner-request--answered' : ''}`}>
-                <p className="partner-request-content">{req.content}</p>
-                <div className="partner-request-meta">
-                  <span>{req.created_by === userId ? 'You' : data.partnerName} · {new Date(req.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                  {req.status === 'answered' ? (
-                    <span className="partner-request-answered-badge">Answered ✨</span>
-                  ) : (
-                    <button className="partner-request-answer-btn" onClick={() => onMarkAnswered(req.id)}>
-                      Mark answered
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))
-          )}
-
-          {/* Add request */}
-          {showAddRequest ? (
-            <div className="partner-add-request">
-              <textarea
-                className="partner-request-input"
-                placeholder="What would you like them to pray for?"
-                value={newRequest}
-                onChange={e => setNewRequest(e.target.value)}
-                maxLength={200}
-                rows={2}
-              />
-              <div className="partner-add-request-btns">
-                <button className="btn btn-sm btn-secondary" onClick={() => { setShowAddRequest(false); setNewRequest(''); }}>Cancel</button>
-                <button className="btn btn-sm btn-primary" disabled={!newRequest.trim()} onClick={() => {
-                  onAddRequest(partnership.id, newRequest.trim());
-                  setNewRequest('');
-                  setShowAddRequest(false);
-                }}>Share</button>
-              </div>
+      {/* Section 4 — Actions */}
+      <div className="partner-actions">
+        <button className="btn btn-primary partner-action-btn" onClick={() => onEncourage(partnership.id)}>
+          🙏 Pray for {firstName}
+        </button>
+        {showAddRequest ? (
+          <div className="partner-add-request">
+            <textarea
+              className="partner-request-input"
+              placeholder="What would you like them to pray for?"
+              value={newRequest}
+              onChange={e => setNewRequest(e.target.value)}
+              maxLength={200}
+              rows={2}
+            />
+            <div className="partner-add-request-btns">
+              <button className="btn btn-sm btn-secondary" onClick={() => { setShowAddRequest(false); setNewRequest(''); }}>Cancel</button>
+              <button className="btn btn-sm btn-primary" disabled={!newRequest.trim()} onClick={() => {
+                onAddRequest(partnership.id, newRequest.trim());
+                setNewRequest('');
+                setShowAddRequest(false);
+              }}>Share</button>
             </div>
-          ) : (
-            <button className="partner-add-request-btn" onClick={() => setShowAddRequest(true)}>
-              <Plus size={13} /> Add a prayer request
-            </button>
-          )}
-        </div>
-      )}
+          </div>
+        ) : (
+          <button className="btn btn-secondary partner-action-btn" onClick={() => setShowAddRequest(true)}>
+            + Add shared prayer request
+          </button>
+        )}
+      </div>
 
-      {/* End partnership */}
+      {/* Section 5 — End partnership */}
       {!showEndConfirm ? (
         <button className="partner-end-btn" onClick={() => setShowEndConfirm(true)}>End partnership</button>
       ) : (
@@ -229,12 +212,21 @@ export default function PartnersTab({
           </div>
         ) : null}
 
-        {partnerships.length < MAX_PARTNERS && (
+        {partnerships.length > 0 && partnerships.length < MAX_PARTNERS && (
+          <div className="partner-invite-second-card">
+            <span className="partner-invite-second-title">Invite a second partner</span>
+            <span className="partner-invite-second-sub">You have {MAX_PARTNERS - partnerships.length} slot remaining</span>
+            <button className="btn btn-secondary partner-invite-second-btn" onClick={() => setShowInviteModal(true)}>
+              Invite partner
+            </button>
+          </div>
+        )}
+        {partnerships.length === 0 && (
           <button className="btn btn-primary partners-invite-btn" onClick={() => setShowInviteModal(true)}>
             Invite a Prayer Partner
           </button>
         )}
-        <p className="partners-max-note">You can have up to 2 prayer partners</p>
+        {partnerships.length === 0 && <p className="partners-max-note">You can have up to 2 prayer partners</p>}
       </div>
 
       {/* Outgoing invites */}

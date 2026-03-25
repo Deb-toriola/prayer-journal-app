@@ -9357,61 +9357,86 @@ html.minimal-mode .prayer-plan-day-pill:hover {
 .partner-card {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
-  border-left: 3px solid var(--amber-primary);
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 14px;
   margin-bottom: 12px;
   box-shadow: var(--card-shadow);
+  overflow: hidden;
 }
-.partner-card-header {
+
+/* Section 1 — Amber header */
+.partner-card-amber-header {
+  background: var(--amber-primary);
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.partner-card-amber-left {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 10px;
 }
 .partner-avatar {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: var(--amber-primary);
+  background: rgba(255,255,255,0.25);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   flex-shrink: 0;
 }
-.partner-info {
-  display: flex;
-  flex-direction: column;
-}
 .partner-name {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--heading-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  display: block;
 }
 .partner-since {
-  font-size: 0.72rem;
-  color: var(--meta-text);
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.75);
+  display: block;
 }
-
-/* Prayer status */
-.partner-status-row {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 10px;
-}
-.partner-status-item {
+.partner-card-amber-right {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: flex-end;
+}
+.partner-streak-num {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fff;
+}
+.partner-streak-label {
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.75);
+  letter-spacing: 0.8px;
+  font-weight: 600;
+}
+
+/* Section 2 — Prayer status cards */
+.partner-status-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px 14px 0;
+}
+.partner-status-card {
+  flex: 1;
+  background: var(--partner-status-bg, rgba(201,128,58,0.05));
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
 }
 .partner-status-label {
   font-size: 0.68rem;
   color: var(--meta-text);
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 4px;
 }
 .partner-status-prayed {
   font-size: 0.82rem;
@@ -9419,6 +9444,7 @@ html.minimal-mode .prayer-plan-day-pill:hover {
   color: var(--amber-primary);
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
 }
 .partner-status-waiting {
@@ -9427,16 +9453,7 @@ html.minimal-mode .prayer-plan-day-pill:hover {
   font-style: italic;
 }
 
-/* Streak */
-.partner-streak {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--amber-primary);
-  margin-bottom: 8px;
-}
+/* Milestone badge */
 .partner-milestone-badge {
   display: inline-block;
   background: var(--amber-tint);
@@ -9445,84 +9462,84 @@ html.minimal-mode .prayer-plan-day-pill:hover {
   font-weight: 700;
   padding: 3px 10px;
   border-radius: 99px;
-  margin-bottom: 10px;
+  margin: 10px 14px 0;
 }
 
-/* Actions */
-.partner-actions {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-.partner-action-btn {
-  flex: 1;
-  padding: 8px 12px;
-  font-size: 0.82rem;
+/* Section 3 — Shared requests */
+.partner-requests-section {
+  margin: 12px 14px 0;
+  border: 1px solid var(--card-border);
   border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  padding: 10px 12px;
 }
-
-/* Shared requests */
-.partner-requests-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  background: none;
-  border: none;
-  border-top: 1px solid var(--card-border);
-  padding: 10px 0 4px;
-  color: var(--body-text);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--font-sans);
-}
-.partner-requests {
-  padding-top: 8px;
+.partner-requests-label {
+  font-size: 0.75rem;
+  color: var(--meta-text);
+  display: block;
+  margin-bottom: 6px;
 }
 .partner-requests-empty {
   font-size: 0.78rem;
   color: var(--meta-text);
   font-style: italic;
-  margin: 0 0 8px;
+  margin: 0;
 }
 .partner-request {
-  background: var(--amber-tint);
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+}
+.partner-request + .partner-request {
+  border-top: 1px solid var(--card-border);
 }
 .partner-request--answered {
-  opacity: 0.6;
+  opacity: 0.5;
 }
 .partner-request-content {
   font-size: 0.82rem;
   color: var(--body-text);
-  margin: 0 0 6px;
+  flex: 1;
 }
-.partner-request-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.partner-request-pray-pill {
   font-size: 0.68rem;
-  color: var(--meta-text);
+  font-weight: 600;
+  padding: 3px 10px;
+  border: 1.5px solid var(--amber-primary);
+  border-radius: 99px;
+  color: var(--amber-primary);
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+}
+.partner-request-pray-pill:hover {
+  background: var(--amber-tint);
 }
 .partner-request-answered-badge {
-  color: var(--amber-primary);
-  font-weight: 600;
-}
-.partner-request-answer-btn {
-  background: none;
-  border: none;
-  color: var(--amber-primary);
   font-size: 0.68rem;
+  color: var(--amber-primary);
   font-weight: 600;
-  cursor: pointer;
-  font-family: var(--font-sans);
+  white-space: nowrap;
+}
+
+/* Section 4 — Actions */
+.partner-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px 0;
+}
+.partner-action-btn {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 .partner-add-request {
   margin-top: 8px;
@@ -9558,16 +9575,23 @@ html.minimal-mode .prayer-plan-day-pill:hover {
   font-family: var(--font-sans);
 }
 
-/* End partnership */
+/* Section 5 — End partnership */
 .partner-end-btn {
   display: block;
-  margin-top: 8px;
+  width: 100%;
+  text-align: center;
+  padding: 10px 14px 12px;
   background: none;
   border: none;
-  color: #b45555;
-  font-size: 0.7rem;
+  color: var(--meta-text);
+  font-size: 0.68rem;
   cursor: pointer;
   font-family: var(--font-sans);
+  opacity: 0.6;
+}
+.partner-end-btn:hover {
+  opacity: 1;
+  color: #b45555;
 }
 .partner-end-confirm {
   margin-top: 8px;
@@ -9681,13 +9705,51 @@ html.minimal-mode .prayer-plan-day-pill:hover {
   width: 100%;
   padding: 12px;
   font-size: 0.9rem;
-  border-radius: 12px;
+  border-radius: 99px;
 }
 .partners-max-note {
   font-size: 0.68rem;
   color: var(--meta-text);
   text-align: center;
   margin-top: 6px;
+}
+
+/* Invite second partner card */
+.partner-invite-second-card {
+  border: 0.5px dashed rgba(201,128,58,0.4);
+  border-radius: 14px;
+  padding: 20px 16px;
+  text-align: center;
+  margin-top: 12px;
+}
+.partner-invite-second-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--heading-text);
+  display: block;
+  margin-bottom: 4px;
+}
+.partner-invite-second-sub {
+  font-size: 0.75rem;
+  color: var(--meta-text);
+  display: block;
+  margin-bottom: 12px;
+}
+.partner-invite-second-btn {
+  padding: 8px 20px;
+  font-size: 0.82rem;
+  border-radius: 99px;
+}
+
+/* Theme: partner status card backgrounds */
+:root {
+  --partner-status-bg: rgba(255,255,255,0.04);
+}
+html.light-mode {
+  --partner-status-bg: #F9F9F9;
+}
+html.minimal-mode {
+  --partner-status-bg: rgba(201,128,58,0.05);
 }
 
 /* Invite modal */
