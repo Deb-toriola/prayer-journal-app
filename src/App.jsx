@@ -38,6 +38,8 @@ import { sendNotification } from './utils/sendNotification';
 import NotificationPanel from './components/NotificationPanel';
 import { useStreakStats } from './hooks/useStreak';
 import { useSettings } from './hooks/useSettings';
+import { usePrayerSchedule } from './hooks/usePrayerSchedule';
+import PrayerCalendar from './components/PrayerCalendar';
 import { useAuth } from './hooks/useAuth';
 
 const TAB_TITLES = {
@@ -155,6 +157,7 @@ export default function App() {
 
 function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
   const [activeTab, setActiveTab] = useState('home');
+  const [showFullCalendar, setShowFullCalendar] = useState(false);
   const [prayerSubTab, setPrayerSubTab] = useState('active'); // 'active' | 'testimonies'
   const [showForm, setShowForm] = useState(false);
   const [editingPrayer, setEditingPrayer] = useState(null);
@@ -183,6 +186,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
   const { allCategories, addCategory, deleteCategory } = useCategories(user?.id);
   const { settings: notifSettings, toggleEnabled, addTime, removeTime, updateTime, updateStreakReminder, updateNeglectedReminder, notificationSupported, permissionState: notifPermission, isNative: notifIsNative } = useNotifications();
   const streakStats = useStreakStats(prayers);
+  const { schedule: prayerSchedule, updateDay: updateScheduleDay } = usePrayerSchedule(user?.id);
 
   const prayerLogDates = useMemo(() =>
     new Set(prayers.flatMap((p) => (p.prayerLog || []).map((ts) => ts.split('T')[0])))
@@ -452,6 +456,15 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
                 animatedFire={appSettings.animatedFire !== false}
               />
             )}
+
+            {/* Compact prayer calendar strip */}
+            <PrayerCalendar
+              mode="compact"
+              prayerLogDates={prayerLogDates}
+              schedule={prayerSchedule}
+              allCategories={allCategories}
+              onNavigateToFull={() => { handleTabChange('more'); setShowFullCalendar(true); }}
+            />
 
             {/* Prayer preview card — surfaces one prayer to pray from home */}
             {activePrayers.length > 0 && (() => {
@@ -745,6 +758,12 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
               onSignUp={() => onOpenAuth('signup')}
               onDeleteAccount={deleteAccount}
               onResetStreak={async () => { await resetAllPrayerLogs(); await resetCheckins(); }}
+              prayerLogDates={prayerLogDates}
+              prayerSchedule={prayerSchedule}
+              onUpdateScheduleDay={updateScheduleDay}
+              allCategories={allCategories}
+              showFullCalendar={showFullCalendar}
+              onCloseFullCalendar={() => setShowFullCalendar(false)}
             />
           </div>
         );

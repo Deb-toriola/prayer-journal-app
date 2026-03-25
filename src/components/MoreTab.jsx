@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { FileDown, Bell, Settings, ChevronRight, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { FileDown, Bell, Settings, ChevronRight, ChevronDown, ChevronUp, Sparkles, CalendarDays } from 'lucide-react';
 import NotificationSettings from './NotificationSettings';
 import SettingsPanel from './SettingsPanel';
+import PrayerCalendar from './PrayerCalendar';
 
 export default function MoreTab({
   notifSettings,
@@ -22,9 +23,21 @@ export default function MoreTab({
   onSignUp,
   onDeleteAccount,
   onResetStreak,
+  prayerLogDates,
+  prayerSchedule,
+  onUpdateScheduleDay,
+  allCategories,
+  showFullCalendar,
+  onCloseFullCalendar,
 }) {
   const [showSettings, setShowSettings] = useState(false);
   const [showWhatsNew, setShowWhatsNew] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
+
+  // Open calendar when triggered from home screen compact strip
+  useEffect(() => {
+    if (showFullCalendar) setShowCalendar(true);
+  }, [showFullCalendar]);
 
   if (showSettings) {
     return (
@@ -40,6 +53,19 @@ export default function MoreTab({
         onSignUp={onSignUp}
         onDeleteAccount={onDeleteAccount}
         onResetStreak={onResetStreak}
+      />
+    );
+  }
+
+  if (showCalendar) {
+    return (
+      <PrayerCalendar
+        mode="full"
+        prayerLogDates={prayerLogDates}
+        schedule={prayerSchedule}
+        onUpdateDay={onUpdateScheduleDay}
+        allCategories={allCategories}
+        onClose={() => { setShowCalendar(false); onCloseFullCalendar?.(); }}
       />
     );
   }
@@ -85,6 +111,18 @@ export default function MoreTab({
             <span>Export Prayer Journey</span>
           </button>
         </div>
+
+        {/* Prayer Calendar */}
+        <button className="more-menu-row" onClick={() => setShowCalendar(true)} style={{ marginTop: 8 }}>
+          <div className="more-menu-icon" style={{ background: 'rgba(212,137,26,0.15)', color: '#D4891A' }}>
+            <CalendarDays size={18} />
+          </div>
+          <div className="more-menu-text">
+            <span className="more-menu-label">Prayer Calendar</span>
+            <span className="more-menu-sub">View history & set weekly schedule</span>
+          </div>
+          <ChevronRight size={16} className="more-menu-chevron" />
+        </button>
       </div>
 
       {/* What's New */}

@@ -8749,3 +8749,467 @@ html.minimal-mode .prayer-plan-day-pill:hover {
   background: var(--amber-tint);
   border-radius: var(--radius-sm);
 }
+
+/* ===== Prayer Calendar — Compact Strip ===== */
+.prayer-cal-strip {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 12px 0 8px;
+  margin: 10px 0;
+}
+.prayer-cal-strip-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 0 12px 6px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.prayer-cal-strip-scroll::-webkit-scrollbar { display: none; }
+
+.prayer-cal-day {
+  flex-shrink: 0;
+  width: 38px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 0 4px;
+  border-radius: 10px;
+  scroll-snap-align: center;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+.prayer-cal-day-abbr {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--meta-text);
+  letter-spacing: 0.5px;
+}
+.prayer-cal-day-num {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--body-text);
+}
+.prayer-cal-day-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  border: 1px solid var(--amber-primary);
+  margin-top: 1px;
+}
+.prayer-cal-day-dot--filled {
+  background: var(--amber-primary);
+  border-color: var(--amber-primary);
+}
+
+/* Day states */
+.prayer-cal-day--prayed {
+  background: var(--amber-primary);
+}
+.prayer-cal-day--prayed .prayer-cal-day-abbr,
+.prayer-cal-day--prayed .prayer-cal-day-num {
+  color: #fff;
+}
+.prayer-cal-day--prayed .prayer-cal-day-dot {
+  border-color: rgba(255,255,255,0.7);
+}
+.prayer-cal-day--prayed .prayer-cal-day-dot--filled {
+  background: #fff;
+  border-color: #fff;
+}
+
+.prayer-cal-day--today {
+  box-shadow: inset 0 0 0 2px var(--amber-primary);
+}
+.prayer-cal-day--today .prayer-cal-day-num {
+  color: var(--amber-primary);
+  font-weight: 700;
+}
+.prayer-cal-day--today.prayer-cal-day--prayed .prayer-cal-day-num {
+  color: #fff;
+}
+
+.prayer-cal-day--future {
+  opacity: 0.55;
+}
+.prayer-cal-day--missed .prayer-cal-day-num {
+  color: var(--meta-text);
+}
+
+/* Focus line */
+.prayer-cal-focus-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px 0;
+  font-size: 0.72rem;
+  color: var(--meta-text);
+  flex-wrap: wrap;
+}
+.prayer-cal-focus-pill {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 1px 8px;
+  border: 1px solid;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+
+/* Month link */
+.prayer-cal-month-link {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 6px 0 2px;
+  font-size: 0.72rem;
+  color: var(--meta-text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+.prayer-cal-month-link:hover {
+  color: var(--amber-primary);
+}
+
+/* ===== Prayer Calendar — Full Mode ===== */
+.prayer-cal-full {
+  padding: 0 12px 24px;
+  animation: fadeInUp 0.3s ease forwards;
+  overflow-y: auto;
+}
+.prayer-cal-full-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+}
+.prayer-cal-back {
+  background: none;
+  border: none;
+  color: var(--body-text);
+  cursor: pointer;
+  padding: 4px;
+}
+.prayer-cal-full-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--heading-text);
+  font-family: var(--font-sans);
+}
+
+/* Month navigation */
+.prayer-cal-month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0 12px;
+}
+.prayer-cal-nav-btn {
+  background: none;
+  border: none;
+  color: var(--amber-primary);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+}
+.prayer-cal-nav-btn:hover {
+  background: var(--amber-tint);
+}
+.prayer-cal-month-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--heading-text);
+  font-family: var(--font-sans);
+}
+
+/* Month grid */
+.prayer-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 16px;
+}
+.prayer-cal-grid-head {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--meta-text);
+  padding: 4px 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.prayer-cal-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--body-text);
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  animation: calCellIn 0.25s ease both;
+  animation-delay: calc(var(--stagger, 0) * 18ms);
+}
+@keyframes calCellIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.prayer-cal-cell--empty {
+  cursor: default;
+}
+.prayer-cal-cell--prayed {
+  background: var(--amber-primary);
+  color: #fff;
+  font-weight: 600;
+}
+.prayer-cal-cell--today {
+  box-shadow: inset 0 0 0 2px var(--amber-primary);
+  font-weight: 700;
+  color: var(--amber-primary);
+}
+.prayer-cal-cell--today.prayer-cal-cell--prayed {
+  color: #fff;
+}
+.prayer-cal-cell--selected {
+  box-shadow: inset 0 0 0 2px var(--amber-primary), 0 0 12px rgba(212,137,26,0.3);
+}
+.prayer-cal-cell--future {
+  opacity: 0.45;
+}
+.prayer-cal-cell:hover:not(.prayer-cal-cell--empty) {
+  background: var(--amber-tint);
+}
+.prayer-cal-cell--prayed:hover {
+  background: var(--amber-primary);
+  filter: brightness(1.1);
+}
+
+/* Stats */
+.prayer-cal-stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 4px;
+  border-top: 1px solid var(--card-border);
+  border-bottom: 1px solid var(--card-border);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.prayer-cal-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.prayer-cal-stat-num {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--amber-primary);
+  font-family: var(--font-sans);
+}
+.prayer-cal-stat-label {
+  font-size: 0.68rem;
+  color: var(--meta-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Day detail panel */
+.prayer-cal-detail {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 16px;
+  animation: fadeInUp 0.2s ease forwards;
+}
+.prayer-cal-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.prayer-cal-detail-date {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--heading-text);
+}
+.prayer-cal-detail-close {
+  background: none;
+  border: none;
+  color: var(--meta-text);
+  cursor: pointer;
+  padding: 4px;
+}
+.prayer-cal-detail-status {
+  font-size: 0.82rem;
+  margin: 0 0 8px;
+}
+.prayer-cal-detail-status--prayed { color: var(--amber-primary); font-weight: 600; }
+.prayer-cal-detail-status--missed { color: var(--meta-text); font-style: italic; }
+.prayer-cal-detail-status--future { color: var(--meta-text); }
+.prayer-cal-detail-scheduled {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.prayer-cal-detail-scheduled-label {
+  font-size: 0.72rem;
+  color: var(--meta-text);
+  font-weight: 600;
+}
+
+/* Weekly schedule section */
+.prayer-cal-schedule-section {
+  margin-top: 16px;
+}
+.prayer-cal-schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.prayer-cal-schedule-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--heading-text);
+  font-family: var(--font-sans);
+}
+.prayer-cal-edit-btn {
+  background: none;
+  border: none;
+  color: var(--amber-primary);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+}
+.prayer-cal-edit-btn:hover {
+  background: var(--amber-tint);
+}
+
+/* Schedule list (read-only view) */
+.prayer-cal-schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.prayer-cal-schedule-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.prayer-cal-schedule-row:hover {
+  background: var(--amber-tint);
+}
+.prayer-cal-schedule-day {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--body-text);
+  width: 80px;
+  flex-shrink: 0;
+}
+.prayer-cal-schedule-cats {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+.prayer-cal-schedule-empty {
+  font-size: 0.72rem;
+  color: var(--meta-text);
+  font-style: italic;
+}
+.prayer-cal-schedule-edit-icon {
+  color: var(--meta-text);
+  flex-shrink: 0;
+}
+
+/* Category pills */
+.prayer-cal-pill {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 99px;
+  border: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--font-sans);
+}
+.prayer-cal-pill--active {
+  color: #fff;
+}
+.prayer-cal-pill--inactive {
+  background: transparent;
+  border: 1.5px solid;
+}
+
+/* Schedule editor */
+.prayer-cal-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 0;
+}
+.prayer-cal-editor-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.prayer-cal-editor-day {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--heading-text);
+}
+.prayer-cal-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.prayer-cal-editor-done {
+  margin-top: 8px;
+  align-self: center;
+  min-width: 120px;
+}
+
+/* Schedule note */
+.prayer-cal-schedule-note {
+  font-size: 0.72rem;
+  color: var(--meta-text);
+  text-align: center;
+  padding: 12px 0 4px;
+  font-style: italic;
+}
+
+/* Empty state */
+.prayer-cal-empty {
+  text-align: center;
+  padding: 20px 16px;
+}
+.prayer-cal-empty-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 8px;
+}
+.prayer-cal-empty p {
+  font-size: 0.85rem;
+  color: var(--body-text);
+  margin: 0 0 4px;
+}
+.prayer-cal-empty-sub {
+  color: var(--meta-text) !important;
+  font-size: 0.78rem !important;
+}
