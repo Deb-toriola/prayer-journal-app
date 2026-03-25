@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Heart, Send, X, Check, Clock, Plus, ChevronDown, ChevronUp, Flame } from 'lucide-react';
 
 function PartnerCard({ partnership, data, onLogPrayer, onEncourage, onEnd, onAddRequest, onMarkAnswered, userId }) {
@@ -252,8 +253,8 @@ export default function PartnersTab({
         </div>
       )}
 
-      {/* Invite modal */}
-      {showInviteModal && (
+      {/* Invite modal — portaled to body to escape stacking context */}
+      {showInviteModal && createPortal(
         <div className="partner-modal-overlay" onClick={() => !inviting && setShowInviteModal(false)}>
           <div className="partner-modal" onClick={e => e.stopPropagation()}>
             <h3 className="partner-modal-title">Invite a Prayer Partner</h3>
@@ -280,7 +281,8 @@ export default function PartnersTab({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
