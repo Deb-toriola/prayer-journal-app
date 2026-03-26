@@ -1,10 +1,10 @@
 # My Prayer App
 
-A faith-based prayer journal that helps users track prayers, build streaks, record testimonies, and connect with prayer partners. Built with React + Vite for the web, and Capacitor for iOS and Android.
+A faith-based prayer journal that helps users track prayers, build streaks, record testimonies, and connect with a prayer circle. Built with React + Vite for the web, and Capacitor for iOS and Android.
 
 **Live:** [myprayerapp.uk](https://myprayerapp.uk)
 **App Store:** Available on iOS
-**Play Store:** Coming soon
+**Play Store:** Available on Android
 
 ## Tech Stack
 
@@ -22,9 +22,12 @@ A faith-based prayer journal that helps users track prayers, build streaks, reco
 - **Prayer Journal** — Write, categorize, and track prayers with notes, scripture, and updates
 - **Prayer Plans** — Guided multi-day prayer schedules (7, 14, 21, or 30 days)
 - **Daily Streak** — Track consecutive days of prayer with milestone celebrations (Day 3, 7, 14, 21, 30, 50, 100, 365)
+- **Prayer Calendar** — Compact strip on home + full monthly view with retrospective logging (up to 7 days back)
+- **Prayer Schedule** — Assign prayer categories to each day of the week
 - **Testimonies** — Mark answered prayers and record testimonies
+- **Prayer Circle** — Invite up to 2 people into a private prayer circle with mutual accountability, shared requests, and partnership streaks
 - **Community Groups** — Create/join prayer groups, share requests, pray together
-- **Prayer Partners** — 1-on-1 partner invites and mutual prayer tracking
+- **Intercede** — Community prayer requests for anonymous intercession
 - **Local Notifications** — Streak reminders (8pm), neglected prayer alerts (10am), custom prayer times
 - **Three Themes** — Dark, Light, and Warm mode with consistent amber color palette
 - **Export** — Generate PDF of your prayer journal
@@ -81,26 +84,32 @@ src/
 │   ├── AuthScreen.jsx       # Sign in / sign up modal
 │   ├── PrayerCard.jsx       # Prayer display + actions
 │   ├── DailyCheckin.jsx     # Streak card with fire animation
-│   ├── CommunityPrayer.jsx  # Groups + posts
+│   ├── PrayerCalendar.jsx   # Compact strip + full month calendar
+│   ├── CommunityPrayer.jsx  # Circle + Groups + Intercede tabs
+│   ├── PartnersTab.jsx      # Prayer Circle management
 │   ├── GroupView.jsx        # Group details + membership
-│   ├── PrayerPartners.jsx   # Partner invites + management
 │   ├── SettingsPanel.jsx    # Theme, font, notification toggles
 │   ├── NotificationSettings.jsx # Prayer reminder time management
 │   ├── ExportPDF.jsx        # PDF generation
+│   ├── MilestoneModal.jsx   # Streak celebration screens
 │   └── ...
 ├── hooks/                   # Custom React hooks
-│   ├── useAuth.js           # Auth session + password recovery
-│   ├── usePrayers.js        # Prayer CRUD + logging
+│   ├── useAuth.js           # Auth session + password recovery + session isolation
+│   ├── usePrayers.js        # Prayer CRUD + logging + input validation
+│   ├── usePartnership.js    # Prayer Circle partnerships + shared requests
 │   ├── useGroups.js         # Group management + real-time
 │   ├── useStreak.js         # Streak calculation + neglected detection
 │   ├── useNotifications.js  # Local notifications (streak, neglected, reminders)
-│   ├── useDailyCheckin.js   # Daily check-in + streak tracking
+│   ├── useDailyCheckin.js   # Daily check-in + streak tracking + audit logging
 │   ├── usePrayerTimer.js    # Session timer
+│   ├── usePrayerSchedule.js # Weekly prayer schedule per day
 │   ├── useSettings.js       # App settings + theme management
 │   └── ...
 ├── utils/
 │   ├── constants.js         # Categories, date formatting
-│   ├── storage.js           # localStorage helpers
+│   ├── storage.js           # localStorage helpers + session isolation + prayer backup
+│   ├── validation.js        # Input sanitisation + character limits
+│   ├── auditLog.js          # Streak audit trail logging
 │   ├── streakTheme.js       # Streak-based visual theming
 │   ├── migrateGuestData.js  # Guest → authenticated migration
 │   ├── openAppSettings.js   # Native app settings deep link
@@ -154,6 +163,57 @@ Animated celebration modal at streak milestones:
 - Each has unique icon, title, and warm faith-based message
 - Shows instead of regular streak toast when milestone is hit
 
+### Prayer Circle
+
+Private accountability feature (formerly "Partners"):
+- Invite up to 2 people into your circle
+- See when each person prays daily (yes/no only — no private data)
+- Shared prayer requests visible only to circle members
+- Partnership streak tracks days both members prayed
+- Encouragement notifications ("standing with you in prayer")
+- Logged-out state shows blurred preview with sign-in CTA
+
+### Prayer Calendar
+
+Two locations in the app:
+- **Home screen**: Compact 21-day strip (14 past + 7 future) with scroll-snap
+- **More tab**: Full monthly grid with stats and retrospective logging
+- Supports retrospective prayer logging up to 7 days back
+- Weekly prayer schedule editor with category assignment per day
+
+## Security
+
+### Row Level Security (RLS)
+
+All 22 Supabase tables have RLS enabled with appropriate policies:
+- User-owned tables: users can only CRUD their own rows
+- Partnership tables: both partners can read/write shared records
+- Group tables: members can see data within their groups
+- Intercede: public read for community, owned write
+
+### Data Isolation
+
+- localStorage cleared on logout and account switch via `clearAllUserData()`
+- Auth state change listener detects user switches
+- Supabase data fetch replaces (not merges) localStorage on login
+- Prayer backup namespaced by userId: `prayer_backup_{userId}`
+
+### Dual-Path Data Integrity
+
+Prayer streak data stored in two places:
+1. Supabase (primary source of truth)
+2. Namespaced localStorage backup
+
+Integrity check on app load compares both sources, re-syncs discrepancies, and always displays the higher count.
+
+### Audit Logging
+
+`streak_audit_log` table records every streak change with old/new values and source for investigating data loss reports.
+
+### Input Validation
+
+Client-side character limits enforced on all user input (titles: 200, content: 2000, shared requests: 500). Supabase parameterised queries prevent SQL injection. React JSX escaping prevents XSS.
+
 ## Mobile Builds
 
 ### iOS
@@ -202,19 +262,32 @@ The app is a PWA with:
 
 - `supabase/functions/delete-user/index.ts` — Permanently deletes a user's auth record. Requires `SUPABASE_SERVICE_ROLE_KEY`.
 
-### Required Tables
+### Tables (22 with RLS)
 
-The app expects these Supabase tables (with RLS enabled):
-- `prayers` — Prayer entries with categories, notes, answered status
-- `daily_checkins` — Manual and auto check-in records
-- `prayer_plans` — Structured multi-day plans
-- `groups` — Prayer groups with admin/member roles
-- `group_posts` — Posts within groups
-- `group_members` — Membership + pending approvals
-- `prayer_partners` — Cross-user partner relationships
-- `notifications` — In-app notification queue
-- `weekly_projects` — Weekly prayer focus
-- `settings` — User preferences (theme, toggles, Bible translation)
+| Table | Purpose |
+|-------|---------|
+| `prayers` | Prayer entries with categories, notes, answered status |
+| `daily_checkins` | Manual and auto check-in records |
+| `prayer_plans` | Structured multi-day plans |
+| `categories` | Custom user categories |
+| `settings` | User preferences (theme, toggles, Bible translation) |
+| `weekly_projects` | Weekly prayer focus |
+| `user_stats` | Aggregated user statistics |
+| `prayer_groups` | Prayer groups with admin/member roles |
+| `group_members` | Membership + pending approvals |
+| `group_posts` | Posts within groups |
+| `group_prayer_logs` | Prayer time logs in groups |
+| `prayer_partnerships` | Circle partnerships (two users) |
+| `partner_prayer_log` | Daily prayer log per partnership |
+| `shared_prayer_requests` | Requests shared within a circle |
+| `partner_encouragements` | Encouragement records between partners |
+| `prayer_partner_invites` | Pending circle invitations |
+| `in_app_notifications` | Cross-user notification queue |
+| `intercede_requests` | Community intercession requests |
+| `intercede_prayers` | Prayer counts for intercession |
+| `community_members` | Legacy community membership |
+| `community_sessions` | Legacy community sessions |
+| `streak_audit_log` | Audit trail for all streak changes |
 
 ## Key Patterns
 
