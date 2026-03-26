@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTodayString } from '../utils/constants';
 import { savePrayerBackup, loadPrayerBackup } from '../utils/storage';
+import { logStreakAction } from '../utils/auditLog';
 
 const LS_KEY = 'prayer-journal-daily-checkins';
 
@@ -103,9 +104,10 @@ export function useDailyCheckin(userId, prayerLogDates, planCheckinDates) {
     if (manualCheckins.includes(today)) return;
     const updated = [...manualCheckins, today];
     setManualCheckins(updated);
-    saveToStorage(updated); // offline-safe: save immediately
+    saveToStorage(updated);
     if (userId) {
-      savePrayerBackup(userId, updated); // namespaced backup
+      savePrayerBackup(userId, updated);
+      logStreakAction(userId, 'prayer_logged', null, { date: today }, 'streak_card');
       try {
         const { error } = await supabase.from('daily_checkins').upsert({ user_id: userId, checked_date: today });
         if (error) console.error('checkInToday failed:', error.message);
@@ -119,6 +121,7 @@ export function useDailyCheckin(userId, prayerLogDates, planCheckinDates) {
     setManualCheckins(updated);
     saveToStorage(updated);
     if (userId) {
+      logStreakAction(userId, 'prayer_removed', { date: today }, null, 'streak_card');
       try {
         const { error } = await supabase.from('daily_checkins')
           .delete()
@@ -160,7 +163,8 @@ export function useDailyCheckin(userId, prayerLogDates, planCheckinDates) {
     setManualCheckins(updated);
     saveToStorage(updated);
     if (userId) {
-      savePrayerBackup(userId, updated); // namespaced backup
+      savePrayerBackup(userId, updated);
+      logStreakAction(userId, 'retrospective_prayer_logged', null, { date: dateStr }, 'calendar');
       try {
         const { error } = await supabase.from('daily_checkins').upsert({ user_id: userId, checked_date: dateStr });
         if (error) console.error('logPrayerForDate failed:', error.message);
@@ -186,14 +190,16 @@ export function useDailyCheckin(userId, prayerLogDates, planCheckinDates) {
   }, [manualCheckins, userId]);
 
   const resetCheckins = useCallback(async () => {
+    const oldDates = [...manualCheckins];
     setManualCheckins([]);
     saveToStorage([]);
     if (userId) {
+      logStreakAction(userId, 'streak_reset', { dates: oldDates, count: oldDates.length }, { dates: [], count: 0 }, 'settings');
       try {
         await supabase.from('daily_checkins').delete().eq('user_id', userId);
       } catch (err) { console.error('resetCheckins error:', err.message); }
     }
-  }, [userId]);
+  }, [manualCheckins, userId]);
 
   return {
     hasPrayedToday, hasManualCheckinToday,

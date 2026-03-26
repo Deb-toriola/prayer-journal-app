@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { loadGuestPrayers, saveGuestPrayers } from './useGuestStorage';
+import { sanitisePrayer } from '../utils/validation';
 
 // Convert Supabase row → app prayer shape
 function rowToPrayer(row) {
@@ -95,9 +96,10 @@ export function usePrayers(userId) {
 
   const addPrayer = useCallback(async (prayer) => {
     const now = new Date().toISOString();
+    const sanitised = sanitisePrayer(prayer);
     const newPrayer = {
       id: generateId(),
-      ...prayer,
+      ...sanitised,
       answered: false,
       urgent: prayer.urgent || false,
       createdAt: now,
