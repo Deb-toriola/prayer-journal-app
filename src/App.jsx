@@ -319,7 +319,11 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
   // Explicit auto-streak trigger for actions that don't auto-update prayerLogDates
   const handleAutoStreak = useCallback(() => {
     checkInToday(); // idempotent — writes to daily_checkins, triggers hasPrayedToday → toast
-  }, [checkInToday]);
+    // Also log prayer for all active partnerships so "DAYS TOGETHER" updates
+    if (partnerships?.length > 0) {
+      partnerships.forEach(p => logPartnershipPrayer(p.id));
+    }
+  }, [checkInToday, partnerships, logPartnershipPrayer]);
 
   // Dwell-time trigger: user stays on Prayers tab with prayers visible for 20+ seconds
   const dwellTimerRef = useRef(null);
@@ -454,7 +458,7 @@ function AppInner({ user, signOut, onOpenAuth, deleteAccount }) {
               <DailyCheckin
                 hasPrayedToday={hasPrayedToday}
                 hasManualCheckinToday={hasManualCheckinToday}
-                onCheckIn={checkInToday}
+                onCheckIn={() => { checkInToday(); if (partnerships?.length > 0) partnerships.forEach(p => logPartnershipPrayer(p.id)); }}
                 onUncheck={uncheckToday}
                 currentStreak={currentStreak}
                 longestStreak={longestStreak}

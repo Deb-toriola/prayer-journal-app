@@ -211,6 +211,15 @@ export function usePartnership(userId, displayName) {
     const partnership = partnerships.find(p => p.id === partnershipId);
     if (!partnership) return;
     const partnerId = getPartnerId(partnership, userId);
+
+    // Record encouragement in partner_encouragements table
+    try {
+      await supabase.from('partner_encouragements').insert({
+        partnership_id: partnershipId,
+        sent_by: userId,
+      });
+    } catch (e) { console.error('encouragement insert:', e?.message); }
+
     await sendNotification(
       partnerId,
       'partner_encouraged',
