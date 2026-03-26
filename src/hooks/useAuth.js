@@ -1,22 +1,40 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
+import { clearAllUserData } from '../utils/storage';
 
 export function useAuth() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [passwordRecovery, setPasswordRecovery] = useState(false);
+  const prevUserIdRef = useRef(null);
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+      const u = session?.user ?? null;
+      prevUserIdRef.current = u?.id ?? null;
+      setUser(u);
       setLoading(false);
     });
 
-    // Listen for auth changes
+    // Listen for auth changes — clear stale data on user switch
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
+      const newUser = session?.user ?? null;
+      const newId = newUser?.id ?? null;
+      const prevId = prevUserIdRef.current;
+
+      // If user changed (logout, login as different user), clear cached data
+      if (prevId && prevId !== newId) {
+        clearAllUserData();
+      }
+      // If signing in (no prev user → new user), also clear to avoid guest data bleed
+      if (!prevId && newId) {
+        clearAllUserData();
+      }
+
+      prevUserIdRef.current = newId;
+      setUser(newUser);
       setLoading(false);
       // Fired when user follows a password-reset email link
       if (event === 'PASSWORD_RECOVERY') setPasswordRecovery(true);
@@ -45,6 +63,7 @@ export function useAuth() {
 
   const signOut = async () => {
     setError(null);
+    clearAllUserData(); // Clear cached data immediately before sign out
     const { error } = await supabase.auth.signOut();
     if (error) setError(error.message);
   };

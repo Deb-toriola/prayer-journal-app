@@ -177,3 +177,47 @@ export function saveNotificationSettings(settings) {
     console.error('Failed to save notification settings:', e);
   }
 }
+
+// --- Session Isolation ---
+// Clear ALL user-specific localStorage when switching accounts.
+// This prevents data from User A leaking to User B.
+export function clearAllUserData() {
+  const keysToRemove = [
+    PRAYERS_KEY,
+    WEEKLY_PROJECT_KEY,
+    CUSTOM_CATEGORIES_KEY,
+    STREAK_KEY,
+    NOTIFICATION_KEY,
+    PRAYER_PLAN_KEY,
+    DAILY_CHECKIN_KEY,
+    COMMUNITY_KEY,
+    'prayer-timer-state',
+    'prayer-schedule',
+    'prayer-animated-fire',
+    // Note: 'prayer-app-theme' and 'hasSeenOnboarding' are intentionally
+    // NOT cleared — these are device preferences, not user data.
+  ];
+  keysToRemove.forEach(key => {
+    try { localStorage.removeItem(key); } catch { /* ignore */ }
+  });
+}
+
+// --- Data Integrity Backup ---
+// Save a namespaced backup of prayer dates for a specific user.
+export function savePrayerBackup(userId, prayedDates) {
+  if (!userId) return;
+  try {
+    localStorage.setItem(`prayer_backup_${userId}`, JSON.stringify(prayedDates));
+  } catch { /* ignore */ }
+}
+
+// Load the namespaced backup for a specific user.
+export function loadPrayerBackup(userId) {
+  if (!userId) return [];
+  try {
+    const data = localStorage.getItem(`prayer_backup_${userId}`);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+}

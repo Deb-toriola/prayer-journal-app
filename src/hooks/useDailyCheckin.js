@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTodayString } from '../utils/constants';
+import { savePrayerBackup, loadPrayerBackup } from '../utils/storage';
 
 const LS_KEY = 'prayer-journal-daily-checkins';
 
@@ -59,7 +60,7 @@ export function useDailyCheckin(userId, prayerLogDates, planCheckinDates) {
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, []);
 
-  // Sync from Supabase on mount (merges with localStorage)
+  // Sync from Supabase on mount — REPLACE localStorage (not merge) to prevent cross-user leaks
   useEffect(() => {
     if (!userId) return;
     supabase.from('daily_checkins').select('checked_date').eq('user_id', userId)
@@ -67,11 +68,20 @@ export function useDailyCheckin(userId, prayerLogDates, planCheckinDates) {
         if (error) { console.error('fetchCheckins failed:', error.message); return; }
         if (data) {
           const remote = data.map(r => r.checked_date);
-          setManualCheckins(prev => {
-            const merged = [...new Set([...prev, ...remote])];
-            saveToStorage(merged);
-            return merged;
-          });
+          // Data integrity: compare with backup and use whichever has more entries
+          const backup = loadPrayerBackup(userId);
+          const missingInRemote = backup.filter(d => !remote.includes(d));
+          if (missingInRemote.length > 0) {
+            // Backup has entries Supabase doesn't — re-sync them
+            missingInRemote.forEach(dateStr => {
+              supabase.from('daily_checkins').upsert({ user_id: userId, checked_date: dateStr })
+                .then(({ error: e }) => { if (e) console.error('resync:', e.message); });
+            });
+          }
+          const authoritative = [...new Set([...remote, ...backup])];
+          setManualCheckins(authoritative);
+          saveToStorage(authoritative);
+          savePrayerBackup(userId, authoritative);
         }
       });
   }, [userId]);
@@ -95,6 +105,7 @@ export function useDailyCheckin(userId, prayerLogDates, planCheckinDates) {
     setManualCheckins(updated);
     saveToStorage(updated); // offline-safe: save immediately
     if (userId) {
+      savePrayerBackup(userId, updated); // namespaced backup
       try {
         const { error } = await supabase.from('daily_checkins').upsert({ user_id: userId, checked_date: today });
         if (error) console.error('checkInToday failed:', error.message);
@@ -149,6 +160,7 @@ export function useDailyCheckin(userId, prayerLogDates, planCheckinDates) {
     setManualCheckins(updated);
     saveToStorage(updated);
     if (userId) {
+      savePrayerBackup(userId, updated); // namespaced backup
       try {
         const { error } = await supabase.from('daily_checkins').upsert({ user_id: userId, checked_date: dateStr });
         if (error) console.error('logPrayerForDate failed:', error.message);
